@@ -17,7 +17,6 @@ class CreateAccountsTable extends Migration
             $table->string('phone');
             $table->string('role');
             $table->integer('loyalty_points')->default(0);
-            $table->timestamp('created_at')->useCurrent();
             $table->timestamps();
         });
     }

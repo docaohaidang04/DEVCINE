@@ -14,7 +14,6 @@ class CreateCommentsTable extends Migration
             $table->unsignedBigInteger('id_account');
             $table->text('content');
             $table->integer('rating');
-            $table->timestamp('created_at')->useCurrent();
             $table->timestamps();
 
             $table->foreign('id_movie')->references('id_movie')->on('movies');
