@@ -19,18 +19,23 @@ class Movie extends Model
         'release_date',
         'country',
         'producer',
-        'genre',
+        'id_genre',
         'director',
         'cast',
         'poster_url',
     ];
 
-    public static function getAllMovies()
+
+    public function genre()
     {
-        return self::all();
+        return $this->belongsTo(GenreMovies::class, 'id_genre', 'id_genre');
     }
 
-    // Tạo bộ phim mới
+    public static function getAllMovies()
+    {
+        return self::with('genre')->get();
+    }
+
     public static function createMovie($data)
     {
         $validator = Validator::make($data, [
@@ -40,7 +45,7 @@ class Movie extends Model
             'release_date' => 'required|date',
             'country' => 'required|string|max:255',
             'producer' => 'required|string|max:255',
-            'genre' => 'required|string|max:255',
+            'id_genre' => 'required|exists:genre_movies,id_genre',
             'director' => 'required|string|max:255',
             'cast' => 'required|string',
             'poster_url' => 'nullable|string',
@@ -53,12 +58,10 @@ class Movie extends Model
         return self::create($data);
     }
 
-
     public static function getMovieById($id)
     {
-        return self::findOrFail($id);
+        return self::with('genre')->findOrFail($id);  // Nạp kèm thể loại khi lấy thông tin phim
     }
-
 
     public static function updateMovie($id, $data)
     {
@@ -71,7 +74,7 @@ class Movie extends Model
             'release_date' => 'sometimes|required|date',
             'country' => 'sometimes|required|string|max:255',
             'producer' => 'sometimes|required|string|max:255',
-            'genre' => 'sometimes|required|string|max:255',
+            'id_genre' => 'sometimes|required|exists:genre_movies,id_genre',  // Kiểm tra ID thể loại hợp lệ
             'director' => 'sometimes|required|string|max:255',
             'cast' => 'sometimes|required|string',
             'poster_url' => 'sometimes|nullable|string',
@@ -84,7 +87,6 @@ class Movie extends Model
         $movie->update($data);
         return $movie;
     }
-
 
     public static function deleteMovie($id)
     {

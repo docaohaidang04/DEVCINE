@@ -4,19 +4,19 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePaymentsTable extends Migration
+class CreateGenreMoviesTable extends Migration
 {
     public function up()
     {
-        Schema::create('payments', function (Blueprint $table) {
-            $table->id('id_payment');
-            $table->string('name');
+        Schema::create('genre_movies', function (Blueprint $table) {
+            $table->id('ID_GENRE');
+            $table->string('Genre_name');
             $table->timestamps();
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('payments');
+        Schema::dropIfExists('genre_movies');
     }
 }

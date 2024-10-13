@@ -9,14 +9,13 @@ class CreateTicketsTable extends Migration
     public function up()
     {
         Schema::create('tickets', function (Blueprint $table) {
-            $table->id('id_ticket');
-            $table->unsignedBigInteger('id_booking');
-            $table->string('seat_number');
-            $table->decimal('price', 8, 2);
-            $table->string('status');
+            $table->id('ID_TICKET');
+            $table->foreignId('ID_BOOKING')->constrained('bookings', 'ID_BOOKING')->nullable();
+            $table->foreignId('ID_SHOWTIME')->constrained('showtimes', 'ID_SHOWTIME');
+            $table->foreignId('ID_CHAIR')->constrained('chairs', 'ID_CHAIR');
+            $table->decimal('Price', 10, 2)->nullable();
+            $table->string('Status')->nullable();
             $table->timestamps();
-
-            $table->foreign('id_booking')->references('id_booking')->on('bookings');
         });
     }
 
