@@ -11,9 +11,9 @@ class Account extends Authenticatable
 {
     use HasFactory;
 
-    protected $table = 'accounts';  // Chỉ định bảng
+    protected $table = 'accounts';
 
-    protected $primaryKey = 'id_account';  // Đặt khóa chính là id_account
+    protected $primaryKey = 'id_account';
 
     protected $fillable = [
         'user_name',
