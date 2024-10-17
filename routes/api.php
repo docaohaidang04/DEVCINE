@@ -9,11 +9,11 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ChairController;
 
 //MOVIES
-/* Route::get('/api/movies', [MovieController::class, 'index']);
+Route::get('/api/movies', [MovieController::class, 'index']);
 Route::post('/api/movies', [MovieController::class, 'store']);
 Route::get('/api/movies/{id}', [MovieController::class, 'show']);
 Route::put('/api/movies/{id}', [MovieController::class, 'update']);
-Route::delete('/api/movies/{id}', [MovieController::class, 'destroy']); */
+Route::delete('/api/movies/{id}', [MovieController::class, 'destroy']);
 
 //ACCOUNTS
 /* Route::post('/api/register', [AccountController::class, 'register']);
