@@ -50,3 +50,6 @@ Route::post('/chairs', [ChairController::class, 'store'])->name('chairs.store');
 Route::get('/chairs/{id}', [ChairController::class, 'show'])->name('chairs.show');
 Route::put('/chairs/{id}', [ChairController::class, 'update'])->name('chairs.update');
 Route::delete('/chairs/{id}', [ChairController::class, 'destroy'])->name('chairs.destroy');
+
+//COMBO
+Route::get('/combo', [ChairController::class, 'index'])->name('chairs.index');
