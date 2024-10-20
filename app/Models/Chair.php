@@ -11,7 +11,8 @@ class Chair extends Model
     use HasFactory;
 
     protected $table = 'chairs'; // Tên bảng
-    protected $primaryKey = 'ID_CHAIR'; // Khóa chính
+
+    protected $primaryKey = 'id_chair'; // Khóa chính
 
     protected $fillable = [
         'ID_ROOM',
