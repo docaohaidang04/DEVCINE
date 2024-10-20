@@ -18,21 +18,21 @@ class MovieController extends Controller
         return response()->json($movie, 201);
     }
 
-    public function show(string $id)
+    public function show(string $id_movie)
     {
-        $movie = Movie::getMovieById($id);
+        $movie = Movie::getMovieById($id_movie);
         return response()->json($movie);
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id_movie)
     {
-        $movie = Movie::updateMovie($id, $request->all());
+        $movie = Movie::updateMovie($id_movie, $request->all());
         return response()->json($movie, 200);
     }
 
-    public function destroy(string $id)
+    public function destroy(string $id_movie)
     {
-        Movie::deleteMovie($id);
+        Movie::deleteMovie($id_movie);
         return response()->json(null, 204);
     }
 }

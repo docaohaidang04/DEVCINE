@@ -58,14 +58,14 @@ class Movie extends Model
         return self::create($data);
     }
 
-    public static function getMovieById($id)
+    public static function getMovieById($id_movie)
     {
-        return self::with('genre')->findOrFail($id);  // Nạp kèm thể loại khi lấy thông tin phim
+        return self::with('genre')->where('id_movie', $id_movie)->firstOrFail();
     }
 
-    public static function updateMovie($id, $data)
+    public static function updateMovie($id_movie, $data)
     {
-        $movie = self::findOrFail($id);
+        $movie = self::findOrFail($id_movie);
 
         $validator = Validator::make($data, [
             'movie_name' => 'sometimes|required|string|max:255',
@@ -88,9 +88,9 @@ class Movie extends Model
         return $movie;
     }
 
-    public static function deleteMovie($id)
+    public static function deleteMovie($id_movie)
     {
-        $movie = self::findOrFail($id);
+        $movie = self::findOrFail($id_movie);
         $movie->delete();
         return null;
     }
