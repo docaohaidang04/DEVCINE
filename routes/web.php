@@ -7,11 +7,12 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ShowtimeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ChairController;
+use App\Http\Controllers\ComboController;
 
 //MOVIES
 Route::get('movies', [MovieController::class, 'index']);
 Route::post('movies', [MovieController::class, 'store']);
-Route::get('movies/{id}', [MovieController::class, 'show']);
+Route::get('movies/{ID_MOVIE}', [MovieController::class, 'show']);
 Route::put('movies/{id}', [MovieController::class, 'update']);
 Route::delete('movies/{id}', [MovieController::class, 'destroy']);
 
@@ -50,3 +51,6 @@ Route::post('/chairs', [ChairController::class, 'store'])->name('chairs.store');
 Route::get('/chairs/{id}', [ChairController::class, 'show'])->name('chairs.show');
 Route::put('/chairs/{id}', [ChairController::class, 'update'])->name('chairs.update');
 Route::delete('/chairs/{id}', [ChairController::class, 'destroy'])->name('chairs.destroy');
+
+//COMBO
+Route::get('/combos', [ComboController::class, 'index'])->name('combos.index');
