@@ -12,6 +12,8 @@ class Movie extends Model
 
     protected $table = 'movies';
 
+    protected $primaryKey = 'id_movie';
+
     protected $fillable = [
         'movie_name',
         'description',
