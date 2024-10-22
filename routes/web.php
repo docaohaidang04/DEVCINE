@@ -8,13 +8,46 @@ use App\Http\Controllers\ShowtimeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ChairController;
 use App\Http\Controllers\ComboController;
+use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\GenreMoviesController;
+use App\Http\Controllers\BookingsController;
+use App\Http\Controllers\BookingPromotionController;
+use App\Http\Controllers\PaymentsController;
 
 //MOVIES
 Route::get('movies', [MovieController::class, 'index']);
 Route::post('movies', [MovieController::class, 'store']);
-Route::get('movies/{ID_MOVIE}', [MovieController::class, 'show']);
+Route::get('movies/{id}', [MovieController::class, 'show']);
 Route::put('movies/{id}', [MovieController::class, 'update']);
 Route::delete('movies/{id}', [MovieController::class, 'destroy']);
+
+//BOOKINGS
+Route::get('/bookings', [BookingsController::class, 'index']);
+Route::get('/bookings/{id}', [BookingsController::class, 'show']);
+Route::post('/bookings', [BookingsController::class, 'store']);
+Route::put('/bookings/{id}', [BookingsController::class, 'update']);
+Route::delete('/bookings/{id}', [BookingsController::class, 'destroy']);
+
+//BOOKING PROMOTION
+Route::get('/booking-promotions', [BookingPromotionController::class, 'index']);
+Route::get('/booking-promotions/{id}', [BookingPromotionController::class, 'show']);
+Route::post('/booking-promotions', [BookingPromotionController::class, 'store']);
+Route::put('/booking-promotions/{id}', [BookingPromotionController::class, 'update']);
+Route::delete('/booking-promotions/{id}', [BookingPromotionController::class, 'destroy']);
+
+//PAYMENT
+Route::get('/payments', [PaymentsController::class, 'index']);
+Route::get('/payments/{id}', [PaymentsController::class, 'show']);
+Route::post('/payments', [PaymentsController::class, 'store']);
+Route::put('/payments/{id}', [PaymentsController::class, 'update']);
+Route::delete('/payments/{id}', [Paymentscontroller::class, 'destroy']);
+
+//GENRE MOVIES
+Route::get('genre_movies', [GenreMoviesController::class, 'index']);
+Route::post('genre_movies', [GenreMoviesController::class, 'store']);
+Route::get('genre_movies/{id}', [GenreMoviesController::class, 'show']);
+Route::put('genre_movies/{id}', [GenreMoviesController::class, 'update']);
+Route::delete('genre_movies/{id}', [GenreMoviesController::class, 'destroy']);
 
 //ACCOUNTS
 Route::post('register', [AccountController::class, 'register']);
@@ -54,3 +87,10 @@ Route::delete('/chairs/{id}', [ChairController::class, 'destroy'])->name('chairs
 
 //COMBO
 Route::get('/combos', [ComboController::class, 'index'])->name('combos.index');
+
+//PROMOTIONS
+Route::get('/promotions', [PromotionController::class, 'index']);
+Route::post('/promotions', [PromotionController::class, 'store']);
+Route::get('/promotions/{id}', [PromotionController::class, 'show']);
+Route::put('/promotions/{id}', [PromotionController::class, 'update']);
+Route::delete('/promotions/{id}', [PromotionController::class, 'destroy']);

@@ -7,6 +7,8 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ShowtimeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ChairController;
+use App\Http\Controllers\PromotionController;
+
 
 //MOVIES
 Route::get('movies', [MovieController::class, 'index']);
@@ -53,3 +55,11 @@ Route::delete('/chairs/{id}', [ChairController::class, 'destroy'])->name('chairs
 
 //COMBO
 Route::get('/combo', [ChairController::class, 'index'])->name('chairs.index');
+
+
+//PROMOTION
+Route::get('/promotions', [PromotionController::class, 'index']);
+Route::post('/promotions', [PromotionController::class, 'store']);
+Route::get('/promotions/{id}', [PromotionController::class, 'show']);
+Route::put('/promotions/{id}', [PromotionController::class, 'update']);
+Route::delete('/promotions/{id}', [PromotionController::class, 'destroy']);
