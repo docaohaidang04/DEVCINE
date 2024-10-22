@@ -56,7 +56,7 @@ Route::delete('/chairs/{id}', [ChairController::class, 'destroy'])->name('chairs
 //COMBO
 Route::get('/combos', [ComboController::class, 'index'])->name('combos.index');
 
-//
+//PROMOTIONS
 Route::get('/promotions', [PromotionController::class, 'index']);
 Route::post('/promotions', [PromotionController::class, 'store']);
 Route::get('/promotions/{promotion}', [PromotionController::class, 'show']);

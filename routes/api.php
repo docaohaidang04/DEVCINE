@@ -59,6 +59,6 @@ Route::get('/combo', [ChairController::class, 'index'])->name('chairs.index');
 //PROMOTION
 Route::get('/promotions', [PromotionController::class, 'index']);
 Route::post('/promotions', [PromotionController::class, 'store']);
-Route::get('/promotions/{promotion}', [PromotionController::class, 'show']);
-Route::put('/promotions/{promotion}', [PromotionController::class, 'update']);
-Route::delete('/promotions/{promotion}', [PromotionController::class, 'destroy']);
+Route::get('/promotions/{id}', [PromotionController::class, 'show']);
+Route::put('/promotions/{id}', [PromotionController::class, 'update']);
+Route::delete('/promotions/{id}', [PromotionController::class, 'destroy']);
