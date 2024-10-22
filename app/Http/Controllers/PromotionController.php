@@ -7,46 +7,50 @@ use Illuminate\Http\Request;
 
 class PromotionController extends Controller
 {
+    // Lấy danh sách các promotion
     public function index()
     {
-        return Promotion::all();
+        return Promotion::getAllPromotions();
     }
 
+    // Tạo mới một promotion
     public function store(Request $request)
     {
         $request->validate([
             'Promotion_name' => 'required|string|max:255',
-            'Description' => 'nullable|string',
-            'Discount_value' => 'nullable|numeric',
-            'Start_date' => 'nullable|date',
-            'End_date' => 'nullable|date',
+            'Discount_type' => 'required|string',
+            'Discount_value' => 'required|numeric',
+            'Start_date' => 'required|date',
+            'End_date' => 'required|date',
+            'Min_purchase_amount' => 'required|numeric',
         ]);
 
-        return Promotion::create($request->all());
+        $promotion = Promotion::createPromotion($request->all());
+
+        return response()->json($promotion, 201);
     }
 
-    public function show(Promotion $promotion)
+    // Lấy thông tin của một promotion cụ thể
+    public function show($id)
     {
-        return $promotion;
+        return Promotion::findPromotion($id);
     }
 
-    public function update(Request $request, Promotion $promotion)
+    // Cập nhật promotion
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'Promotion_name' => 'sometimes|required|string|max:255',
-            'Description' => 'nullable|string',
-            'Discount_value' => 'nullable|numeric',
-            'Start_date' => 'nullable|date',
-            'End_date' => 'nullable|date',
-        ]);
+        $promotion = Promotion::findPromotion($id);
+        $promotion->updatePromotion($request->all());
 
-        $promotion->update($request->all());
-        return $promotion;
+        return response()->json($promotion, 200);
     }
 
-    public function destroy(Promotion $promotion)
+    // Xóa promotion
+    public function destroy($id)
     {
-        $promotion->delete();
+        $promotion = Promotion::findPromotion($id);
+        $promotion->deletePromotion();
+
         return response()->json(null, 204);
     }
 }
