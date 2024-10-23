@@ -110,11 +110,11 @@ Route::put('comment/{id}', [CommentController::class, 'update']);
 Route::delete('comment/{id}', [CommentController::class, 'destroy']);
 
 //CHAIR
-Route::get('/chairs', [ChairController::class, 'index'])->name('chairs.index');
-Route::post('/chairs', [ChairController::class, 'store'])->name('chairs.store');
-Route::get('/chairs/{id}', [ChairController::class, 'show'])->name('chairs.show');
-Route::put('/chairs/{id}', [ChairController::class, 'update'])->name('chairs.update');
-Route::delete('/chairs/{id}', [ChairController::class, 'destroy'])->name('chairs.destroy');
+Route::get('chairs', [ChairController::class, 'index']);
+Route::post('chairs', [ChairController::class, 'store']);
+Route::get('chairs/{id}', [ChairController::class, 'show']);
+Route::put('chairs/{id}', [ChairController::class, 'update']);
+Route::delete('chairs/{id}', [ChairController::class, 'destroy']);
 
 //PROMOTIONS
 Route::get('/promotions', [PromotionController::class, 'index']);
@@ -122,5 +122,3 @@ Route::post('/promotions', [PromotionController::class, 'store']);
 Route::get('/promotions/{id}', [PromotionController::class, 'show']);
 Route::put('/promotions/{id}', [PromotionController::class, 'update']);
 Route::delete('/promotions/{id}', [PromotionController::class, 'destroy']);
-
-
