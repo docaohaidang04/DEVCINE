@@ -12,7 +12,7 @@ class CreatePromotionsTable extends Migration
             $table->id('ID_PROMOTION');
             $table->string('Promotion_name');
             $table->text('Description')->nullable();
-            $table->decimal('Discount_value', 10, 2)->nullable();
+            $table->integer('Discount_value')->nullable()->default(0);
             $table->dateTime('Start_date')->nullable();
             $table->dateTime('End_date')->nullable();
             $table->timestamps();

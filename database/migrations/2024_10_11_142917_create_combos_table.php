@@ -11,7 +11,7 @@ class CreateCombosTable extends Migration
         Schema::create('combos', function (Blueprint $table) {
             $table->id('ID_COMBO');
             $table->string('Name');
-            $table->decimal('Price', 10, 2);
+            $table->integer('Price')->default(0);
             $table->text('Description')->nullable();
             $table->timestamps();
         });

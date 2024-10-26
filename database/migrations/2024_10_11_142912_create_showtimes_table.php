@@ -12,8 +12,9 @@ class CreateShowtimesTable extends Migration
             $table->id('ID_SHOWTIME');
             $table->foreignId('ID_MOVIE')->constrained('movies', 'ID_MOVIE');
             $table->foreignId('ID_ROOM')->constrained('rooms', 'ID_ROOM');
+            $table->dateTime('Date_time');
             $table->dateTime('Start_time');
-            $table->dateTime('End_time');
+            $table->dateTime('End_time')->nullable();
             $table->timestamps();
         });
     }

@@ -11,7 +11,7 @@ class CreateMoviesTable extends Migration
         Schema::create('movies', function (Blueprint $table) {
             $table->id('ID_MOVIE');
             $table->string('Movie_name');
-            $table->decimal('Price', 10, 2);
+            $table->integer('Price')->default(0);
             $table->text('Description')->nullable();
             $table->integer('Duration')->nullable();
             $table->date('Release_date')->nullable();

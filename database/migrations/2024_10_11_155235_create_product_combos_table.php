@@ -10,8 +10,9 @@ class CreateProductCombosTable extends Migration
     {
         Schema::create('product_combos', function (Blueprint $table) {
             $table->id('ID_PRODUCT_COMBO');
-            $table->foreignId('ID_COMBO')->constrained('combos', 'ID_COMBO');
             $table->foreignId('ID_PRODUCT')->constrained('products', 'ID_PRODUCT');
+            $table->foreignId('ID_COMBO')->constrained('combos', 'ID_COMBO');
+            $table->integer('quantity')->default(0);
             $table->timestamps();
         });
     }

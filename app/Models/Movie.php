@@ -25,8 +25,8 @@ class Movie extends Model
         'director',
         'cast',
         'poster_url',
+        'price', // Thêm trường Price vào đây
     ];
-
 
     public function genre()
     {
@@ -51,6 +51,7 @@ class Movie extends Model
             'director' => 'required|string|max:255',
             'cast' => 'required|string',
             'poster_url' => 'nullable|string',
+            'price' => 'required|integer', // Thêm validation cho Price
         ]);
 
         if ($validator->fails()) {
@@ -80,6 +81,7 @@ class Movie extends Model
             'director' => 'sometimes|required|string|max:255',
             'cast' => 'sometimes|required|string',
             'poster_url' => 'sometimes|nullable|string',
+            'price' => 'sometimes|required|integer', // Thêm validation cho Price
         ]);
 
         if ($validator->fails()) {
