@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+/* use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MovieController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\RoomController;
@@ -15,9 +15,9 @@ use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\GenreMoviesController;
 use App\Http\Controllers\BookingsController;
 use App\Http\Controllers\BookingPromotionController;
-use App\Http\Controllers\PaymentsController;
+use App\Http\Controllers\PaymentsController; */
 
-//MOVIES
+/* //MOVIES
 Route::get('movies', [MovieController::class, 'index']);
 Route::post('movies', [MovieController::class, 'store']);
 Route::get('movies/{id}', [MovieController::class, 'show']);
@@ -121,4 +121,4 @@ Route::get('/promotions', [PromotionController::class, 'index']);
 Route::post('/promotions', [PromotionController::class, 'store']);
 Route::get('/promotions/{id}', [PromotionController::class, 'show']);
 Route::put('/promotions/{id}', [PromotionController::class, 'update']);
-Route::delete('/promotions/{id}', [PromotionController::class, 'destroy']);
+Route::delete('/promotions/{id}', [PromotionController::class, 'destroy']); */

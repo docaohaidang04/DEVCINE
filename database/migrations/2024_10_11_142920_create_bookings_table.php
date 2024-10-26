@@ -15,7 +15,7 @@ class CreateBookingsTable extends Migration
             $table->foreignId('ID_PAYMENT')->nullable()->constrained('payment', 'ID_PAYMENT');
             $table->dateTime('Booking_date')->default(now());
             $table->integer('Quantity')->nullable();
-            $table->decimal('Total_amount', 10, 2)->nullable();
+            $table->integer('Total_amount')->nullable()->default(0);
             $table->string('Payment_status')->nullable();
             $table->string('Transaction_id')->nullable();
             $table->dateTime('Payment_date')->nullable();

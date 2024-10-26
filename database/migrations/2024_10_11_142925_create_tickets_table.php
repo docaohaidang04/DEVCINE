@@ -13,7 +13,7 @@ class CreateTicketsTable extends Migration
             $table->foreignId('ID_BOOKING')->constrained('bookings', 'ID_BOOKING')->nullable();
             $table->foreignId('ID_SHOWTIME')->constrained('showtimes', 'ID_SHOWTIME');
             $table->foreignId('ID_CHAIR')->constrained('chairs', 'ID_CHAIR');
-            $table->decimal('Price', 10, 2)->nullable();
+            $table->integer('Price')->nullable()->default(0);
             $table->string('Status')->nullable();
             $table->timestamps();
         });
