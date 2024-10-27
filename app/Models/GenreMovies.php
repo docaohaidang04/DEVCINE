@@ -13,7 +13,7 @@ class GenreMovies extends Model
     protected $primaryKey = 'id_genre';
 
     protected $fillable = [
-        'Genre_name',
+        'genre_name',
     ];
 
     public static function findGenreMovies($id)

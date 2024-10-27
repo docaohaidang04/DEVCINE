@@ -29,13 +29,11 @@ class Account extends Authenticatable
         'password',
     ];
 
-    // Mã hóa mật khẩu trước khi lưu
     public function setPasswordAttribute($password)
     {
         $this->attributes['password'] = bcrypt($password);
     }
 
-    // Phương thức đăng ký tài khoản
     public static function registerAccount($data)
     {
         $validator = Validator::make($data, [
@@ -55,19 +53,16 @@ class Account extends Authenticatable
         return self::create($data);
     }
 
-    // Phương thức đăng nhập
     public static function loginAccount($credentials)
     {
         return Auth::attempt($credentials);
     }
 
-    // Phương thức lấy tài khoản
     public static function getAccountById($id)
     {
         return self::findOrFail($id);
     }
 
-    // Phương thức cập nhật tài khoản
     public function updateAccount($data)
     {
         $validator = Validator::make($data, [
@@ -87,7 +82,6 @@ class Account extends Authenticatable
         return $this;
     }
 
-    // Phương thức xóa tài khoản
     public static function deleteAccount($id)
     {
         $account = self::findOrFail($id);

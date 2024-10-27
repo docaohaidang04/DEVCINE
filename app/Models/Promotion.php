@@ -12,17 +12,17 @@ class Promotion extends Model
 
     protected $table = 'promotions';
 
-    protected $primaryKey = 'ID_PROMOTION';
+    protected $primaryKey = 'id_promotion'; // Đổi ID_PROMOTION thành id_promotion
 
     protected $fillable = [
-        'Promotion_name',
-        'Description',
-        'Discount_type',
-        'Discount_value',
-        'Start_date',
-        'End_date',
-        'Min_purchase_amount',
-        'Max_discount_amount'
+        'promotion_name',
+        'description',
+        'discount_type',
+        'discount_value',
+        'start_date',
+        'end_date',
+        'min_purchase_amount',
+        'max_discount_amount'
     ];
 
     public $timestamps = true;
@@ -57,4 +57,3 @@ class Promotion extends Model
         return $this->delete();
     }
 }
-

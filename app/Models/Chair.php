@@ -15,11 +15,11 @@ class Chair extends Model
     protected $primaryKey = 'id_chair'; // Khóa chính
 
     protected $fillable = [
-        'ID_ROOM',
-        'Chair_name',
-        'Chair_status',
-        'Column',
-        'Row',
+        'id_room',
+        'chair_name',
+        'chair_status',
+        'column',
+        'row',
     ];
 
     // Lấy tất cả các ghế
@@ -58,6 +58,6 @@ class Chair extends Model
     // Mối quan hệ với bảng Room
     public function room()
     {
-        return $this->belongsTo(Room::class, 'ID_ROOM', 'ID_ROOM');
+        return $this->belongsTo(Room::class, 'id_room', 'id_room');
     }
 }

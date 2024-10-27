@@ -10,9 +10,11 @@ class BookingPromotion extends Model
     use HasFactory;
 
     protected $table = 'booking_promotions';
-    protected $primaryKey = 'ID_PROMOTION_AP';
+
+    protected $primaryKey = 'id_promotion_ap';
+
     protected $fillable = [
-        'ID_PROMOTION',
-        'ID_BOOKING',
+        'id_promotion',
+        'id_booking',
     ];
 }
