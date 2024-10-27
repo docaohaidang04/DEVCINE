@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AccountController extends Controller
 {
@@ -19,14 +21,19 @@ class AccountController extends Controller
 
     public function login(Request $request)
     {
-        dd($request->all());
         $credentials = $request->only('email', 'password');
 
-        if (Account::loginAccount($credentials)) {
-            return response()->json(['message' => 'Login successful']);
+        $user = Account::loginAccount($credentials);
+
+        if ($user) {
+            return response()->json([
+                'message' => 'Login successful',
+                'user' => $user
+            ]);
         }
 
-        return response()->json(['message' => 'Invalid credentials'], 401);
+        Log::error('Login failed for user: ' . $credentials['email']);
+        return response()->json(['message' => 'Invalid credentials, please check your email and password.'], 401);
     }
 
     public function getAccount($id)
