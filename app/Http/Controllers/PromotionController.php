@@ -25,7 +25,6 @@ class PromotionController extends Controller
             'min_purchase_amount' => 'required|numeric',
         ]);
 
-
         $promotion = Promotion::createPromotion($request->all());
 
         return response()->json($promotion, 201);
