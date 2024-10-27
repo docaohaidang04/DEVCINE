@@ -29,11 +29,10 @@ class ProductComboController extends Controller
     // Tạo mới product combo
     public function store(Request $request)
     {
-        // Validate dữ liệu
         $request->validate([
-            'ID_COMBO' => 'required|exists:combos,ID_COMBO',
-            'ID_PRODUCT' => 'required|exists:products,ID_PRODUCT',
-            'Quantity' => 'required|integer|min:1',
+            'id_combo' => 'required|exists:combos,id_combo',
+            'id_product' => 'required|exists:products,id_product',
+            'quantity' => 'required|integer|min:1',
         ]);
 
         $productCombo = ProductCombo::createCombo($request->all());
@@ -46,9 +45,9 @@ class ProductComboController extends Controller
     {
         // Validate dữ liệu
         $request->validate([
-            'ID_COMBO' => 'exists:combos,ID_COMBO',
-            'ID_PRODUCT' => 'exists:products,ID_PRODUCT',
-            'Quantity' => 'integer|min:1',
+            'id_combo' => 'exists:combos,id_combo',
+            'id_product' => 'exists:products,id_product',
+            'quantity' => 'integer|min:1',
         ]);
 
         $productCombo = ProductCombo::updateCombo($id, $request->all());

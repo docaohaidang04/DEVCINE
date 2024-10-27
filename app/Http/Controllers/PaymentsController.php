@@ -25,7 +25,7 @@ class PaymentsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'Name' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
         ]);
 
         $payment = Payments::create($request->all());
@@ -40,7 +40,7 @@ class PaymentsController extends Controller
         }
 
         $request->validate([
-            'Name' => 'sometimes|required|string|max:255',
+            'name' => 'sometimes|required|string|max:255',
         ]);
 
         $payment->update($request->all());

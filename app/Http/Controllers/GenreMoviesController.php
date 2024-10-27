@@ -15,11 +15,11 @@ class GenreMoviesController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'Genre_name' => 'required|string|max:255',
+            'genre_name' => 'required|string|max:255',
         ]);
 
-        $GenreMovies = GenreMovies::create($request->all());
-        return response()->json($GenreMovies, 201);
+        $genreMovies = GenreMovies::create($request->all());
+        return response()->json($genreMovies, 201);
     }
 
     public function show($id)
@@ -30,12 +30,12 @@ class GenreMoviesController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'Genre_name' => 'string|max:255',
+            'genre_name' => 'string|max:255',
         ]);
 
-        $GenreMovies = GenreMovies::findOrFail($id);
-        $GenreMovies->update($request->all());
-        return response()->json($GenreMovies, 200);
+        $genreMovies = GenreMovies::findOrFail($id);
+        $genreMovies->update($request->all());
+        return response()->json($genreMovies, 200);
     }
 
     public function destroy($id)

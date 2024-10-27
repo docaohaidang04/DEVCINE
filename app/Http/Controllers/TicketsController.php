@@ -19,11 +19,11 @@ class TicketsController extends Controller
     {
         // Xác thực dữ liệu đầu vào
         $validatedData = $request->validate([
-            'ID_BOOKING' => 'required|integer',
-            'ID_SHOWTIME' => 'required|integer',
-            'ID_CHAIR' => 'required|integer',
-            'PRICE' => 'required|numeric',
-            'STATUS' => 'required|string|max:255',
+            'id_booking' => 'required|integer',
+            'id_showtime' => 'required|integer',
+            'id_chair' => 'required|integer',
+            'price' => 'required|numeric',
+            'status' => 'required|string|max:255',
         ]);
 
         // Tạo ticket mới
@@ -51,11 +51,11 @@ class TicketsController extends Controller
 
         // Xác thực dữ liệu đầu vào
         $validatedData = $request->validate([
-            'ID_BOOKING' => 'sometimes|required|integer',
-            'ID_SHOWTIME' => 'sometimes|required|integer',
-            'ID_CHAIR' => 'sometimes|required|integer',
-            'PRICE' => 'sometimes|required|numeric',
-            'STATUS' => 'sometimes|required|string|max:255',
+            'id_booking' => 'sometimes|required|integer',
+            'id_showtime' => 'sometimes|required|integer',
+            'id_chair' => 'sometimes|required|integer',
+            'price' => 'sometimes|required|numeric',
+            'status' => 'sometimes|required|string|max:255',
         ]);
 
         // Cập nhật ticket

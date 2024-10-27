@@ -16,11 +16,11 @@ class ChairController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'ID_ROOM' => 'required|exists:rooms,ID_ROOM',
-            'Chair_name' => 'nullable|string',
-            'Chair_status' => 'nullable|string',
-            'Column' => 'nullable|integer',
-            'Row' => 'nullable|integer',
+            'id_room' => 'required|exists:rooms,id_room',
+            'chair_name' => 'nullable|string',
+            'chair_status' => 'nullable|string',
+            'column' => 'nullable|integer',
+            'row' => 'nullable|integer',
         ]);
 
         $chair = Chair::createChair($request->all());
@@ -37,11 +37,11 @@ class ChairController extends Controller
     public function update(Request $request, $id): JsonResponse
     {
         $request->validate([
-            'ID_ROOM' => 'required|exists:rooms,ID_ROOM',
-            'Chair_name' => 'nullable|string',
-            'Chair_status' => 'nullable|string',
-            'Column' => 'nullable|integer',
-            'Row' => 'nullable|integer',
+            'id_room' => 'required|exists:rooms,id_room',
+            'chair_name' => 'nullable|string',
+            'chair_status' => 'nullable|string',
+            'column' => 'nullable|integer',
+            'row' => 'nullable|integer',
         ]);
 
         $chair = Chair::updateChair($id, $request->all());

@@ -19,14 +19,14 @@ class BookingPromotionController extends Controller
         if ($promotion) {
             return response()->json($promotion);
         }
-        return response()->json(['message' => 'Promotion not found'], 404);
+        return response()->json(['message' => 'promotion not found'], 404);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'ID_PROMOTION' => 'required|exists:promotions,ID_PROMOTION',
-            'ID_BOOKING' => 'required|exists:bookings,ID_BOOKING',
+            'id_promotion' => 'required|exists:promotions,id_promotion',
+            'id_booking' => 'required|exists:bookings,id_booking',
         ]);
 
         $promotion = BookingPromotion::create($request->all());
@@ -37,12 +37,12 @@ class BookingPromotionController extends Controller
     {
         $promotion = BookingPromotion::find($id);
         if (!$promotion) {
-            return response()->json(['message' => 'Promotion not found'], 404);
+            return response()->json(['message' => 'promotion not found'], 404);
         }
 
         $request->validate([
-            'ID_PROMOTION' => 'sometimes|required|exists:promotions,ID_PROMOTION',
-            'ID_BOOKING' => 'sometimes|required|exists:bookings,ID_BOOKING',
+            'id_promotion' => 'sometimes|required|exists:promotions,id_promotion',
+            'id_booking' => 'sometimes|required|exists:bookings,id_booking',
         ]);
 
         $promotion->update($request->all());
@@ -53,10 +53,10 @@ class BookingPromotionController extends Controller
     {
         $promotion = BookingPromotion::find($id);
         if (!$promotion) {
-            return response()->json(['message' => 'Promotion not found'], 404);
+            return response()->json(['message' => 'promotion not found'], 404);
         }
 
         $promotion->delete();
-        return response()->json(['message' => 'Promotion deleted successfully']);
+        return response()->json(['message' => 'promotion deleted successfully']);
     }
 }

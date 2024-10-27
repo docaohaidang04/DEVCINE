@@ -19,21 +19,21 @@ class BookingsController extends Controller
         if ($booking) {
             return response()->json($booking);
         }
-        return response()->json(['message' => 'Booking not found'], 404);
+        return response()->json(['message' => 'booking not found'], 404);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'ID_ACCOUNT' => 'required|exists:accounts,ID_ACCOUNT',
-            'ID_COMBO' => 'nullable|exists:combos,ID_COMBO',
-            'ID_PAYMENT' => 'nullable|exists:payment,ID_PAYMENT',
-            'Quantity' => 'nullable|integer',
-            'Total_amount' => 'nullable|numeric',
-            'Payment_status' => 'nullable|string',
-            'Transaction_id' => 'nullable|string',
-            'Payment_date' => 'nullable|date',
-            'Status' => 'nullable|string',
+            'id_account' => 'required|exists:accounts,id_account',
+            'id_combo' => 'nullable|exists:combos,id_combo',
+            'id_payment' => 'nullable|exists:payment,id_payment',
+            'quantity' => 'nullable|integer',
+            'total_amount' => 'nullable|numeric',
+            'payment_status' => 'nullable|string',
+            'transaction_id' => 'nullable|string',
+            'payment_date' => 'nullable|date',
+            'status' => 'nullable|string',
         ]);
 
         $booking = Bookings::create($request->all());
@@ -44,19 +44,19 @@ class BookingsController extends Controller
     {
         $booking = Bookings::find($id);
         if (!$booking) {
-            return response()->json(['message' => 'Booking not found'], 404);
+            return response()->json(['message' => 'booking not found'], 404);
         }
 
         $request->validate([
-            'ID_ACCOUNT' => 'sometimes|required|exists:accounts,ID_ACCOUNT',
-            'ID_COMBO' => 'nullable|exists:combos,ID_COMBO',
-            'ID_PAYMENT' => 'nullable|exists:payment,ID_PAYMENT',
-            'Quantity' => 'nullable|integer',
-            'Total_amount' => 'nullable|numeric',
-            'Payment_status' => 'nullable|string',
-            'Transaction_id' => 'nullable|string',
-            'Payment_date' => 'nullable|date',
-            'Status' => 'nullable|string',
+            'id_account' => 'sometimes|required|exists:accounts,id_account',
+            'id_combo' => 'nullable|exists:combos,id_combo',
+            'id_payment' => 'nullable|exists:payment,id_payment',
+            'quantity' => 'nullable|integer',
+            'total_amount' => 'nullable|numeric',
+            'payment_status' => 'nullable|string',
+            'transaction_id' => 'nullable|string',
+            'payment_date' => 'nullable|date',
+            'status' => 'nullable|string',
         ]);
 
         $booking->update($request->all());
@@ -67,10 +67,10 @@ class BookingsController extends Controller
     {
         $booking = Bookings::find($id);
         if (!$booking) {
-            return response()->json(['message' => 'Booking not found'], 404);
+            return response()->json(['message' => 'booking not found'], 404);
         }
 
         $booking->delete();
-        return response()->json(['message' => 'Booking deleted successfully']);
+        return response()->json(['message' => 'booking deleted successfully']);
     }
 }

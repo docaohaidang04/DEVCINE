@@ -17,13 +17,14 @@ class PromotionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'Promotion_name' => 'required|string|max:255',
-            'Discount_type' => 'required|string',
-            'Discount_value' => 'required|numeric',
-            'Start_date' => 'required|date',
-            'End_date' => 'required|date',
-            'Min_purchase_amount' => 'required|numeric',
+            'promotion_name' => 'required|string|max:255',
+            'discount_type' => 'required|string',
+            'discount_value' => 'required|numeric',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+            'min_purchase_amount' => 'required|numeric',
         ]);
+
 
         $promotion = Promotion::createPromotion($request->all());
 
