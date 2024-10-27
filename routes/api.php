@@ -55,6 +55,7 @@ Route::delete('genre_movies/{id}', [GenreMoviesController::class, 'destroy']);
 //ACCOUNTS
 Route::post('register', [AccountController::class, 'register']);
 Route::post('login', [AccountController::class, 'login']);
+Route::get('accounts', [AccountController::class, 'showAllAccount']);
 Route::get('accounts/{id}', [AccountController::class, 'getAccount']);
 Route::put('accounts/{id}', [AccountController::class, 'updateAccount']);
 Route::delete('accounts/{id}', [AccountController::class, 'deleteAccount']);

@@ -21,7 +21,7 @@ class AccountController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->only('user_name', 'password');
 
         $user = Account::loginAccount($credentials);
 
@@ -35,6 +35,13 @@ class AccountController extends Controller
         Log::error('Login failed for user: ' . $credentials['email']);
         return response()->json(['message' => 'Invalid credentials, please check your email and password.'], 401);
     }
+
+    public function showAllAccount()
+    {
+        $accounts = Account::all();
+        return response()->json($accounts, 200);
+    }
+
 
     public function getAccount($id)
     {
