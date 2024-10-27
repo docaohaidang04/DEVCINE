@@ -9,18 +9,18 @@ class CreateMoviesTable extends Migration
     public function up()
     {
         Schema::create('movies', function (Blueprint $table) {
-            $table->id('ID_MOVIE');
-            $table->string('Movie_name');
-            $table->integer('Price')->default(0);
-            $table->text('Description')->nullable();
-            $table->integer('Duration')->nullable();
-            $table->date('Release_date')->nullable();
-            $table->string('Country')->nullable();
-            $table->string('Producer')->nullable();
-            $table->string('Director')->nullable();
-            $table->text('Cast')->nullable();
-            $table->string('Poster_Url')->nullable();
-            $table->foreignId('ID_GENRE')->constrained('genre_movies', 'ID_GENRE')->nullable();
+            $table->id('id_movie');
+            $table->string('movie_name');
+            $table->integer('price')->default(0);
+            $table->text('description')->nullable();
+            $table->integer('duration')->nullable();
+            $table->date('release_date')->nullable();
+            $table->string('country')->nullable();
+            $table->string('producer')->nullable();
+            $table->string('director')->nullable();
+            $table->text('cast')->nullable();
+            $table->string('poster_url')->nullable();
+            $table->foreignId('id_genre')->constrained('genre_movies', 'id_genre')->nullable();
             $table->timestamps();
         });
     }

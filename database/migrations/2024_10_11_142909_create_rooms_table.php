@@ -9,11 +9,11 @@ class CreateRoomsTable extends Migration
     public function up()
     {
         Schema::create('rooms', function (Blueprint $table) {
-            $table->id('ID_ROOM');
-            $table->string('Room_name');
-            $table->string('Room_status')->nullable();
-            $table->string('Room_type')->nullable();
-            $table->integer('Chair_number')->nullable();
+            $table->id('id_room');
+            $table->string('room_name');
+            $table->string('room_status')->nullable();
+            $table->string('room_type')->nullable();
+            $table->integer('chair_number')->nullable();
             $table->timestamps();
         });
     }

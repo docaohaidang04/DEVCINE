@@ -9,17 +9,17 @@ class CreateBookingsTable extends Migration
     public function up()
     {
         Schema::create('bookings', function (Blueprint $table) {
-            $table->id('ID_BOOKING');
-            $table->foreignId('ID_ACCOUNT')->constrained('accounts', 'ID_ACCOUNT');
-            $table->foreignId('ID_COMBO')->nullable()->constrained('combos', 'ID_COMBO');
-            $table->foreignId('ID_PAYMENT')->nullable()->constrained('payment', 'ID_PAYMENT');
-            $table->dateTime('Booking_date')->default(now());
-            $table->integer('Quantity')->nullable();
-            $table->integer('Total_amount')->nullable()->default(0);
-            $table->string('Payment_status')->nullable();
-            $table->string('Transaction_id')->nullable();
-            $table->dateTime('Payment_date')->nullable();
-            $table->string('Status')->nullable();
+            $table->id('id_booking');
+            $table->foreignId('id_account')->constrained('accounts', 'id_account');
+            $table->foreignId('id_combo')->nullable()->constrained('combos', 'id_combo');
+            $table->foreignId('id_payment')->nullable()->constrained('payment', 'id_payment');
+            $table->dateTime('booking_date')->default(now());
+            $table->integer('quantity')->nullable();
+            $table->integer('total_amount')->nullable()->default(0);
+            $table->string('payment_status')->nullable();
+            $table->string('transaction_id')->nullable();
+            $table->dateTime('payment_date')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

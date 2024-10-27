@@ -9,10 +9,10 @@ class CreateCombosTable extends Migration
     public function up()
     {
         Schema::create('combos', function (Blueprint $table) {
-            $table->id('ID_COMBO');
-            $table->string('Name');
-            $table->integer('Price')->default(0);
-            $table->text('Description')->nullable();
+            $table->id('id_combo');
+            $table->string('name');
+            $table->integer('price')->default(0);
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

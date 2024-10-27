@@ -9,12 +9,12 @@ class CreateChairsTable extends Migration
     public function up()
     {
         Schema::create('chairs', function (Blueprint $table) {
-            $table->id('ID_CHAIR');
-            $table->foreignId('ID_ROOM')->constrained('rooms', 'ID_ROOM');
-            $table->string('Chair_name')->nullable();
-            $table->string('Chair_status')->nullable();
-            $table->integer('Column')->nullable();
-            $table->integer('Row')->nullable();
+            $table->id('id_chair');
+            $table->foreignId('id_room')->constrained('rooms', 'id_room');
+            $table->string('chair_name')->nullable();
+            $table->string('chair_status')->nullable();
+            $table->integer('column')->nullable();
+            $table->integer('row')->nullable();
             $table->timestamps();
         });
     }
