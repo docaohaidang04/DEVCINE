@@ -9,44 +9,40 @@ class Tickets extends Model
 {
     use HasFactory;
 
-    protected $table = 'tickets'; // Tên bảng trong cơ sở dữ liệu
-    protected $primaryKey = 'id_ticket'; // Đặt khóa chính là id_ticket
+    protected $table = 'tickets';
+
+    protected $primaryKey = 'id_ticket';
 
     protected $fillable = [
-        'ID_BOOKING',
-        'ID_SHOWTIME',
-        'ID_CHAIR',
-        'PRICE',
-        'STATUS',
+        'id_booking',
+        'id_showtime',
+        'id_chair',
+        'price',
+        'status',
     ];
 
-    // Lấy tất cả tickets
     public static function getAllTickets()
     {
-        return self::all(); // Trả về tất cả tickets
+        return self::all();
     }
 
-    // Tạo ticket mới
     public static function createTicket($data)
     {
-        return self::create($data); // Tạo ticket mới với dữ liệu
+        return self::create($data);
     }
 
-    // Lấy một ticket theo ID
     public static function getTicketById($id)
     {
-        return self::find($id); // Tìm ticket theo ID
+        return self::find($id);
     }
 
-    // Cập nhật ticket
     public function updateTicket($data)
     {
-        return $this->update($data); // Cập nhật ticket với dữ liệu
+        return $this->update($data);
     }
 
-    // Xóa ticket
     public function deleteTicket()
     {
-        return $this->delete(); // Xóa ticket
+        return $this->delete();
     }
 }

@@ -10,12 +10,12 @@ class ProductCombo extends Model
     use HasFactory;
 
     protected $table = 'product_combos';
-    protected $primaryKey = 'ID_PRODUCT_COMBO';
+    protected $primaryKey = 'id_product_combo'; // Đổi ID_PRODUCT_COMBO thành id_product_combo
 
     protected $fillable = [
-        'ID_COMBO',
-        'ID_PRODUCT',
-        'Quantity'
+        'id_combo', // Đổi ID_COMBO thành id_combo
+        'id_product', // Đổi ID_PRODUCT thành id_product
+        'quantity' // Đổi Quantity thành quantity
     ];
 
     public $timestamps = true;
