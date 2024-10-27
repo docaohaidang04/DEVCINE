@@ -42,7 +42,7 @@ class Account extends Authenticatable
             'email' => 'required|string|email|unique:accounts',
             'full_name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:15',
-            'role' => 'nullable|string|in:user,admin',
+            'role' => 'string|in:user,admin',
             'loyalty_points' => 'nullable|integer|min:0',
         ]);
 
@@ -50,12 +50,21 @@ class Account extends Authenticatable
             return response()->json($validator->errors(), 422);
         }
 
-        return self::create($data);
+        if (!isset($data['role'])) {
+            $data['role'] = 'user';
+        }
+
+        $account = self::create($data);
+        return $account;
     }
 
     public static function loginAccount($credentials)
     {
-        return Auth::attempt($credentials);
+        if (Auth::attempt($credentials)) {
+            return Auth::user();
+        }
+
+        return null;
     }
 
     public static function getAccountById($id)

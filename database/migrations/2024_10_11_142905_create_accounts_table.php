@@ -15,7 +15,7 @@ class CreateAccountsTable extends Migration
             $table->string('email');
             $table->string('full_name')->nullable();
             $table->string('phone')->nullable();
-            $table->string('role')->nullable();
+            $table->string('role')->default("user");
             $table->integer('loyalty_points')->default(0);
             $table->timestamps();
         });
