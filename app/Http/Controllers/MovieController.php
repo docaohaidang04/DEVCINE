@@ -32,7 +32,7 @@ class MovieController extends Controller
 
     public function destroy(string $id_movie)
     {
-        Movie::deleteMovie($id_movie);
-        return response()->json(null, 204);
+        $response = Movie::deleteMovie($id_movie);
+        return response()->json($response, 204);
     }
 }
