@@ -9,12 +9,12 @@ class CreatePromotionsTable extends Migration
     public function up()
     {
         Schema::create('promotions', function (Blueprint $table) {
-            $table->id('ID_PROMOTION');
-            $table->string('Promotion_name');
-            $table->text('Description')->nullable();
-            $table->integer('Discount_value')->nullable()->default(0);
-            $table->dateTime('Start_date')->nullable();
-            $table->dateTime('End_date')->nullable();
+            $table->id('id_promotion');
+            $table->string('promotion_name');
+            $table->text('description')->nullable();
+            $table->integer('discount_value')->nullable()->default(0);
+            $table->dateTime('start_date')->nullable();
+            $table->dateTime('end_date')->nullable();
             $table->timestamps();
         });
     }

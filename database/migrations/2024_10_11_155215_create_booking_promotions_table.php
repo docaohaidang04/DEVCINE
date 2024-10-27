@@ -9,9 +9,9 @@ class CreateBookingPromotionsTable extends Migration
     public function up()
     {
         Schema::create('booking_promotions', function (Blueprint $table) {
-            $table->id('ID_PROMOTION_AP');
-            $table->foreignId('ID_PROMOTION')->constrained('promotions', 'ID_PROMOTION');
-            $table->foreignId('ID_BOOKING')->constrained('bookings', 'ID_BOOKING');
+            $table->id('id_promotion_ap');
+            $table->foreignId('id_promotion')->constrained('promotions', 'id_promotion');
+            $table->foreignId('id_booking')->constrained('bookings', 'id_booking');
             $table->timestamps();
         });
     }

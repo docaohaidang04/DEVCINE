@@ -9,12 +9,12 @@ class CreateCommentsTable extends Migration
     public function up()
     {
         Schema::create('comments', function (Blueprint $table) {
-            $table->id('ID_COMMENT'); // Khóa chính
-            $table->foreignId('ID_MOVIES')->constrained('movies', 'ID_MOVIE')->onDelete('cascade'); // FK: ID_MOVIES
-            $table->foreignId('ID_ACCOUNT')->constrained('accounts', 'ID_ACCOUNT')->onDelete('cascade'); // FK: ID_ACCOUNT
-            $table->text('Content'); // Nội dung bình luận
-            $table->unsignedTinyInteger('Rating'); // Đánh giá (1-5)
-            $table->timestamps(); // Created_at, Updated_at
+            $table->id('id_comment');
+            $table->foreignId('id_movies')->constrained('movies', 'id_movie')->onDelete('cascade');
+            $table->foreignId('id_account')->constrained('accounts', 'id_account')->onDelete('cascade');
+            $table->text('content');
+            $table->unsignedTinyInteger('rating');
+            $table->timestamps();
         });
     }
 

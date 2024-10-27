@@ -9,12 +9,12 @@ class CreateShowtimesTable extends Migration
     public function up()
     {
         Schema::create('showtimes', function (Blueprint $table) {
-            $table->id('ID_SHOWTIME');
-            $table->foreignId('ID_MOVIE')->constrained('movies', 'ID_MOVIE');
-            $table->foreignId('ID_ROOM')->constrained('rooms', 'ID_ROOM');
-            $table->dateTime('Date_time');
-            $table->dateTime('Start_time');
-            $table->dateTime('End_time')->nullable();
+            $table->id('id_showtime');
+            $table->foreignId('id_movie')->constrained('movies', 'id_movie');
+            $table->foreignId('id_room')->constrained('rooms', 'id_room');
+            $table->dateTime('date_time');
+            $table->dateTime('start_time');
+            $table->dateTime('end_time')->nullable();
             $table->timestamps();
         });
     }
