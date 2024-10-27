@@ -32,8 +32,8 @@ class AccountController extends Controller
             ]);
         }
 
-        Log::error('Login failed for user: ' . $credentials['email']);
-        return response()->json(['message' => 'Invalid credentials, please check your email and password.'], 401);
+        Log::error('Login failed for user: ' . $credentials['user_name']);
+        return response()->json(['message' => 'Invalid credentials, please check your username and password.'], 401);
     }
 
     public function showAllAccount()
