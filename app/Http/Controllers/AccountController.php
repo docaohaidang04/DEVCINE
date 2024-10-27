@@ -36,6 +36,8 @@ class AccountController extends Controller
         return response()->json(['message' => 'Invalid credentials, please check your username and password.'], 401);
     }
 
+
+
     public function showAllAccount()
     {
         $accounts = Account::all();
