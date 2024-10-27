@@ -10,35 +10,31 @@ class ProductCombo extends Model
     use HasFactory;
 
     protected $table = 'product_combos';
-    protected $primaryKey = 'id_product_combo'; // Đổi ID_PRODUCT_COMBO thành id_product_combo
+    protected $primaryKey = 'id_product_combo';
 
     protected $fillable = [
-        'id_combo', // Đổi ID_COMBO thành id_combo
-        'id_product', // Đổi ID_PRODUCT thành id_product
-        'quantity' // Đổi Quantity thành quantity
+        'id_combo',
+        'id_product',
+        'quantity'
     ];
 
     public $timestamps = true;
 
-    // Lấy tất cả product combos
     public static function getAllCombos()
     {
-        return self::all(); // Hoặc thêm logic xử lý dữ liệu ở đây nếu cần
+        return self::all();
     }
 
-    // Lấy product combo theo ID
     public static function getComboById($id)
     {
         return self::find($id);
     }
 
-    // Tạo mới product combo
     public static function createCombo($data)
     {
         return self::create($data);
     }
 
-    // Cập nhật product combo
     public static function updateCombo($id, $data)
     {
         $combo = self::find($id);
@@ -49,7 +45,6 @@ class ProductCombo extends Model
         return null;
     }
 
-    // Xóa product combo
     public static function deleteCombo($id)
     {
         $combo = self::find($id);

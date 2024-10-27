@@ -10,9 +10,9 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $table = 'products'; // Tên bảng trong cơ sở dữ liệu
+    protected $table = 'products';
 
-    protected $primaryKey = 'id_product'; // Đặt khóa chính là id_product
+    protected $primaryKey = 'id_product';
 
     protected $fillable = [
         'name',
@@ -25,13 +25,11 @@ class Product extends Model
         'is_active' => 'boolean',
     ];
 
-    // Lấy danh sách sản phẩm
     public static function getAllProducts()
     {
         return self::all();
     }
 
-    // Thêm sản phẩm mới
     public static function createProduct($data)
     {
         $validator = Validator::make($data, [
@@ -48,13 +46,11 @@ class Product extends Model
         return self::create($data);
     }
 
-    // Lấy thông tin sản phẩm
     public static function getProductById($id)
     {
         return self::findOrFail($id);
     }
 
-    // Cập nhật sản phẩm
     public static function updateProduct($id, $data)
     {
         $product = self::findOrFail($id);
@@ -74,7 +70,6 @@ class Product extends Model
         return $product;
     }
 
-    // Xóa sản phẩm
     public static function deleteProduct($id)
     {
         $product = self::findOrFail($id);

@@ -89,13 +89,13 @@ class Movie extends Model
             return response()->json($validator->errors(), 422);
         }
 
-        $movie->update($data); // Cập nhật dữ liệu
+        $movie->update($data);
         return response()->json(['status' => 'success', 'data' => $movie], 200);
     }
 
     public static function deleteMovie($id_movie)
     {
-        $movie = self::find($id_movie); // Sử dụng find() thay vì findOrFail() để kiểm tra sự tồn tại
+        $movie = self::find($id_movie);
         if (!$movie) {
             return response()->json(['error' => 'Movie not found'], 404);
         }

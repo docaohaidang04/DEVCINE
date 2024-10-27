@@ -12,7 +12,7 @@ class Promotion extends Model
 
     protected $table = 'promotions';
 
-    protected $primaryKey = 'id_promotion'; // Đổi ID_PROMOTION thành id_promotion
+    protected $primaryKey = 'id_promotion';
 
     protected $fillable = [
         'promotion_name',
@@ -27,31 +27,26 @@ class Promotion extends Model
 
     public $timestamps = true;
 
-    // Method to get all promotions
     public static function getAllPromotions(): Collection
     {
         return self::all();
     }
 
-    // Method to create a new promotion
     public static function createPromotion(array $data): Promotion
     {
         return self::create($data);
     }
 
-    // Method to find a promotion by ID
     public static function findPromotion($id): Promotion
     {
         return self::findOrFail($id);
     }
 
-    // Method to update a promotion
     public function updatePromotion(array $data): bool
     {
         return $this->update($data);
     }
 
-    // Method to delete a promotion
     public function deletePromotion(): bool
     {
         return $this->delete();
