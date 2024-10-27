@@ -45,6 +45,7 @@ class ComboController extends Controller
 
         $validatedData = $request->validate([
             'name' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|nullable|string|max:1000'
         ]);
 
         $combo->updateCombo($validatedData); // Gọi phương thức trong model

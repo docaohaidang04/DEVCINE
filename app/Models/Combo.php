@@ -15,6 +15,7 @@ class Combo extends Model
 
     protected $fillable = [
         'name',
+        'description',
         'created_at',
         'updated_at'
     ];
