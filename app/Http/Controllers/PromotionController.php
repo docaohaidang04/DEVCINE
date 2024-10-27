@@ -23,6 +23,7 @@ class PromotionController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'min_purchase_amount' => 'required|numeric',
+            'max_discount_amount' => 'required|numeric',
         ]);
 
         $promotion = Promotion::createPromotion($request->all());
