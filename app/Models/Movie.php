@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class Movie extends Model
 {
@@ -25,7 +26,7 @@ class Movie extends Model
         'director',
         'cast',
         'poster_url',
-        'price', // Thêm trường Price vào đây
+        'price',
     ];
 
     public function genre()
@@ -51,7 +52,7 @@ class Movie extends Model
             'director' => 'required|string|max:255',
             'cast' => 'required|string',
             'poster_url' => 'nullable|string',
-            'price' => 'required|integer', // Thêm validation cho Price
+            'price' => 'required|integer',
         ]);
 
         if ($validator->fails()) {
@@ -77,25 +78,29 @@ class Movie extends Model
             'release_date' => 'sometimes|required|date',
             'country' => 'sometimes|required|string|max:255',
             'producer' => 'sometimes|required|string|max:255',
-            'id_genre' => 'sometimes|required|exists:genre_movies,id_genre',  // Kiểm tra ID thể loại hợp lệ
+            'id_genre' => 'sometimes|required|exists:genre_movies,id_genre',
             'director' => 'sometimes|required|string|max:255',
             'cast' => 'sometimes|required|string',
             'poster_url' => 'sometimes|nullable|string',
-            'price' => 'sometimes|required|integer', // Thêm validation cho Price
+            'price' => 'sometimes|required|integer',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        $movie->update($data);
-        return $movie;
+        $movie->update($data); // Cập nhật dữ liệu
+        return response()->json(['status' => 'success', 'data' => $movie], 200);
     }
 
     public static function deleteMovie($id_movie)
     {
-        $movie = self::findOrFail($id_movie);
+        $movie = self::find($id_movie); // Sử dụng find() thay vì findOrFail() để kiểm tra sự tồn tại
+        if (!$movie) {
+            return response()->json(['error' => 'Movie not found'], 404);
+        }
+
         $movie->delete();
-        return null;
+        return response()->json(['message' => 'Movie deleted successfully'], 204);
     }
 }
