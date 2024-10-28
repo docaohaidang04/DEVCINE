@@ -20,6 +20,8 @@ class Movie extends Model
         'country',
         'producer',
         'director',
+        'image_main',
+        'youtube_url',
         'cast',
         'poster_url',
         'price',
