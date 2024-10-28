@@ -17,6 +17,7 @@ class Showtime extends Model
     protected $fillable = [
         'id_movie',
         'id_room',
+        'date_time', // Thêm trường date_time vào đây
         'start_time',
         'end_time',
     ];

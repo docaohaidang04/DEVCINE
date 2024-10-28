@@ -19,9 +19,10 @@ class CreateMoviesTable extends Migration
             $table->string('producer')->nullable();
             $table->string('director')->nullable();
             $table->text('cast')->nullable();
+            $table->string('image_main')->nullable();
+            $table->string('youtube_url')->nullable();
             $table->string('poster_url')->nullable();
             $table->text('status')->nullable();
-            $table->foreignId('id_genre')->constrained('genre_movies', 'id_genre')->nullable();
             $table->timestamps();
         });
     }

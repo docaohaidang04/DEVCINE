@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class RoomController extends Controller
 {
@@ -24,8 +25,21 @@ class RoomController extends Controller
 
     public function store(Request $request)
     {
-        $room = Room::createRoom($request->all());
-        return response()->json($room, 201);
+        try {
+            $request->validate([
+                'room_name' => 'required|string|max:255',
+                'room_status' => 'nullable|string',
+                'room_type' => 'nullable|string',
+                'chair_number' => 'nullable|integer',
+            ]);
+
+            $room = Room::create($request->all());
+
+            return response()->json($room, 201);
+        } catch (\Exception $e) {
+            Log::error('Room creation failed: ' . $e->getMessage());
+            return response()->json(['error' => 'Room creation failed: ' . $e->getMessage()], 400);
+        }
     }
 
     public function update(Request $request, $id)

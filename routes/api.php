@@ -116,6 +116,8 @@ Route::post('chairs', [ChairController::class, 'store']);
 Route::get('chairs/{id}', [ChairController::class, 'show']);
 Route::put('chairs/{id}', [ChairController::class, 'update']);
 Route::delete('chairs/{id}', [ChairController::class, 'destroy']);
+Route::get('chairs/room/{id_room}', [ChairController::class, 'getChairsByRoom']);
+
 
 //PROMOTIONS
 Route::get('/promotions', [PromotionController::class, 'index']);

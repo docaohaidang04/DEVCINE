@@ -13,6 +13,12 @@ class ChairController extends Controller
         return response()->json(Chair::getAllChairs());
     }
 
+    public function getChairsByRoom($id_room): JsonResponse
+    {
+        $chairs = Chair::where('id_room', $id_room)->get();
+        return response()->json($chairs);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $request->validate([
