@@ -22,6 +22,11 @@ class Showtime extends Model
         'end_time',
     ];
 
+    public function showtimeSlots()
+    {
+        return $this->belongsToMany(ShowtimeSlot::class, 'showtime_slot_showtime', 'id_showtime', 'id_slot');
+    }
+
     public static function getAllShowtimes()
     {
         return self::with('movie', 'room')->get();
