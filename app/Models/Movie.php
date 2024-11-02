@@ -23,9 +23,11 @@ class Movie extends Model
         'image_main',
         'youtube_url',
         'cast',
+        'status',
         'poster_url',
-        'price',
+        'price'
     ];
+
 
     public function genres()
     {
