@@ -49,6 +49,7 @@ Route::get('rooms/active', [RoomController::class, 'getActiveRooms']);
 
 // SHOWTIMES
 Route::apiResource('showtimes', ShowtimeController::class);
+Route::get('/movies/{movieId}/next-showtimes', [ShowtimeController::class, 'getNextShowtimes']);
 
 // PRODUCTS
 Route::apiResource('products', ProductController::class);

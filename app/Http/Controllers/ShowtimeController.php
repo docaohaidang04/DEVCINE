@@ -85,7 +85,13 @@ class ShowtimeController extends Controller
         return response()->json($showtime->load('showtimeSlots'), 200);
     }
 
+    public function getNextShowtimes(Request $request, $id_movie)
+    {
+        // Lấy 5 ngày gần nhất có suất chiếu cho bộ phim
+        $showtimes = Showtime::getNextShowtimesByMovieId($id_movie);
 
+        return response()->json($showtimes, 200);
+    }
 
     // Xóa suất chiếu
     public function destroy($id)

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Room;
+use Carbon\Carbon;
 
 class Showtime extends Model
 {
@@ -25,6 +26,15 @@ class Showtime extends Model
     public function showtimeSlots()
     {
         return $this->belongsToMany(ShowtimeSlot::class, 'showtime_slot_showtime', 'id_showtime', 'id_slot');
+    }
+
+    public static function getNextShowtimesByMovieId($id_movie)
+    {
+        return self::where('id_movie', $id_movie)
+            ->where('date_time', '>=', Carbon::now()) // Chỉ lấy các suất chiếu từ thời điểm hiện tại trở đi
+            ->orderBy('date_time')
+            ->take(5) // Lấy 5 suất chiếu tiếp theo
+            ->get();
     }
 
     public static function getAllShowtimes()
