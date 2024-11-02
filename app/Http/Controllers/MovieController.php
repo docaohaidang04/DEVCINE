@@ -99,14 +99,11 @@ class MovieController extends Controller
         ], 200);
     }
 
-
-
     public function show(string $id_movie)
     {
         $movie = Movie::getMovieById($id_movie);
         return response()->json($movie);
     }
-
 
 
     public function destroy(string $id_movie)

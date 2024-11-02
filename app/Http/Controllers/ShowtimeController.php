@@ -50,7 +50,6 @@ class ShowtimeController extends Controller
         return response()->json($showtime->load('showtimeSlots'), 201);
     }
 
-
     public function update(Request $request, $id)
     {
         // Xác thực dữ liệu
