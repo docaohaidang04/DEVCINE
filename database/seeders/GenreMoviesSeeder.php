@@ -58,6 +58,11 @@ class GenreMoviesSeeder extends Seeder
             ['genre_name' => 'Phim nghệ thuật'],
         ];
 
+        foreach ($genres as &$genre) {
+            $genre['created_at'] = now(); // Thêm created_at
+            $genre['updated_at'] = now(); // Thêm updated_at
+        }
+
         DB::table('genre_movies')->insert($genres);
     }
 }
