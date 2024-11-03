@@ -26,7 +26,7 @@ class ChairController extends Controller
             'chair_name' => 'nullable|string',
             'chair_status' => 'nullable|string',
             'column' => 'nullable|integer',
-            'row' => 'nullable|integer',
+            'row' => 'nullable|string',
         ]);
 
         $chair = Chair::createChair($request->all());
