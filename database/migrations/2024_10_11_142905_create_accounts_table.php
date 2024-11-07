@@ -17,6 +17,7 @@ class CreateAccountsTable extends Migration
             $table->string('phone')->nullable();
             $table->string('role')->default("user");
             $table->integer('loyalty_points')->default(0);
+            $table->string('refresh_token')->nullable();
             $table->timestamps();
         });
     }
