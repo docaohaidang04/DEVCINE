@@ -8,10 +8,21 @@ use Illuminate\Support\Facades\Log;
 
 class MovieController extends Controller
 {
-    public function index()
+
+
+    public function index(Request $request)
     {
+        $status = $request->query('status');
+        if ($status) {
+            return Movie::where('status', $status)->get();
+        }
         return Movie::getAllMovies();
     }
+
+
+
+
+
 
     public function store(Request $request)
     {
@@ -165,7 +176,6 @@ class MovieController extends Controller
         // Trả về response kèm đường dẫn ảnh
         return response()->json([
             'movie' => $movie->load('genres'),
-            'image_url' => asset($movie->image_main),
         ], 200);
     }
 
