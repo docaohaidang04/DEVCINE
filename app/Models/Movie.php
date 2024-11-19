@@ -25,8 +25,7 @@ class Movie extends Model
         'youtube_url',
         'cast',
         'status',
-        'poster_url',
-        'price'
+        'poster_url'
     ];
 
     // Định nghĩa quan hệ showtimes
