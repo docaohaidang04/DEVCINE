@@ -6,8 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Support\Carbon;
 
-class Account extends Authenticatable
+
+
+class Account extends Authenticatable implements JWTSubject
 {
     use HasFactory;
 
@@ -23,6 +27,8 @@ class Account extends Authenticatable
         'phone',
         'role',
         'loyalty_points',
+        'refresh_token',
+        'refresh_token_expires_at',
     ];
 
     protected $hidden = [
@@ -53,6 +59,9 @@ class Account extends Authenticatable
         if (!isset($data['role'])) {
             $data['role'] = 'user';
         }
+
+        $data['refresh_token'] = bin2hex(random_bytes(32)); // Replace with your preferred token generation logic
+        $data['refresh_token_expires_at'] = Carbon::now()->addDays(30);
 
         $account = self::create($data);
         return $account;
@@ -96,5 +105,15 @@ class Account extends Authenticatable
         $account = self::findOrFail($id);
         $account->delete();
         return response()->json(null, 204);
+    }
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 }

@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Routing\Controller;
+/* use App\Http\Controllers\Controller; */
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Carbon\Carbon;
+
+class AuthController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('auth:api', ['except' => ['login']]);
+    }
+
+    public function login()
+    {
+        $credentials = request(['user_name', 'password']);
+
+        try {
+            if (! $token = JWTAuth::attempt($credentials)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Could not create token'], 500);
+        }
+
+        $user = Auth::user();
+
+
+        // Tạo refresh token với thời gian hết hạn 30 ngày
+        $refreshToken = JWTAuth::fromUser($user, ['exp' => Carbon::now()->addDays(30)->timestamp]);
+
+        // Trả về thông tin tài khoản cùng với access_token và refresh_token
+        return response()->json([
+            'user' => $user,
+            'access_token' => $token,
+            'refresh_token' => $refreshToken,
+            'token_type' => 'bearer',
+            'expires_in' => JWTAuth::factory()->getTTL() * 60, // 1 giờ hoặc tùy chỉnh TTL
+            'refresh_expires_in' => 30 * 24 * 60 * 60 // 30 ngày
+        ]);
+    }
+}
