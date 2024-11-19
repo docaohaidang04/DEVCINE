@@ -18,7 +18,8 @@ use App\Http\Controllers\{
     BookingsController,
     BookingPromotionController,
     PaymentsController,
-    ShowtimeSlotController
+    ShowtimeSlotController,
+    VNPayController
 };
 use Illuminate\Container\Attributes\Auth;
 
@@ -33,6 +34,8 @@ Route::apiResource('booking-promotions', BookingPromotionController::class);
 
 // PAYMENTS
 Route::apiResource('payments', PaymentsController::class);
+Route::post('/vnpay/payment', [VNPayController::class, 'createPayment']);
+Route::get('/vnpay/return', [VNPayController::class, 'paymentCallback']);
 
 // GENRE MOVIES
 Route::apiResource('genre_movies', GenreMoviesController::class);

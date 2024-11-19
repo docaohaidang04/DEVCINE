@@ -20,6 +20,7 @@ class Chair extends Model
         'chair_status',
         'column',
         'row',
+        'price'
     ];
 
     public static function getAllChairs(): Collection

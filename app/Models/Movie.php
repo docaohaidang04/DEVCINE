@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Movie extends Model
 {
@@ -28,7 +29,11 @@ class Movie extends Model
         'price'
     ];
 
-
+    // Định nghĩa quan hệ showtimes
+    public function showtimes()
+    {
+        return $this->hasMany(Showtime::class, 'id_movie', 'id_movie');
+    }
     public function genres()
     {
         return $this->belongsToMany(GenreMovies::class, 'genre_movie', 'movie_id', 'genre_id');
@@ -41,8 +46,20 @@ class Movie extends Model
 
     public static function getMovieById($id_movie)
     {
-        return self::with('genres')->where('id_movie', $id_movie)->firstOrFail(); // Đổi 'genre' thành 'genres'
+        try {
+            return self::with(['genres', 'showtimes' => function ($query) {
+                $query->where('date_time', '>=', Carbon::now())
+                    ->orderBy('date_time')
+                    ->take(5);
+            }, 'showtimes.showtimeSlots'])
+                ->where('id_movie', $id_movie)
+                ->firstOrFail();
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
+
+
 
     public static function deleteMovie($id_movie)
     {

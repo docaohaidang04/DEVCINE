@@ -27,6 +27,7 @@ class ChairController extends Controller
             'chair_status' => 'nullable|string',
             'column' => 'nullable|integer',
             'row' => 'nullable|string',
+            'price' => 'nullable|integer',
         ]);
 
         $chair = Chair::createChair($request->all());
@@ -48,6 +49,7 @@ class ChairController extends Controller
             'chair_status' => 'nullable|string',
             'column' => 'nullable|integer',
             'row' => 'nullable|integer',
+            'price' => 'nullable|integer',
         ]);
 
         $chair = Chair::updateChair($id, $request->all());
