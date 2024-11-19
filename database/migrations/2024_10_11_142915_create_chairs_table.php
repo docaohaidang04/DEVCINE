@@ -14,6 +14,8 @@ class CreateChairsTable extends Migration
             $table->string('chair_name')->nullable();
             $table->string('chair_status')->nullable();
             $table->integer('column')->nullable();
+            $table->integer('price')->default(0);
+
             $table->string('row')->nullable();
             $table->timestamps();
         });
