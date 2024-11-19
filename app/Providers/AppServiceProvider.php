@@ -3,22 +3,27 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as LaravelAuthServiceProvider; // Đổi tên alias
 
-class AppServiceProvider extends ServiceProvider
+class AuthServiceProvider extends LaravelAuthServiceProvider
 {
     /**
-     * Register any application services.
+     * Đăng ký bất kỳ dịch vụ nào cho ứng dụng.
+     *
+     * @return void
      */
-    public function register(): void
+    public function register()
     {
         //
     }
 
     /**
-     * Bootstrap any application services.
+     * Thực hiện các dịch vụ khởi tạo.
+     *
+     * @return void
      */
-    public function boot(): void
+    public function boot()
     {
-        //
+        $this->registerPolicies(); // Gọi phương thức registerPolicies() tại đây
     }
 }
