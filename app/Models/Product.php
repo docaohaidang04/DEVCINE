@@ -15,7 +15,7 @@ class Product extends Model
     protected $primaryKey = 'id_product';
 
     protected $fillable = [
-        'name',
+        'product_name',
         'description',
         'price',
         'is_active',
@@ -33,7 +33,7 @@ class Product extends Model
     public static function createProduct($data)
     {
         $validator = Validator::make($data, [
-            'name' => 'required|string|max:255',
+            'product_name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'is_active' => 'boolean',
