@@ -31,7 +31,7 @@ class RoomController extends Controller
                 'room_status' => 'nullable|string',
                 'room_type' => 'nullable|string',
                 'chair_number' => 'nullable|integer',
-            ]);
+            ]); 
 
             $room = Room::create($request->all());
 

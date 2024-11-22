@@ -20,7 +20,7 @@ class ChairSeeder extends Seeder
                     'chair_status' => 'available',
                     'column' => $column,
                     'row' => $row,
-                    'price' => rand(50000, 200000), 
+                    'price' => 60000,
                 ]);
             }
         }
