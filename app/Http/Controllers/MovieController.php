@@ -19,11 +19,6 @@ class MovieController extends Controller
         return Movie::getAllMovies();
     }
 
-
-
-
-
-
     public function store(Request $request)
     {
         Log::info('Request data:', $request->all()); // Logging dữ liệu nhận được

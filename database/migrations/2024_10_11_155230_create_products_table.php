@@ -15,6 +15,9 @@ class CreateProductsTable extends Migration
             $table->text('description')->nullable(); // Thêm cột description
             $table->boolean('is_active')->default(true); // Thêm cột is_active
             $table->timestamps();
+            $table->string('image_product')->nullable();
+
+
         });
     }
 

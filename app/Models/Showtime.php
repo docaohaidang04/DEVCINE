@@ -31,10 +31,10 @@ class Showtime extends Model
     public static function getNextShowtimesByMovieId($id_movie)
     {
         return self::where('id_movie', $id_movie)
-            ->where('date_time', '>=', Carbon::now()) // Chỉ lấy các suất chiếu từ thời điểm hiện tại trở đi
-            ->orderBy('date_time')
-            ->take(5) // Lấy 5 suất chiếu tiếp theo
-            ->get();
+        ->whereDate('date_time', '>=', Carbon::today()) // So sánh chỉ theo ngày
+        ->orderBy('date_time')
+        ->take(5)
+        ->get();
     }
 
     public static function getAllShowtimes()

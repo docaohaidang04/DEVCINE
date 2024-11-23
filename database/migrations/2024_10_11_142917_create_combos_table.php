@@ -14,6 +14,8 @@ class CreateCombosTable extends Migration
             $table->integer('price')->default(0);
             $table->text('description')->nullable();
             $table->timestamps();
+            $table->string('image_combos')->nullable();
+
         });
     }
 
