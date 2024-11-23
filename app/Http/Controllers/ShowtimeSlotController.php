@@ -17,11 +17,11 @@ class ShowtimeSlotController extends Controller
     // Tạo khung giờ chiếu mới
     public function store(Request $request)
     {
-        $request->validate([
-            'slot_time' => 'required|date_format:H:i'
-        ]);
-
         $slot = ShowtimeSlot::createSlot($request->all());
+        if (isset($slot['errors'])) {
+            return response()->json($slot, 422);
+        }
+
         return response()->json($slot, 201);
     }
 
@@ -46,11 +46,11 @@ class ShowtimeSlotController extends Controller
             return response()->json(['message' => 'Showtime slot not found'], 404);
         }
 
-        $request->validate([
-            'slot_time' => 'required|date_format:H:i'
-        ]);
-
         $slot->updateSlot($request->all());
+        if (isset($slot['errors'])) {
+            return response()->json($slot, 422);
+        }
+
         return response()->json($slot, 200);
     }
 

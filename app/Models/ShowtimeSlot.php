@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Validator;
 
 class ShowtimeSlot extends Model
 {
@@ -22,6 +23,20 @@ class ShowtimeSlot extends Model
         return $this->belongsToMany(Showtime::class, 'showtime_slot_showtime', 'id_slot', 'id_showtime');
     }
 
+    // Xác thực dữ liệu khung giờ chiếu
+    public static function validateSlotData($data)
+    {
+        $validator = Validator::make($data, [
+            'slot_time' => 'required|date_format:H:i'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        return true;
+    }
+
     // Lấy tất cả các khung giờ chiếu
     public static function getAllSlots()
     {
@@ -31,6 +46,12 @@ class ShowtimeSlot extends Model
     // Tạo khung giờ chiếu mới
     public static function createSlot($data)
     {
+        // Xác thực dữ liệu
+        $validationResult = self::validateSlotData($data);
+        if ($validationResult !== true) {
+            return $validationResult;
+        }
+
         return self::create($data);
     }
 
@@ -43,6 +64,12 @@ class ShowtimeSlot extends Model
     // Cập nhật khung giờ chiếu
     public function updateSlot($data)
     {
+        // Xác thực dữ liệu
+        $validationResult = self::validateSlotData($data);
+        if ($validationResult !== true) {
+            return $validationResult;
+        }
+
         return $this->update($data);
     }
 

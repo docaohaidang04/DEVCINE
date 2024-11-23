@@ -7,56 +7,53 @@ use Illuminate\Http\Request;
 
 class BookingPromotionController extends Controller
 {
+    // Lấy tất cả promotions
     public function index()
     {
-        $promotions = BookingPromotion::all();
+        $promotions = BookingPromotion::getAllPromotions();
         return response()->json($promotions);
     }
 
+    // Lấy promotion theo id
     public function show($id)
     {
-        $promotion = BookingPromotion::find($id);
+        $promotion = BookingPromotion::getPromotionById($id);
         if ($promotion) {
             return response()->json($promotion);
         }
         return response()->json(['message' => 'promotion not found'], 404);
     }
 
+    // Tạo booking promotion mới
     public function store(Request $request)
     {
-        $request->validate([
-            'id_promotion' => 'required|exists:promotions,id_promotion',
-            'id_booking' => 'required|exists:bookings,id_booking',
-        ]);
+        $promotion = BookingPromotion::createBookingPromotion($request->all());
+        if ($promotion instanceof \Illuminate\Http\JsonResponse) {
+            return $promotion; // Trả về lỗi nếu có
+        }
 
-        $promotion = BookingPromotion::create($request->all());
         return response()->json($promotion, 201);
     }
 
+    // Cập nhật booking promotion
     public function update(Request $request, $id)
     {
-        $promotion = BookingPromotion::find($id);
+        $promotion = BookingPromotion::getPromotionById($id);
         if (!$promotion) {
             return response()->json(['message' => 'promotion not found'], 404);
         }
 
-        $request->validate([
-            'id_promotion' => 'sometimes|required|exists:promotions,id_promotion',
-            'id_booking' => 'sometimes|required|exists:bookings,id_booking',
-        ]);
+        $updatedPromotion = $promotion->updateBookingPromotion($request->all());
+        if ($updatedPromotion instanceof \Illuminate\Http\JsonResponse) {
+            return $updatedPromotion; // Trả về lỗi nếu có
+        }
 
-        $promotion->update($request->all());
-        return response()->json($promotion);
+        return response()->json($updatedPromotion);
     }
 
+    // Xóa booking promotion
     public function destroy($id)
     {
-        $promotion = BookingPromotion::find($id);
-        if (!$promotion) {
-            return response()->json(['message' => 'promotion not found'], 404);
-        }
-
-        $promotion->delete();
-        return response()->json(['message' => 'promotion deleted successfully']);
+        return BookingPromotion::deleteBookingPromotion($id);
     }
 }

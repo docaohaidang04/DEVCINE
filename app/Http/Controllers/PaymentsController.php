@@ -9,52 +9,34 @@ class PaymentsController extends Controller
 {
     public function index()
     {
-        $payments = Payments::all();
-        return response()->json($payments);
+        // Lấy tất cả thanh toán
+        return response()->json(Payments::getAllPayments());
     }
 
     public function show($id)
     {
-        $payment = Payments::find($id);
-        if ($payment) {
-            return response()->json($payment);
-        }
-        return response()->json(['message' => 'Payment not found'], 404);
+        // Lấy thanh toán theo ID
+        $payment = Payments::getPaymentById($id);
+        return response()->json($payment);
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        $payment = Payments::create($request->all());
+        // Tạo thanh toán mới
+        $payment = Payments::createPayment($request);
         return response()->json($payment, 201);
     }
 
     public function update(Request $request, $id)
     {
-        $payment = Payments::find($id);
-        if (!$payment) {
-            return response()->json(['message' => 'Payment not found'], 404);
-        }
-
-        $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-        ]);
-
-        $payment->update($request->all());
+        // Cập nhật thanh toán
+        $payment = Payments::updatePayment($request, $id);
         return response()->json($payment);
     }
 
     public function destroy($id)
     {
-        $payment = Payments::find($id);
-        if (!$payment) {
-            return response()->json(['message' => 'Payment not found'], 404);
-        }
-
-        $payment->delete();
-        return response()->json(['message' => 'Payment deleted successfully']);
+        // Xóa thanh toán
+        return Payments::deletePayment($id);
     }
 }
