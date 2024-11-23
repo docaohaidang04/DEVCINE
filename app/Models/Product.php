@@ -26,6 +26,13 @@ class Product extends Model
         'is_active' => 'boolean',
     ];
 
+    // Quan hệ với Combo (nhiều sản phẩm thuộc về nhiều combo)
+    public function combos()
+    {
+        return $this->belongsToMany(Combo::class, 'product_combos', 'id_product', 'id_combo')
+            ->withPivot('quantity');
+    }
+
     public static function getAllProducts()
     {
         return self::all();

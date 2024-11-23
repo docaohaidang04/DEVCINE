@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
 
 class Combo extends Model
@@ -12,16 +11,23 @@ class Combo extends Model
     use HasFactory;
 
     protected $table = 'combos';
-
     protected $primaryKey = 'id_combo';
 
     protected $fillable = [
         'name',
+        'price',
         'description',
         'image_combos',
         'created_at',
         'updated_at'
     ];
+
+    // Quan hệ với sản phẩm (bỏ một định nghĩa products)
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'product_combos', 'id_combo', 'id_product')
+            ->withPivot('quantity');
+    }
 
     // Lấy tất cả combos
     public static function getAllCombos()
@@ -32,41 +38,91 @@ class Combo extends Model
     // Tạo combo mới
     public static function createCombo($request)
     {
-        // Validate dữ liệu
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
             'image_combos' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'products' => 'required|array', // Mảng sản phẩm
+            'products.*.id_product' => 'required|exists:products,id_product', // ID sản phẩm phải tồn tại
+            'products.*.quantity' => 'required|integer|min:1' // Số lượng sản phẩm phải > 0
         ]);
 
-        // Lưu ảnh vào public/combos nếu có
-        $destinationPath = public_path('combos');
-        if (!file_exists($destinationPath)) {
-            mkdir($destinationPath, 0755, true);
+        // **Tính tổng giá combo**
+        $totalPrice = 0;
+        foreach ($validatedData['products'] as $product) {
+            $productModel = \App\Models\Product::find($product['id_product']); // Tìm sản phẩm
+            if ($productModel) {
+                $totalPrice += $productModel->price * $product['quantity']; // Tổng giá = giá sản phẩm * số lượng
+            }
         }
 
-        $imageCombos = null;
-
+        // **Xử lý ảnh nếu có**
         if ($request->hasFile('image_combos')) {
-            $imageCombos = time() . '_' . $request->file('image_combos')->getClientOriginalName();
-            $request->file('image_combos')->move($destinationPath, $imageCombos);
-            $validatedData['image_combos'] = 'combos/' . $imageCombos;
+            $destinationPath = public_path('combos');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            $imageName = time() . '_' . $request->file('image_combos')->getClientOriginalName();
+            $request->file('image_combos')->move($destinationPath, $imageName);
+            $validatedData['image_combos'] = 'combos/' . $imageName;
         }
 
-        return self::create($validatedData);
+        // **Tạo combo**
+        $combo = self::create([
+            'name' => $validatedData['name'],
+            'price' => $totalPrice, // Tổng giá combo
+            'description' => $validatedData['description'] ?? null,
+            'image_combos' => $validatedData['image_combos'] ?? null
+        ]);
+
+        // **Liên kết sản phẩm với combo**
+        foreach ($validatedData['products'] as $product) {
+            \App\Models\ProductCombo::create([
+                'id_combo' => $combo->id_combo,
+                'id_product' => $product['id_product'],
+                'quantity' => $product['quantity']
+            ]);
+        }
+
+        return $combo; // Trả về combo vừa tạo
     }
+
+
 
     // Lấy combo theo ID
     public static function getComboById($id)
     {
-        return self::find($id);
+        $combo = self::with(['products' => function ($query) {
+            $query->select('products.id_product', 'products.price', 'product_combos.quantity');
+        }])->find($id);
+
+        if (!$combo) {
+            return null;
+        }
+
+        return [
+            'id_combo' => $combo->id_combo,
+            'name' => $combo->name,
+            'price' => $combo->price,
+            'description' => $combo->description,
+            'image_combos' => $combo->image_combos,
+            'products' => $combo->products->map(function ($product) {
+                return [
+                    'id_product' => $product->id_product,
+                    'price' => $product->price,
+                    'quantity' => $product->pivot->quantity,
+                ];
+            }),
+        ];
     }
+
 
     // Cập nhật combo
     public static function updateCombo($id, $request)
     {
         $combo = self::find($id);
         if (!$combo) {
-            return null; // Nếu không tìm thấy combo, trả về null
+            return null;
         }
 
         $validatedData = $request->validate([
@@ -75,7 +131,6 @@ class Combo extends Model
             'image_combos' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        // Cập nhật ảnh nếu có
         if ($request->hasFile('image_combos')) {
             $destinationPath = public_path('combos');
             if (!file_exists($destinationPath)) {
@@ -85,7 +140,6 @@ class Combo extends Model
             $request->file('image_combos')->move($destinationPath, $imageCombos);
             $validatedData['image_combos'] = 'combos/' . $imageCombos;
 
-            // Xóa ảnh cũ nếu có
             if ($combo->image_combos && file_exists(public_path($combo->image_combos))) {
                 unlink(public_path($combo->image_combos));
             }
@@ -98,7 +152,6 @@ class Combo extends Model
     // Xóa combo
     public function deleteCombo()
     {
-        // Xóa ảnh nếu có
         if ($this->image_combos && file_exists(public_path($this->image_combos))) {
             unlink(public_path($this->image_combos));
         }
