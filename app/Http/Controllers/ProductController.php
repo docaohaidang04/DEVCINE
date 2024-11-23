@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
@@ -18,26 +19,33 @@ class ProductController extends Controller
     // Thêm sản phẩm mới
     public function store(Request $request)
     {
-        Log::info('Request data:', $request->all()); 
-        // Logging dữ liệu nhận được
-         // Validate các dữ liệu đầu vào
-          $request->validate([ 'product_name' => 'required|string|max:255', 'description' => 'nullable|string', 'price' => 'required|numeric|min:0', 'image_product' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 'is_active' => 'boolean', ]); 
-          // Kiểm tra và tạo thư mục nếu chưa tồn tại
-           $destinationPath = public_path('products'); if (!file_exists($destinationPath)) { mkdir($destinationPath, 0755, true); } 
-           // Khởi tạo các biến để lưu tên tệp
-            $imageProductName = null; 
-            // Lưu ảnh vào public/products nếu có 
-            if ($request->hasFile('image_product')) { $imageProductName = time() . '_' . $request->file('image_product')->getClientOriginalName(); $request->file('image_product')->move($destinationPath, $imageProductName); } 
-            // Tạo mới bản ghi sản phẩm
-             $product = Product::create([ 'product_name' => $request->product_name, 'description' => $request->description, 'price' => $request->price, 'is_active' => $request->is_active, 'image_product' => $imageProductName ? 'products/' . $imageProductName : null, ]);  
-             Log::info('Add product with data:', $request->all()); 
-             // Logging thông tin cập nhật
-              // Trả về response kèm đường dẫn ảnh
-               return response()->json([ 'product' => $product, 'image_url' => asset($product->image_product), ], 201); } 
-               // Lấy một sản phẩm theo ID public 
-               
-    
+        Log::info('Request data:', $request->all());
 
+        // Validate các dữ liệu đầu vào
+        $validator = Validator::make($request->all(), [
+            'product_name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'image_product' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        // Kiểm tra nếu validation thất bại
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Sử dụng phương thức tạo sản phẩm trong model
+        $product = Product::createProduct($request);
+
+        Log::info('Add product with data:', $request->all());
+
+        // Trả về response kèm dữ liệu sản phẩm và đường dẫn ảnh
+        return response()->json([
+            'product' => $product,
+            'image_url' => asset($product->image_product),
+        ], 201);
+    }
 
     // Lấy thông tin sản phẩm
     public function show($id)

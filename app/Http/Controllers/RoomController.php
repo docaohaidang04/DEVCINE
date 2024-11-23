@@ -9,12 +9,14 @@ use App\Models\Chair;
 
 class RoomController extends Controller
 {
+    // Lấy tất cả các phòng
     public function index()
     {
         $rooms = Room::getAllRooms();
         return response()->json($rooms, 200);
     }
 
+    // Lấy thông tin phòng theo ID
     public function show($id)
     {
         $room = Room::getRoomById($id);
@@ -24,65 +26,29 @@ class RoomController extends Controller
         return response()->json(['message' => 'Room not found'], 404);
     }
 
+    // Tạo phòng mới
     public function store(Request $request)
-{
-    try {
-        $request->validate([
-            'room_name' => 'required|string|max:255',
-            'room_status' => 'nullable|string',
-            'room_type' => 'nullable|string',
-            'chair_number' => 'nullable|integer|min:1', // Số ghế phải là số nguyên dương
-        ]);
-
-        // Tạo phòng
-        $room = Room::create($request->only(['room_name', 'room_status', 'room_type', 'chair_number']));
-
-        // Tự động tạo ghế nếu có chair_number
-        if ($request->filled('chair_number')) {
-            $chairNumber = $request->input('chair_number');
-            $this->generateChairs($room->id_room, $chairNumber);
-        }
-
-        return response()->json($room, 201);
-    } catch (\Exception $e) {
-        Log::error('Room creation failed: ' . $e->getMessage());
-        return response()->json(['error' => 'Room creation failed: ' . $e->getMessage()], 400);
-    }
-}
-
-/**
- * Hàm tự động sinh ghế
- */
-private function generateChairs($idRoom, $chairNumber)
-{
-    $rows = range('A', 'Z'); // Tạo danh sách hàng từ A -> Z
-    $chairs = [];
-    $columns = 10;
-
-    $chairCount = 0; // Đếm số ghế đã tạo
-    foreach ($rows as $row) {
-        for ($column = 1; $column <= $columns; $column++) {
-            if ($chairCount >= $chairNumber) {
-                break 2; // Thoát khỏi cả hai vòng lặp
+    {
+        try {
+            // Tạo phòng và tự động sinh ghế nếu có chair_number
+            $room = Room::createRoom($request->only(['room_name', 'room_status', 'room_type', 'chair_number']));
+            if (isset($room['errors'])) {
+                return response()->json($room, 422);
             }
-            $chairs[] = [
-                'id_room' => $idRoom,
-                'chair_name' => $row . $column, // Ví dụ: A1, A2...
-                'chair_status' => 'available',
-                'column' => $column,
-                'row' => $row,
-                'price' => rand(50000, 200000), // Giá ngẫu nhiên
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-            $chairCount++;
+
+            if ($request->filled('chair_number')) {
+                $chairNumber = $request->input('chair_number');
+                $this->generateChairs($room->id_room, $chairNumber);
+            }
+
+            return response()->json($room, 201);
+        } catch (\Exception $e) {
+            Log::error('Room creation failed: ' . $e->getMessage());
+            return response()->json(['error' => 'Room creation failed: ' . $e->getMessage()], 400);
         }
     }
 
-    // Chèn toàn bộ ghế vào bảng chairs
-    Chair::insert($chairs);
-}
-
+    // Cập nhật phòng
     public function update(Request $request, $id)
     {
         $room = Room::updateRoom($id, $request->all());
@@ -92,6 +58,7 @@ private function generateChairs($idRoom, $chairNumber)
         return response()->json(['message' => 'Room not found'], 404);
     }
 
+    // Xóa phòng
     public function destroy($id)
     {
         $deleted = Room::deleteRoom($id);
@@ -101,9 +68,43 @@ private function generateChairs($idRoom, $chairNumber)
         return response()->json(['message' => 'Room not found'], 404);
     }
 
+    // Lấy danh sách phòng đang hoạt động
     public function getActiveRooms()
     {
         $activeRooms = Room::getActiveRooms();
         return response()->json($activeRooms, 200);
+    }
+
+    /**
+     * Hàm tự động sinh ghế
+     */
+    private function generateChairs($idRoom, $chairNumber)
+    {
+        $rows = range('A', 'Z'); // Tạo danh sách hàng từ A -> Z
+        $chairs = [];
+        $columns = 10;
+
+        $chairCount = 0; // Đếm số ghế đã tạo
+        foreach ($rows as $row) {
+            for ($column = 1; $column <= $columns; $column++) {
+                if ($chairCount >= $chairNumber) {
+                    break 2;
+                }
+                $chairs[] = [
+                    'id_room' => $idRoom,
+                    'chair_name' => $row . $column,
+                    'chair_status' => 'available',
+                    'column' => $column,
+                    'row' => $row,
+                    'price' => 60000,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+                $chairCount++;
+            }
+        }
+
+        // Chèn toàn bộ ghế vào bảng chairs
+        Chair::insert($chairs);
     }
 }

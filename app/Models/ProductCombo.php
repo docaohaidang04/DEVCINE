@@ -10,48 +10,22 @@ class ProductCombo extends Model
     use HasFactory;
 
     protected $table = 'product_combos';
-    protected $primaryKey = 'id_product_combo';
 
     protected $fillable = [
         'id_combo',
         'id_product',
-        'quantity'
+        'quantity',
     ];
 
-    public $timestamps = true;
-
-    public static function getAllCombos()
+    // Định nghĩa quan hệ với Combo
+    public function combo()
     {
-        return self::all();
+        return $this->belongsTo(Combo::class, 'id_combo');
     }
 
-    public static function getComboById($id)
+    // Định nghĩa quan hệ với Product
+    public function product()
     {
-        return self::find($id);
-    }
-
-    public static function createCombo($data)
-    {
-        return self::create($data);
-    }
-
-    public static function updateCombo($id, $data)
-    {
-        $combo = self::find($id);
-        if ($combo) {
-            $combo->update($data);
-            return $combo;
-        }
-        return null;
-    }
-
-    public static function deleteCombo($id)
-    {
-        $combo = self::find($id);
-        if ($combo) {
-            $combo->delete();
-            return true;
-        }
-        return false;
+        return $this->belongsTo(Product::class, 'id_product');
     }
 }

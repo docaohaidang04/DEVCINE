@@ -72,9 +72,6 @@ Route::get('/movies/{movieId}/next-showtimes', [ShowtimeController::class, 'getN
 // PRODUCTS
 Route::apiResource('products', ProductController::class);
 
-// PRODUCT COMBOS
-Route::apiResource('product-combos', ProductComboController::class);
-
 // COMBOS
 Route::apiResource('combos', ComboController::class);
 

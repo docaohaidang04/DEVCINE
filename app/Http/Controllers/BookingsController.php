@@ -7,70 +7,53 @@ use Illuminate\Http\Request;
 
 class BookingsController extends Controller
 {
+    // Lấy tất cả bookings
     public function index()
     {
-        $bookings = Bookings::all();
+        $bookings = Bookings::getAllBookings();
         return response()->json($bookings);
     }
 
+    // Lấy booking theo id
     public function show($id)
     {
-        $booking = Bookings::find($id);
+        $booking = Bookings::getBookingById($id);
         if ($booking) {
             return response()->json($booking);
         }
         return response()->json(['message' => 'booking not found'], 404);
     }
 
+    // Tạo booking mới
     public function store(Request $request)
     {
-        $request->validate([
-            'id_account' => 'required|exists:accounts,id_account',
-            'id_combo' => 'nullable|exists:combos,id_combo',
-            'id_payment' => 'nullable|exists:payment,id_payment',
-            'quantity' => 'nullable|integer',
-            'total_amount' => 'nullable|numeric',
-            'payment_status' => 'nullable|string',
-            'transaction_id' => 'nullable|string',
-            'payment_date' => 'nullable|date',
-            'status' => 'nullable|string',
-        ]);
+        $booking = Bookings::createBooking($request->all());
+        if ($booking instanceof \Illuminate\Http\JsonResponse) {
+            return $booking; // Trả về lỗi nếu có
+        }
 
-        $booking = Bookings::create($request->all());
         return response()->json($booking, 201);
     }
 
+    // Cập nhật booking
     public function update(Request $request, $id)
     {
-        $booking = Bookings::find($id);
+        $booking = Bookings::getBookingById($id);
         if (!$booking) {
             return response()->json(['message' => 'booking not found'], 404);
         }
 
-        $request->validate([
-            'id_account' => 'sometimes|required|exists:accounts,id_account',
-            'id_combo' => 'nullable|exists:combos,id_combo',
-            'id_payment' => 'nullable|exists:payment,id_payment',
-            'quantity' => 'nullable|integer',
-            'total_amount' => 'nullable|numeric',
-            'payment_status' => 'nullable|string',
-            'transaction_id' => 'nullable|string',
-            'payment_date' => 'nullable|date',
-            'status' => 'nullable|string',
-        ]);
+        $updatedBooking = $booking->updateBooking($request->all());
+        if ($updatedBooking instanceof \Illuminate\Http\JsonResponse) {
+            return $updatedBooking; // Trả về lỗi nếu có
+        }
 
-        $booking->update($request->all());
-        return response()->json($booking);
+        return response()->json($updatedBooking);
     }
 
+    // Xóa booking
     public function destroy($id)
     {
-        $booking = Bookings::find($id);
-        if (!$booking) {
-            return response()->json(['message' => 'booking not found'], 404);
-        }
-
-        $booking->delete();
-        return response()->json(['message' => 'booking deleted successfully']);
+        return Bookings::deleteBooking($id);
     }
 }

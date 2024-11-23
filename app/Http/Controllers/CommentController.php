@@ -4,70 +4,57 @@ namespace App\Http\Controllers;
 
 use App\Models\Comment;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class CommentController extends Controller
 {
     // Lấy danh sách tất cả các bình luận
-    public function index()
+    public function index(): JsonResponse
     {
-        $comments = Comment::getAllComments(); // Gọi phương thức trong model
-        return response()->json($comments); // Trả về danh sách bình luận dưới dạng JSON
+        return response()->json(Comment::getAllComments());
     }
 
-    // Tạo mới một bình luận
-    public function store(Request $request)
+    // Tạo bình luận mới
+    public function store(Request $request): JsonResponse
     {
-        // Xác thực dữ liệu đầu vào
-        $validatedData = $request->validate([
-            'ticket_id' => 'required|integer',
-            'user_id' => 'required|integer',
-            'content' => 'required|string|max:1000',
-        ]);
+        $comment = Comment::createComment($request->all()); // Gọi phương thức trong model
+        if ($comment instanceof \Illuminate\Http\JsonResponse) {
+            return $comment; // Trả về lỗi nếu có
+        }
 
-        // Tạo bình luận mới
-        $comment = Comment::createComment($validatedData); // Gọi phương thức trong model
-        return response()->json($comment, 201); // Trả về bình luận mới tạo
+        return response()->json($comment, 201);
     }
 
     // Lấy thông tin của một bình luận theo ID
-    public function show($id)
+    public function show($id): JsonResponse
     {
-        $comment = Comment::getCommentById($id); // Gọi phương thức trong model
+        $comment = Comment::getCommentById($id);
         if (!$comment) {
             return response()->json(['message' => 'Comment not found'], 404);
         }
-        return response()->json($comment); // Trả về thông tin bình luận
+        return response()->json($comment);
     }
 
     // Cập nhật một bình luận theo ID
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
-        $comment = Comment::getCommentById($id); // Gọi phương thức trong model
+        $comment = Comment::getCommentById($id);
         if (!$comment) {
             return response()->json(['message' => 'Comment not found'], 404);
         }
 
-        // Xác thực dữ liệu đầu vào
-        $validatedData = $request->validate([
-            'ticket_id' => 'sometimes|required|integer',
-            'user_id' => 'sometimes|required|integer',
-            'content' => 'sometimes|required|string|max:1000',
-        ]);
-
-        // Cập nhật bình luận
-        $comment->updateComment($validatedData); // Gọi phương thức trong model
+        $comment->updateComment($request->all()); // Gọi phương thức trong model
         return response()->json($comment);
     }
 
     // Xóa một bình luận theo ID
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
-        $comment = Comment::getCommentById($id); // Gọi phương thức trong model
+        $comment = Comment::getCommentById($id);
         if (!$comment) {
             return response()->json(['message' => 'Comment not found'], 404);
         }
 
-        // Xóa bình luận
         $comment->deleteComment(); // Gọi phương thức trong model
         return response()->json(['message' => 'Comment deleted']);
     }
