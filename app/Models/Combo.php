@@ -92,28 +92,10 @@ class Combo extends Model
     // Lấy combo theo ID
     public static function getComboById($id)
     {
-        $combo = self::with(['products' => function ($query) {
+        // Lấy combo kèm sản phẩm
+        return self::with(['products' => function ($query) {
             $query->select('products.id_product', 'products.price', 'product_combos.quantity');
-        }])->find($id);
-
-        if (!$combo) {
-            return null;
-        }
-
-        return [
-            'id_combo' => $combo->id_combo,
-            'name' => $combo->name,
-            'price' => $combo->price,
-            'description' => $combo->description,
-            'image_combos' => $combo->image_combos,
-            'products' => $combo->products->map(function ($product) {
-                return [
-                    'id_product' => $product->id_product,
-                    'price' => $product->price,
-                    'quantity' => $product->pivot->quantity,
-                ];
-            }),
-        ];
+        }])->find($id); // Trả về đối tượng Eloquent thay vì mảng
     }
 
 
@@ -152,10 +134,15 @@ class Combo extends Model
     // Xóa combo
     public function deleteCombo()
     {
+        // Xóa các liên kết giữa combo và sản phẩm trong bảng product_combos
+        $this->products()->detach();
+
+        // Xóa ảnh combo nếu có
         if ($this->image_combos && file_exists(public_path($this->image_combos))) {
             unlink(public_path($this->image_combos));
         }
 
+        // Xóa combo
         return $this->delete();
     }
 }

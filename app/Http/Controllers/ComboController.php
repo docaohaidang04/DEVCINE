@@ -37,13 +37,18 @@ class ComboController extends Controller
         return response()->json($combo);
     }
 
+    // Controller ComboController
     public function destroy($id): JsonResponse
     {
+        // Lấy combo theo ID
         $combo = Combo::getComboById($id);
         if (!$combo) {
             return response()->json(['message' => 'Combo not found'], 404);
         }
+
+        // Gọi phương thức deleteCombo để xử lý xóa combo
         $combo->deleteCombo();
-        return response()->json(['message' => 'Combo deleted']);
+
+        return response()->json(['message' => 'Combo deleted successfully']);
     }
 }
