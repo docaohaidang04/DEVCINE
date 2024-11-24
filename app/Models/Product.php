@@ -54,15 +54,40 @@ class Product extends Model
 
     public static function createProduct($request)
     {
-        $data = self::validateRequest($request);
+        // Validate dữ liệu yêu cầu
+        $validator = Validator::make($request->all(), [
+            'product_name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'image_product' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'is_active' => 'nullable|boolean',
+        ]);
 
-        if ($request->hasFile('image_product')) {
-            $data['image_product'] = self::handleImageUpload($request->file('image_product'));
+        // Nếu dữ liệu không hợp lệ, ném ngoại lệ
+        if ($validator->fails()) {
+            throw new \Illuminate\Validation\ValidationException($validator);
         }
 
-        // Nếu không lọc, trả về toàn bộ sản phẩm
-        return self::all();
+        // Lấy tất cả dữ liệu hợp lệ từ request
+        $data = $validator->validated();
+
+        // Xử lý ảnh nếu có
+        if ($request->hasFile('image_product')) {
+            $destinationPath = public_path('products'); // Thư mục lưu ảnh
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true); // Tạo thư mục nếu chưa tồn tại
+            }
+
+            $imageName = time() . '_' . $request->file('image_product')->getClientOriginalName();
+            $request->file('image_product')->move($destinationPath, $imageName); // Lưu ảnh vào thư mục
+
+            $data['image_product'] = 'products/' . $imageName; // Đường dẫn ảnh lưu trong DB
+        }
+
+        // Tạo sản phẩm mới
+        return self::create($data);
     }
+
 
     public static function getProductById($id)
     {

@@ -20,25 +20,23 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         try {
+            // Tạo sản phẩm mới thông qua model
             $product = Product::createProduct($request);
+
+            // Trả về JSON response
             return response()->json([
                 'product' => $product,
-                'image_url' => asset($product->image_product),
+                'image_url' => $product->image_product ? asset($product->image_product) : null,
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            // Trả về lỗi validate
             return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            // Trả về lỗi chung
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        // Sử dụng phương thức tạo sản phẩm trong model
-        $product = Product::createProduct($request);
-
-
-        // Trả về response kèm dữ liệu sản phẩm và đường dẫn ảnh
-        return response()->json([
-            'product' => $product
-        ], 201);
-
     }
+
 
     public function show($id)
     {
@@ -51,16 +49,16 @@ class ProductController extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    try {
-        $product = Product::updateProduct($id, $request);
-        return response()->json($product, 200);
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json($e->validator->errors(), 422);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
+    {
+        try {
+            $product = Product::updateProduct($id, $request);
+            return response()->json($product, 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json($e->validator->errors(), 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
-}
 
 
     public function destroy($id)
