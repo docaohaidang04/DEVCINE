@@ -14,6 +14,7 @@ class CreateBookingsTable extends Migration
             $table->foreignId('id_product')->nullable()->constrained('products', 'id_product');
             $table->foreignId('id_payment')->nullable()->constrained('payment', 'id_payment');
             $table->foreignId('id_ticket')->nullable()->constrained('tickets', 'id_ticket');
+            $table->string('booking_code')->nullable();
             $table->dateTime('booking_date')->default(now());
             $table->integer('total_amount')->nullable()->default(0);
             $table->string('payment_status')->nullable();
