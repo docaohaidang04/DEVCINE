@@ -31,15 +31,26 @@ class Product extends Model
             ->withPivot('quantity');
     }
 
-    public static function getAllProducts()
+    public static function getProducts($request)
     {
+        // Lấy giá trị 'is_active' từ query string
+        $is_active = $request->query('is_active');
+
+        // Nếu 'is_active' không null, chuyển đổi giá trị thành boolean
+        if (!is_null($is_active)) {
+            $is_active = filter_var($is_active, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+            // Nếu giá trị không hợp lệ, trả về danh sách rỗng hoặc xử lý lỗi
+            if (is_null($is_active)) {
+                return collect(); // Trả về danh sách rỗng
+            }
+
+            // Lọc sản phẩm theo trạng thái is_active
+            return self::where('is_active', $is_active)->get();
+        }
         return self::all();
     }
 
-    public static function getProductById($id)
-    {
-        return self::findOrFail($id);
-    }
 
     public static function createProduct($request)
     {
@@ -49,13 +60,49 @@ class Product extends Model
             $data['image_product'] = self::handleImageUpload($request->file('image_product'));
         }
 
-        return self::create($data);
+        // Nếu không lọc, trả về toàn bộ sản phẩm
+        return self::all();
     }
+
+    public static function getProductById($id)
+    {
+        return self::findOrFail($id);
+    }
+
+
 
     public static function updateProduct($id, $request)
     {
+        // Tìm sản phẩm hoặc trả về lỗi 404
         $product = self::findOrFail($id);
         $data = self::validateRequest($request, 'update');
+
+        // Validate dữ liệu yêu cầu
+        $validator = Validator::make($request->all(), [
+            'product_name' => 'sometimes|string|max:255',
+            'description' => 'sometimes|nullable|string',
+            'price' => 'sometimes|numeric|min:0',
+            'image_product' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'is_active' => 'sometimes|boolean',
+        ]);
+
+        if ($validator->fails()) {
+            throw new \Illuminate\Validation\ValidationException($validator);
+        }
+
+        $data = $request->only(['product_name', 'description', 'price', 'is_active']); // Lấy dữ liệu hợp lệ
+
+        // Xử lý ảnh nếu có ảnh mới được tải lên
+        if ($request->hasFile('image_product')) {
+            $image = $request->file('image_product');
+            $imageFileName = time() . '_' . $image->getClientOriginalName();
+            $destinationPath = public_path('products');
+
+            // Lưu ảnh mới
+            $image->move($destinationPath, $imageFileName);
+            $data['image_product'] = 'products/' . $imageFileName;
+        }
+        // Xóa ảnh cũ nếu tồn tại
 
         if ($request->hasFile('image_product')) {
             if ($product->image_product && file_exists(public_path($product->image_product))) {
@@ -64,7 +111,9 @@ class Product extends Model
             $data['image_product'] = self::handleImageUpload($request->file('image_product'));
         }
 
+
         $product->update($data);
+
         return $product;
     }
 
