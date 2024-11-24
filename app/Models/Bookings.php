@@ -18,6 +18,7 @@ class Bookings extends Model
         'id_account',
         'id_combo',
         'id_payment',
+        'booking_code',
         'booking_date',
         'quantity',
         'total_amount',
