@@ -23,7 +23,7 @@ class AuthController extends Controller
 
         try {
             if (! $token = JWTAuth::attempt($credentials)) {
-                return response()->json(['error' => 'Unauthorized'], 401);
+                return response()->json(['status' => 401, 'error' => 'Tài khoản hoặc mật khẩu không đúng'], 401);
             }
         } catch (JWTException $e) {
             return response()->json(['error' => 'Could not create token'], 500);
@@ -37,6 +37,8 @@ class AuthController extends Controller
 
         // Trả về thông tin tài khoản cùng với access_token và refresh_token
         return response()->json([
+            'status' => 200,
+            'message' => 'Đăng nhập thành công',
             'user' => $user,
             'access_token' => $token,
             'refresh_token' => $refreshToken,

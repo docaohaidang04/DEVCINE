@@ -10,10 +10,12 @@ use Illuminate\Support\Facades\Validator;
 class ProductController extends Controller
 {
     // Lấy danh sách sản phẩm
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::getAllProducts();
-        return response()->json($products);
+        // Gọi hàm trong Model và truyền request vào
+        $products = Product::getProducts($request);
+
+        return response()->json($products, 200);
     }
 
     // Thêm sản phẩm mới
@@ -42,8 +44,7 @@ class ProductController extends Controller
 
         // Trả về response kèm dữ liệu sản phẩm và đường dẫn ảnh
         return response()->json([
-            'product' => $product,
-            'image_url' => asset($product->image_product),
+            'product' => $product
         ], 201);
     }
 
@@ -58,10 +59,12 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $product = Product::updateProduct($id, $request->all());
+            $product = Product::updateProduct($id, $request);
             return response()->json($product, 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json($e->validator->errors(), 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
