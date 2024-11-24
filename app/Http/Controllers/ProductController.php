@@ -54,7 +54,7 @@ class ProductController extends Controller
             $product = Product::updateProduct($id, $request);
             return response()->json($product, 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 422);
+            return response()->json(['errors' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

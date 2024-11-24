@@ -98,11 +98,10 @@ class Product extends Model
 
     public static function updateProduct($id, $request)
     {
-        // Tìm sản phẩm hoặc trả về lỗi 404
+        // Tìm sản phẩm theo ID
         $product = self::findOrFail($id);
-        $data = self::validateRequest($request, 'update');
 
-        // Validate dữ liệu yêu cầu
+        // Xác thực dữ liệu đầu vào
         $validator = Validator::make($request->all(), [
             'product_name' => 'sometimes|string|max:255',
             'description' => 'sometimes|nullable|string',
@@ -111,36 +110,42 @@ class Product extends Model
             'is_active' => 'sometimes|boolean',
         ]);
 
+        // Ném lỗi nếu xác thực thất bại
         if ($validator->fails()) {
             throw new \Illuminate\Validation\ValidationException($validator);
         }
 
-        $data = $request->only(['product_name', 'description', 'price', 'is_active']); // Lấy dữ liệu hợp lệ
+        // Lấy dữ liệu đã được xác thực
+        $data = $validator->validated();
 
-        // Xử lý ảnh nếu có ảnh mới được tải lên
+        // Xử lý ảnh nếu có file ảnh được tải lên
         if ($request->hasFile('image_product')) {
-            $image = $request->file('image_product');
-            $imageFileName = time() . '_' . $image->getClientOriginalName();
             $destinationPath = public_path('products');
 
-            // Lưu ảnh mới
-            $image->move($destinationPath, $imageFileName);
-            $data['image_product'] = 'products/' . $imageFileName;
-        }
-        // Xóa ảnh cũ nếu tồn tại
-
-        if ($request->hasFile('image_product')) {
-            if ($product->image_product && file_exists(public_path($product->image_product))) {
-                unlink(public_path($product->image_product)); // Xóa ảnh cũ
+            // Tạo thư mục nếu chưa tồn tại
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
             }
-            $data['image_product'] = self::handleImageUpload($request->file('image_product'));
+
+            // Tạo tên file ảnh mới
+            $imageName = time() . '_' . $request->file('image_product')->getClientOriginalName();
+            $request->file('image_product')->move($destinationPath, $imageName);
+
+            // Lưu đường dẫn ảnh mới
+            $data['image_product'] = 'products/' . $imageName;
+
+            // Xóa ảnh cũ nếu tồn tại
+            if ($product->image_product && file_exists(public_path($product->image_product))) {
+                unlink(public_path($product->image_product));
+            }
         }
 
-
+        // Cập nhật sản phẩm
         $product->update($data);
 
         return $product;
     }
+
 
     public static function deleteProduct($id)
     {
