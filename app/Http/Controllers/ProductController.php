@@ -9,6 +9,7 @@ class ProductController extends Controller
 {
     // Lấy danh sách sản phẩm
     public function index(Request $request)
+
     {
         // Gọi hàm trong Model và truyền request vào
         $products = Product::getProducts($request);
@@ -36,6 +37,7 @@ class ProductController extends Controller
         return response()->json([
             'product' => $product
         ], 201);
+
     }
 
     public function show($id)
@@ -49,19 +51,17 @@ class ProductController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        try {
-            $product = Product::updateProduct($id, $request);
-            return response()->json($product, 200);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 422);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-            return response()->json(['errors' => $e->validator->errors()], 422);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 404);
-        }
+{
+    try {
+        $product = Product::updateProduct($id, $request);
+        return response()->json($product, 200);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json($e->validator->errors(), 422);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
     }
+}
+
 
     public function destroy($id)
     {

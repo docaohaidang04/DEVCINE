@@ -48,6 +48,18 @@ class Product extends Model
             // Lọc sản phẩm theo trạng thái is_active
             return self::where('is_active', $is_active)->get();
         }
+    public static function getProductById($id)
+    {
+        return self::findOrFail($id);
+    }
+
+    public static function createProduct($request)
+    {
+        $data = self::validateRequest($request);
+
+        if ($request->hasFile('image_product')) {
+            $data['image_product'] = self::handleImageUpload($request->file('image_product'));
+        }
 
         // Nếu không lọc, trả về toàn bộ sản phẩm
         return self::all();
@@ -75,7 +87,6 @@ class Product extends Model
         $product = self::findOrFail($id);
         $data = self::validateRequest($request, 'update');
 
-<<<<<<< HEAD
         // Validate dữ liệu yêu cầu
         $validator = Validator::make($request->all(), [
             'product_name' => 'sometimes|string|max:255',
@@ -102,19 +113,15 @@ class Product extends Model
             $data['image_product'] = 'products/' . $imageFileName;
 
             // Xóa ảnh cũ nếu tồn tại
-=======
+
         if ($request->hasFile('image_product')) {
->>>>>>> e52e039a5b60be645c6d323f10e948dd8a568770
             if ($product->image_product && file_exists(public_path($product->image_product))) {
                 unlink(public_path($product->image_product)); // Xóa ảnh cũ
             }
             $data['image_product'] = self::handleImageUpload($request->file('image_product'));
         }
 
-<<<<<<< HEAD
-        // Cập nhật sản phẩm
-=======
->>>>>>> e52e039a5b60be645c6d323f10e948dd8a568770
+
         $product->update($data);
 
         return $product;
