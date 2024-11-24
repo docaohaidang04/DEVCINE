@@ -50,7 +50,7 @@ class Movie extends Model
     {
         try {
             return self::with(['genres', 'showtimes' => function ($query) {
-                $query->where('date_time', '>=', Carbon::now())
+                $query->where('date_time', '>=', Carbon::today())
                     ->orderBy('date_time')
                     ->take(5);
             }, 'showtimes.showtimeSlots'])
