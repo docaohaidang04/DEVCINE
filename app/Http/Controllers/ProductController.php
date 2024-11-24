@@ -7,10 +7,14 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index()
+    // Lấy danh sách sản phẩm
+    public function index(Request $request)
+
     {
-        $products = Product::getAllProducts();
-        return response()->json($products);
+        // Gọi hàm trong Model và truyền request vào
+        $products = Product::getProducts($request);
+
+        return response()->json($products, 200);
     }
 
     public function store(Request $request)
@@ -24,6 +28,16 @@ class ProductController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['errors' => $e->validator->errors()], 422);
         }
+
+        // Sử dụng phương thức tạo sản phẩm trong model
+        $product = Product::createProduct($request);
+
+
+        // Trả về response kèm dữ liệu sản phẩm và đường dẫn ảnh
+        return response()->json([
+            'product' => $product
+        ], 201);
+
     }
 
     public function show($id)
@@ -37,16 +51,17 @@ class ProductController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        try {
-            $product = Product::updateProduct($id, $request);
-            return response()->json($product, 200);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json(['errors' => $e->validator->errors()], 422);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 404);
-        }
+{
+    try {
+        $product = Product::updateProduct($id, $request);
+        return response()->json($product, 200);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json($e->validator->errors(), 422);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
     }
+}
+
 
     public function destroy($id)
     {
