@@ -48,10 +48,9 @@ class Product extends Model
             // Lọc sản phẩm theo trạng thái is_active
             return self::where('is_active', $is_active)->get();
         }
-    public static function getProductById($id)
-    {
-        return self::findOrFail($id);
+        return self::all();
     }
+
 
     public static function createProduct($request)
     {
@@ -70,16 +69,7 @@ class Product extends Model
         return self::findOrFail($id);
     }
 
-    public static function createProduct($request)
-    {
-        $data = self::validateRequest($request);
 
-        if ($request->hasFile('image_product')) {
-            $data['image_product'] = self::handleImageUpload($request->file('image_product'));
-        }
-
-        return self::create($data);
-    }
 
     public static function updateProduct($id, $request)
     {
@@ -111,8 +101,8 @@ class Product extends Model
             // Lưu ảnh mới
             $image->move($destinationPath, $imageFileName);
             $data['image_product'] = 'products/' . $imageFileName;
-
-            // Xóa ảnh cũ nếu tồn tại
+        }
+        // Xóa ảnh cũ nếu tồn tại
 
         if ($request->hasFile('image_product')) {
             if ($product->image_product && file_exists(public_path($product->image_product))) {
