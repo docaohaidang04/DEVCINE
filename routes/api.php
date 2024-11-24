@@ -18,7 +18,8 @@ use App\Http\Controllers\{
     BookingPromotionController,
     PaymentsController,
     ShowtimeSlotController,
-    VNPayController
+    VNPayController,
+    StatisticsController
 };
 
 // MOVIES
@@ -78,3 +79,10 @@ Route::apiResource('promotions', PromotionController::class);
 
 // SHOWTIMES-SLOT
 Route::apiResource('showtime-slots', ShowtimeSlotController::class);
+
+// STATISTICS
+Route::prefix('statistics')->group(function () {
+    Route::get('/ticket-sales', [StatisticsController::class, 'ticketSalesByDay']);
+    Route::get('/revenue', [StatisticsController::class, 'revenueStatistics']);
+    Route::get('/revenue-by-movie', [StatisticsController::class, 'revenueByMovie']);
+});

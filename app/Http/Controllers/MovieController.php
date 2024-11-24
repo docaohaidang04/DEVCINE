@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Log;
 class MovieController extends Controller
 {
 
-
     public function index(Request $request)
     {
         $status = $request->query('status');
@@ -18,11 +17,6 @@ class MovieController extends Controller
         }
         return Movie::getAllMovies();
     }
-
-
-
-
-
 
     public function store(Request $request)
     {
@@ -42,7 +36,6 @@ class MovieController extends Controller
             'cast' => 'required|string',
             'status' => 'required|string',
             'poster_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'price' => 'required|integer',
             'genres' => 'required|array',
             'genres.*' => 'exists:genre_movies,id_genre',
         ]);
@@ -82,7 +75,6 @@ class MovieController extends Controller
             'id_genre' => $request->id_genre,
             'status' => $request->status,
             'youtube_url' => $request->youtube_url,
-            'price' => $request->price,
             'image_main' => $imageMainName ? 'movies/' . $imageMainName : null,
             'poster_url' => $posterUrlName ? 'movies/' . $posterUrlName : null,
         ]);
@@ -117,7 +109,6 @@ class MovieController extends Controller
             'youtube_url' => 'sometimes|nullable|string',
             'image_main' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'poster_url' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'price' => 'sometimes|required|integer',
             'genres' => 'sometimes|array',
             'genres.*' => 'exists:genre_movies,id_genre',
         ]);
@@ -163,7 +154,6 @@ class MovieController extends Controller
             'cast',
             'status',
             'youtube_url',
-            'price'
         ]));
 
         // Đồng bộ thể loại nếu có
