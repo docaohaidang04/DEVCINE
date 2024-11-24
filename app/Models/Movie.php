@@ -28,6 +28,7 @@ class Movie extends Model
         'cast',
         'status',
         'poster_url'
+
     ];
 
     // Định nghĩa quan hệ showtimes
