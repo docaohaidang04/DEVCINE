@@ -4,43 +4,54 @@ namespace App\Http\Controllers;
 
 use App\Models\GenreMovies;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class GenreMoviesController extends Controller
 {
-    public function index()
+    // Lấy danh sách tất cả các thể loại phim
+    public function index(): JsonResponse
     {
-        return GenreMovies::all();
+        return response()->json(GenreMovies::getAllGenres());
     }
 
-    public function store(Request $request)
+    // Tạo thể loại phim mới
+    public function store(Request $request): JsonResponse
     {
-        $request->validate([
-            'genre_name' => 'required|string|max:255',
-        ]);
+        $genreMovies = GenreMovies::createGenre($request->all()); // Gọi phương thức trong model
+        if ($genreMovies instanceof \Illuminate\Http\JsonResponse) {
+            return $genreMovies; // Trả về lỗi nếu có
+        }
 
-        $genreMovies = GenreMovies::create($request->all());
         return response()->json($genreMovies, 201);
     }
 
-    public function show($id)
+    // Lấy thể loại phim theo ID
+    public function show($id): JsonResponse
     {
-        return GenreMovies::findGenreMovies($id);
+        $genreMovies = GenreMovies::findGenreMovies($id);
+        return response()->json($genreMovies);
     }
 
-    public function update(Request $request, $id)
+    // Cập nhật thể loại phim theo ID
+    public function update(Request $request, $id): JsonResponse
     {
-        $request->validate([
-            'genre_name' => 'string|max:255',
-        ]);
+        $genreMovies = GenreMovies::findGenreMovies($id);
+        if (!$genreMovies) {
+            return response()->json(['message' => 'Genre not found'], 404);
+        }
 
-        $genreMovies = GenreMovies::findOrFail($id);
-        $genreMovies->update($request->all());
-        return response()->json($genreMovies, 200);
+        $genreMovies->updateGenre($request->all()); // Gọi phương thức trong model
+        return response()->json($genreMovies);
     }
 
-    public function destroy($id)
+    // Xóa thể loại phim theo ID
+    public function destroy($id): JsonResponse
     {
-        GenreMovies::destroy($id);
-        return response()->json(null, 204);
+        $genreMovies = GenreMovies::deleteGenre($id);
+        if (!$genreMovies) {
+            return response()->json(['message' => 'Genre not found'], 404);
+        }
+
+        return response()->json(['message' => 'Genre deleted']);
     }
 }

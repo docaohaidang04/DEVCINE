@@ -4,63 +4,51 @@ namespace App\Http\Controllers;
 
 use App\Models\Combo;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class ComboController extends Controller
 {
-    // Lấy tất cả combos
-    public function index()
+    public function index(): JsonResponse
     {
-        $combos = Combo::getAllCombos(); // Gọi phương thức trong model
-        return response()->json($combos);
+        return response()->json(Combo::getAllCombos());
     }
 
-    // Tạo combo mới
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        $combo = Combo::createCombo($validatedData); // Gọi phương thức trong model
+        $combo = Combo::createCombo($request);
         return response()->json($combo, 201);
     }
 
-    // Lấy một combo theo ID
-    public function show($id)
+    public function show($id): JsonResponse
     {
-        $combo = Combo::getComboById($id); // Gọi phương thức trong model
+        $combo = Combo::getComboById($id);
         if (!$combo) {
             return response()->json(['message' => 'Combo not found'], 404);
         }
         return response()->json($combo);
     }
 
-    // Cập nhật một combo theo ID
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
-        $combo = Combo::getComboById($id); // Gọi phương thức trong model
+        $combo = Combo::updateCombo($id, $request);
         if (!$combo) {
             return response()->json(['message' => 'Combo not found'], 404);
         }
-
-        $validatedData = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|nullable|string|max:1000'
-        ]);
-
-        $combo->updateCombo($validatedData); // Gọi phương thức trong model
         return response()->json($combo);
     }
 
-    // Xóa một combo theo ID
-    public function destroy($id)
+    // Controller ComboController
+    public function destroy($id): JsonResponse
     {
-        $combo = Combo::getComboById($id); // Gọi phương thức trong model
+        // Lấy combo theo ID
+        $combo = Combo::getComboById($id);
         if (!$combo) {
             return response()->json(['message' => 'Combo not found'], 404);
         }
 
-        $combo->deleteCombo(); // Gọi phương thức trong model
-        return response()->json(['message' => 'Combo deleted']);
+        // Gọi phương thức deleteCombo để xử lý xóa combo
+        $combo->deleteCombo();
+
+        return response()->json(['message' => 'Combo deleted successfully']);
     }
 }

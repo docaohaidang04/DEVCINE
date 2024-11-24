@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Movie;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class MovieController extends Controller
 {
@@ -20,6 +19,7 @@ class MovieController extends Controller
 
     public function store(Request $request)
     {
+
         Log::info('Request data:', $request->all()); // Logging dữ liệu nhận được
 
         // Validate các dữ liệu đầu vào
@@ -84,15 +84,18 @@ class MovieController extends Controller
         Log::info('add movie with data:', $request->all()); // Logging thông tin cập nhật
 
         // Trả về response kèm đường dẫn ảnh
+
+        $movie = Movie::storeMovie($request);
+
         return response()->json([
             'movie' => $movie->load('genres'),
             'image_url' => asset($movie->image_main),
         ], 201);
     }
 
-
     public function update(Request $request, string $id_movie)
     {
+
         Log::info('Request data:', $request->all()); // Logging dữ liệu nhận được
 
         // Validate các dữ liệu đầu vào
@@ -164,20 +167,19 @@ class MovieController extends Controller
         Log::info('Updated movie with data:', $request->all()); // Logging thông tin cập nhật
 
         // Trả về response kèm đường dẫn ảnh
+
+        $movie = Movie::updateMovie($request, $id_movie);
+
         return response()->json([
             'movie' => $movie->load('genres'),
         ], 200);
     }
-
-
-
 
     public function show(string $id_movie)
     {
         $movie = Movie::getMovieById($id_movie);
         return response()->json($movie);
     }
-
 
     public function destroy(string $id_movie)
     {

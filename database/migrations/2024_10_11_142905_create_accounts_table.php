@@ -18,6 +18,7 @@ class CreateAccountsTable extends Migration
             $table->string('role')->default("user");
             $table->integer('loyalty_points')->default(0);
             $table->string('refresh_token')->nullable();
+            $table->timestamp('refresh_token_expires_at')->nullable();
             $table->timestamps();
         });
     }

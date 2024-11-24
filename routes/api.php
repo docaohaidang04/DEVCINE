@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     MovieController,
     AccountController,
+    AuthController,
     RoomController,
     ShowtimeController,
     ProductController,
@@ -21,6 +22,7 @@ use App\Http\Controllers\{
     VNPayController,
     StatisticsController
 };
+use Illuminate\Container\Attributes\Auth;
 
 // MOVIES
 Route::apiResource('movies', MovieController::class);
@@ -41,7 +43,20 @@ Route::apiResource('genre_movies', GenreMoviesController::class);
 
 // ACCOUNTS
 Route::post('register', [AccountController::class, 'register']);
-Route::post('login', [AccountController::class, 'login']);
+/* Route::post('login', [AccountController::class, 'login']);
+ */
+//login
+Route::group([
+
+    'middleware' => 'api',
+    'prefix' => 'auth'
+
+], function () {
+    Route::post('login', [
+        AuthController::class,
+        'login'
+    ]);
+});
 Route::get('accounts', [AccountController::class, 'showAllAccount']);
 Route::get('accounts/{id}', [AccountController::class, 'getAccount']);
 Route::put('accounts/{id}', [AccountController::class, 'updateAccount']);
@@ -57,9 +72,6 @@ Route::get('/movies/{movieId}/next-showtimes', [ShowtimeController::class, 'getN
 
 // PRODUCTS
 Route::apiResource('products', ProductController::class);
-
-// PRODUCT COMBOS
-Route::apiResource('product-combos', ProductComboController::class);
 
 // COMBOS
 Route::apiResource('combos', ComboController::class);

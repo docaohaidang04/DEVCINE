@@ -56,6 +56,7 @@ class GenreMoviesSeeder extends Seeder
             ['genre_name' => 'Phim gia đình'],
             ['genre_name' => 'Lịch sử giả tưởng'],
             ['genre_name' => 'Phim nghệ thuật'],
+            ['genre_name' => 'Tiểu Sử'],
         ];
 
         foreach ($genres as &$genre) {

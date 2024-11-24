@@ -8,45 +8,66 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     // Lấy danh sách sản phẩm
-    public function index()
+    public function index(Request $request)
+
     {
-        $products = Product::getAllProducts();
-        return response()->json($products);
+        // Gọi hàm trong Model và truyền request vào
+        $products = Product::getProducts($request);
+
+        return response()->json($products, 200);
     }
 
-    // Thêm sản phẩm mới
     public function store(Request $request)
     {
         try {
-            $product = Product::createProduct($request->all());
-            return response()->json($product, 201);
+            // Tạo sản phẩm mới thông qua model
+            $product = Product::createProduct($request);
+
+            // Trả về JSON response
+            return response()->json([
+                'product' => $product,
+                'image_url' => $product->image_product ? asset($product->image_product) : null,
+            ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 422);
+            // Trả về lỗi validate
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            // Trả về lỗi chung
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    // Lấy thông tin sản phẩm
+
     public function show($id)
     {
-        $product = Product::getProductById($id);
-        return response()->json($product);
+        try {
+            $product = Product::getProductById($id);
+            return response()->json($product);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
+        }
     }
 
-    // Cập nhật sản phẩm
     public function update(Request $request, $id)
     {
         try {
-            $product = Product::updateProduct($id, $request->all());
+            $product = Product::updateProduct($id, $request);
             return response()->json($product, 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 422);
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    // Xóa sản phẩm
+
     public function destroy($id)
     {
-        Product::deleteProduct($id);
-        return response()->json(null, 204);
+        try {
+            Product::deleteProduct($id);
+            return response()->json(['message' => 'Product deleted successfully'], 204);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
+        }
     }
 }

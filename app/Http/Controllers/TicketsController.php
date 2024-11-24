@@ -17,17 +17,14 @@ class TicketsController extends Controller
     // Tạo mới một ticket
     public function store(Request $request)
     {
-        // Xác thực dữ liệu đầu vào
-        $validatedData = $request->validate([
-            'id_booking' => 'required|integer',
-            'id_showtime' => 'required|integer',
-            'id_chair' => 'required|integer',
-            'price' => 'required|numeric',
-            'status' => 'required|string|max:255',
-        ]);
+        // Gọi phương thức tạo ticket trong model
+        $ticket = Tickets::createTicket($request->all());
 
-        // Tạo ticket mới
-        $ticket = Tickets::createTicket($validatedData); // Gọi phương thức trong model
+        // Nếu có lỗi xác thực, trả về lỗi
+        if (isset($ticket['errors'])) {
+            return response()->json($ticket, 422);
+        }
+
         return response()->json($ticket, 201); // Trả về ticket mới tạo
     }
 
@@ -49,17 +46,14 @@ class TicketsController extends Controller
             return response()->json(['message' => 'Ticket not found'], 404);
         }
 
-        // Xác thực dữ liệu đầu vào
-        $validatedData = $request->validate([
-            'id_booking' => 'sometimes|required|integer',
-            'id_showtime' => 'sometimes|required|integer',
-            'id_chair' => 'sometimes|required|integer',
-            'price' => 'sometimes|required|numeric',
-            'status' => 'sometimes|required|string|max:255',
-        ]);
+        // Gọi phương thức cập nhật ticket trong model
+        $ticket->updateTicket($request->all());
 
-        // Cập nhật ticket
-        $ticket->updateTicket($validatedData); // Gọi phương thức trong model
+        // Nếu có lỗi xác thực, trả về lỗi
+        if (isset($ticket['errors'])) {
+            return response()->json($ticket, 422);
+        }
+
         return response()->json($ticket);
     }
 
