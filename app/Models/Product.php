@@ -11,7 +11,6 @@ class Product extends Model
     use HasFactory;
 
     protected $table = 'products';
-
     protected $primaryKey = 'id_product';
 
     protected $fillable = [
@@ -26,7 +25,6 @@ class Product extends Model
         'is_active' => 'boolean',
     ];
 
-    // Quan hệ với Combo (nhiều sản phẩm thuộc về nhiều combo)
     public function combos()
     {
         return $this->belongsToMany(Combo::class, 'product_combos', 'id_product', 'id_combo')
@@ -38,86 +36,34 @@ class Product extends Model
         return self::all();
     }
 
-    public static function createProduct($request)
-    {
-        // Validate dữ liệu yêu cầu
-        $validator = Validator::make($request->all(), [
-            'product_name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'image_product' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'is_active' => 'nullable|boolean',
-        ]);
-
-        if ($validator->fails()) {
-            throw new \Illuminate\Validation\ValidationException($validator);
-        }
-
-        $data = $request->all();
-
-        // Xử lý ảnh tải lên
-        if ($request->hasFile('image_product')) {
-            $destinationPath = public_path('products');
-            // Tạo thư mục nếu chưa tồn tại
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
-            }
-
-            // Tạo tên file ảnh duy nhất và di chuyển ảnh vào thư mục
-            $imageProduct = time() . '_' . $request->file('image_product')->getClientOriginalName();
-            $request->file('image_product')->move($destinationPath, $imageProduct);
-            // Lưu đường dẫn ảnh
-            $data['image_product'] = 'products/' . $imageProduct;
-        }
-
-        return self::create($data);
-    }
-
     public static function getProductById($id)
     {
         return self::findOrFail($id);
     }
 
+    public static function createProduct($request)
+    {
+        $data = self::validateRequest($request);
+
+        if ($request->hasFile('image_product')) {
+            $data['image_product'] = self::handleImageUpload($request->file('image_product'));
+        }
+
+        return self::create($data);
+    }
+
     public static function updateProduct($id, $request)
     {
         $product = self::findOrFail($id);
+        $data = self::validateRequest($request, 'update');
 
-        // Validate dữ liệu yêu cầu
-        $validator = Validator::make($request->all(), [
-            'product_name' => 'sometimes|string|max:255',
-            'description' => 'sometimes|string',
-            'price' => 'sometimes|numeric|min:0',
-            'image_product' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'is_active' => 'sometimes|boolean',
-        ]);
-
-        if ($validator->fails()) {
-            throw new \Illuminate\Validation\ValidationException($validator);
-        }
-
-        $data = $request->all();
-
-        // Xử lý ảnh nếu có ảnh mới được tải lên
         if ($request->hasFile('image_product')) {
-            $destinationPath = public_path('products');
-            // Tạo thư mục nếu chưa tồn tại
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
-            }
-
-            // Tạo tên file ảnh mới và di chuyển ảnh vào thư mục
-            $imageProduct = time() . '_' . $request->file('image_product')->getClientOriginalName();
-            $request->file('image_product')->move($destinationPath, $imageProduct);
-            // Lưu đường dẫn ảnh mới
-            $data['image_product'] = 'products/' . $imageProduct;
-
-            // Xóa ảnh cũ nếu có
             if ($product->image_product && file_exists(public_path($product->image_product))) {
-                unlink(public_path($product->image_product));
+                unlink(public_path($product->image_product)); // Xóa ảnh cũ
             }
+            $data['image_product'] = self::handleImageUpload($request->file('image_product'));
         }
 
-        // Cập nhật sản phẩm với dữ liệu mới
         $product->update($data);
         return $product;
     }
@@ -126,12 +72,42 @@ class Product extends Model
     {
         $product = self::findOrFail($id);
 
-        // Xóa ảnh cũ nếu có
         if ($product->image_product && file_exists(public_path($product->image_product))) {
-            unlink(public_path($product->image_product));
+            unlink(public_path($product->image_product)); // Xóa ảnh cũ
         }
 
-        // Xóa bản ghi sản phẩm
         $product->delete();
+    }
+
+    private static function validateRequest($request, $context = 'create')
+    {
+        $rules = [
+            'product_name' => ($context === 'create' ? 'required' : 'sometimes') . '|string|max:255',
+            'description' => 'nullable|string',
+            'price' => ($context === 'create' ? 'required' : 'sometimes') . '|numeric|min:0',
+            'image_product' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'is_active' => 'nullable|boolean',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            throw new \Illuminate\Validation\ValidationException($validator);
+        }
+
+        return $request->only(array_keys($rules));
+    }
+
+    private static function handleImageUpload($image)
+    {
+        $destinationPath = public_path('products');
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true); // Tạo thư mục nếu chưa tồn tại
+        }
+
+        $imageName = time() . '_' . $image->getClientOriginalName();
+        $image->move($destinationPath, $imageName);
+
+        return 'products/' . $imageName; // Trả về đường dẫn ảnh
     }
 }
