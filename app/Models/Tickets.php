@@ -15,39 +15,10 @@ class Tickets extends Model
     protected $primaryKey = 'id_ticket';
 
     protected $fillable = [
-        'id_booking',
         'id_showtime',
         'id_chair',
-        'price',
         'status',
     ];
-
-    // Xác thực dữ liệu của ticket
-    public static function validateTicketData($data, $isUpdate = false)
-    {
-        $rules = [
-            'id_booking' => 'required|integer',
-            'id_showtime' => 'required|integer',
-            'id_chair' => 'required|integer',
-            'price' => 'required|numeric',
-            'status' => 'required|string|max:255',
-        ];
-
-        // Nếu là cập nhật, các trường có thể bỏ qua
-        if ($isUpdate) {
-            $rules = array_map(function ($rule) {
-                return 'sometimes|' . $rule;
-            }, $rules);
-        }
-
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        return true;
-    }
 
     // Lấy tất cả các tickets
     public static function getAllTickets()
@@ -59,15 +30,20 @@ class Tickets extends Model
     public static function createTicket($data)
     {
         // Xác thực dữ liệu
-        $validationResult = self::validateTicketData($data);
-        if ($validationResult !== true) {
-            return $validationResult;
+        $validator = Validator::make($data, [
+            'id_showtime' => 'required|exists:showtimes,id_showtime',
+            'id_chair' => 'required|exists:chairs,id_chair',
+            'status' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return ['errors' => $validator->errors()];
         }
 
         return self::create($data);
     }
 
-    // Lấy thông tin ticket theo ID
+    // Lấy ticket theo ID
     public static function getTicketById($id)
     {
         return self::find($id);
@@ -77,17 +53,24 @@ class Tickets extends Model
     public function updateTicket($data)
     {
         // Xác thực dữ liệu
-        $validationResult = self::validateTicketData($data, true);
-        if ($validationResult !== true) {
-            return $validationResult;
+        $validator = Validator::make($data, [
+            'id_showtime' => 'sometimes|required|exists:showtimes,id_showtime',
+            'id_chair' => 'sometimes|required|exists:chairs,id_chair',
+            'status' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return ['errors' => $validator->errors()];
         }
 
-        return $this->update($data);
+        $this->update($data);
+        return $this;
     }
 
     // Xóa ticket
     public function deleteTicket()
     {
-        return $this->delete();
+        $this->delete();
+        return ['message' => 'Ticket deleted successfully'];
     }
 }

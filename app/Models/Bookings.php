@@ -15,12 +15,12 @@ class Bookings extends Model
     protected $primaryKey = 'id_booking';
 
     protected $fillable = [
-        'id_account',
-        'id_combo',
+        'account_promotion_id',
+        'id_product',
         'id_payment',
+        'id_ticket',
         'booking_code',
         'booking_date',
-        'quantity',
         'total_amount',
         'payment_status',
         'transaction_id',
@@ -44,13 +44,14 @@ class Bookings extends Model
     public static function createBooking($data)
     {
         $validator = Validator::make($data, [
-            'id_account' => 'required|exists:accounts,id_account',
-            'id_combo' => 'nullable|exists:combos,id_combo',
-            'id_payment' => 'nullable|exists:payment,id_payment',
-            'quantity' => 'nullable|integer',
-            'total_amount' => 'nullable|numeric',
+            'account_promotion_id' => 'nullable|exists:account_promotions,id_account_promotion',
+            'id_product' => 'nullable|exists:products,id_product',
+            'id_payment' => 'nullable|exists:payments,id_payment',
+            'id_ticket' => 'nullable|exists:tickets,id_ticket',
+            'booking_code' => 'nullable|string|max:255',
+            'total_amount' => 'nullable|numeric|min:0',
             'payment_status' => 'nullable|string',
-            'transaction_id' => 'nullable|string',
+            'transaction_id' => 'nullable|string|max:255',
             'payment_date' => 'nullable|date',
             'status' => 'nullable|string',
         ]);
@@ -66,13 +67,14 @@ class Bookings extends Model
     public function updateBooking($data)
     {
         $validator = Validator::make($data, [
-            'id_account' => 'sometimes|required|exists:accounts,id_account',
-            'id_combo' => 'nullable|exists:combos,id_combo',
-            'id_payment' => 'nullable|exists:payment,id_payment',
-            'quantity' => 'nullable|integer',
-            'total_amount' => 'nullable|numeric',
+            'account_promotion_id' => 'nullable|exists:account_promotions,id_account_promotion',
+            'id_product' => 'nullable|exists:products,id_product',
+            'id_payment' => 'nullable|exists:payments,id_payment',
+            'id_ticket' => 'nullable|exists:tickets,id_ticket',
+            'booking_code' => 'nullable|string|max:255',
+            'total_amount' => 'nullable|numeric|min:0',
             'payment_status' => 'nullable|string',
-            'transaction_id' => 'nullable|string',
+            'transaction_id' => 'nullable|string|max:255',
             'payment_date' => 'nullable|date',
             'status' => 'nullable|string',
         ]);
@@ -91,9 +93,9 @@ class Bookings extends Model
         $booking = self::find($id);
         if ($booking) {
             $booking->delete();
-            return response()->json(['message' => 'booking deleted successfully'], 200);
+            return response()->json(['message' => 'Booking deleted successfully'], 200);
         }
 
-        return response()->json(['message' => 'booking not found'], 404);
+        return response()->json(['message' => 'Booking not found'], 404);
     }
 }
