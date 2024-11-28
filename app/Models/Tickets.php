@@ -27,12 +27,13 @@ class Tickets extends Model
     }
 
     // Tạo ticket mới
-    public static function createTicket($data)
+    public static function createTickets($data)
     {
         // Xác thực dữ liệu
         $validator = Validator::make($data, [
             'id_showtime' => 'required|exists:showtimes,id_showtime',
-            'id_chair' => 'required|exists:chairs,id_chair',
+            'id_chairs' => 'required|array',
+            'id_chairs.*' => 'required|exists:chairs,id_chair',
             'status' => 'nullable|string|max:255',
         ]);
 
@@ -40,7 +41,16 @@ class Tickets extends Model
             return ['errors' => $validator->errors()];
         }
 
-        return self::create($data);
+        $tickets = [];
+        foreach ($data['id_chairs'] as $id_chair) {
+            $tickets[] = self::create([
+                'id_showtime' => $data['id_showtime'],
+                'id_chair' => $id_chair,
+                'status' => $data['status'] ?? null,
+            ]);
+        }
+
+        return $tickets;
     }
 
     // Lấy ticket theo ID
