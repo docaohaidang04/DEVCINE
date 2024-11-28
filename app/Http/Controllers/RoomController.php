@@ -31,14 +31,15 @@ class RoomController extends Controller
     {
         try {
             // Tạo phòng và tự động sinh ghế nếu có chair_number
-            $room = Room::createRoom($request->only(['room_name', 'room_status', 'room_type', 'chair_number']));
+            $room = Room::createRoom($request->only(['room_name', 'room_status', 'room_type', 'chair_number', 'price']));
             if (isset($room['errors'])) {
                 return response()->json($room, 422);
             }
 
             if ($request->filled('chair_number')) {
                 $chairNumber = $request->input('chair_number');
-                $this->generateChairs($room->id_room, $chairNumber);
+                $price = $request->input('price');
+                $this->generateChairs($room->id_room, $chairNumber, $price);
             }
 
             return response()->json($room, 201);
@@ -78,7 +79,7 @@ class RoomController extends Controller
     /**
      * Hàm tự động sinh ghế
      */
-    private function generateChairs($idRoom, $chairNumber)
+    private function generateChairs($idRoom, $chairNumber, $price)
     {
         $rows = range('A', 'Z'); // Tạo danh sách hàng từ A -> Z
         $chairs = [];
@@ -96,7 +97,7 @@ class RoomController extends Controller
                     'chair_status' => 'available',
                     'column' => $column,
                     'row' => $row,
-                    'price' => 60000,
+                    'price' => $price,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
