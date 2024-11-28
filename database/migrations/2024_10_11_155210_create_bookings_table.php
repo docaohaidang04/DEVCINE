@@ -10,6 +10,7 @@ class CreateBookingsTable extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id('id_booking');
+            $table->foreignId('account_id')->nullable()->constrained('accounts', 'id_account');
             $table->foreignId('account_promotion_id')->nullable()->constrained('account_promotion', 'account_promotion_id');
             $table->foreignId('id_payment')->nullable()->constrained('payment', 'id_payment');
             $table->foreignId('id_ticket')->nullable()->constrained('tickets', 'id_ticket');
