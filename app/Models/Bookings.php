@@ -60,7 +60,7 @@ class Bookings extends Model
             'account_promotion_id' => 'nullable|exists:account_promotions,id_account_promotion',
             'id_product' => 'nullable|array',
             'id_product.*' => 'exists:products,id_product',
-            'id_payment' => 'nullable|exists:payments,id_payment',
+            'id_payment' => 'nullable|exists:payment,id_payment',
             'id_ticket' => 'nullable|exists:tickets,id_ticket',
             'booking_code' => 'nullable|string|max:255',
             'total_amount' => 'nullable|numeric|min:0',
