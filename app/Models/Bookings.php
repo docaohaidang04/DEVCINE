@@ -45,7 +45,8 @@ class Bookings extends Model
     {
         $validator = Validator::make($data, [
             'account_promotion_id' => 'nullable|exists:account_promotions,id_account_promotion',
-            'id_product' => 'nullable|exists:products,id_product',
+            'id_product' => 'nullable|array', // id_product là mảng
+            'id_product.*' => 'exists:products,id_product', // Kiểm tra từng phần tử trong mảng
             'id_payment' => 'nullable|exists:payments,id_payment',
             'id_ticket' => 'nullable|exists:tickets,id_ticket',
             'booking_code' => 'nullable|string|max:255',
@@ -60,8 +61,25 @@ class Bookings extends Model
             return response()->json($validator->errors(), 422);
         }
 
-        return self::create($data);
+        // Chuyển id_product thành JSON nếu là mảng
+        $id_product = isset($data['id_product']) && is_array($data['id_product']) ? json_encode($data['id_product']) : null;
+
+        // Lưu booking với id_product là mảng (dưới dạng JSON)
+        return self::create([
+            'account_promotion_id' => $data['account_promotion_id'] ?? null,
+            'id_product' => $id_product, // Lưu id_product dưới dạng JSON
+            'id_payment' => $data['id_payment'] ?? null,
+            'id_ticket' => $data['id_ticket'] ?? null,
+            'booking_code' => $data['booking_code'] ?? null,
+            'total_amount' => $data['total_amount'] ?? 0,
+            'payment_status' => $data['payment_status'] ?? null,
+            'transaction_id' => $data['transaction_id'] ?? null,
+            'payment_date' => $data['payment_date'] ?? null,
+            'status' => $data['status'] ?? 'pending',
+        ]);
     }
+
+
 
     // Cập nhật booking
     public function updateBooking($data)
