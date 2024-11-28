@@ -15,6 +15,7 @@ class Bookings extends Model
     protected $primaryKey = 'id_booking';
 
     protected $fillable = [
+        'account_id',
         'account_promotion_id',
         'id_payment',
         'id_ticket',
@@ -27,7 +28,13 @@ class Bookings extends Model
         'status',
     ];
 
-    // Mối quan hệ many-to-many với Products
+    // Mối quan hệ một-một với Account
+    public function account()
+    {
+        return $this->belongsTo(Account::class, 'account_id', 'id_account');
+    }
+
+    // Mối quan hệ nhiều-nhiều với Products
     public function products()
     {
         return $this->belongsToMany(Product::class, 'booking_product', 'id_booking', 'id_product');
@@ -49,9 +56,10 @@ class Bookings extends Model
     public static function createBooking($data)
     {
         $validator = Validator::make($data, [
+            'account_id' => 'required|exists:accounts,id_account',
             'account_promotion_id' => 'nullable|exists:account_promotions,id_account_promotion',
-            'id_product' => 'nullable|array', // id_product là mảng
-            'id_product.*' => 'exists:products,id_product', // Kiểm tra từng phần tử trong mảng
+            'id_product' => 'nullable|array',
+            'id_product.*' => 'exists:products,id_product',
             'id_payment' => 'nullable|exists:payments,id_payment',
             'id_ticket' => 'nullable|exists:tickets,id_ticket',
             'booking_code' => 'nullable|string|max:255',
@@ -68,6 +76,7 @@ class Bookings extends Model
 
         // Lưu booking
         $booking = self::create([
+            'account_id' => $data['account_id'], // Liên kết với tài khoản
             'account_promotion_id' => $data['account_promotion_id'] ?? null,
             'id_payment' => $data['id_payment'] ?? null,
             'id_ticket' => $data['id_ticket'] ?? null,
@@ -91,6 +100,7 @@ class Bookings extends Model
     public function updateBooking($data)
     {
         $validator = Validator::make($data, [
+            'account_id' => 'required|exists:accounts,id_account', // account_id là bắt buộc
             'account_promotion_id' => 'nullable|exists:account_promotions,id_account_promotion',
             'id_product' => 'nullable|exists:products,id_product',
             'id_payment' => 'nullable|exists:payments,id_payment',
@@ -107,6 +117,7 @@ class Bookings extends Model
             return response()->json($validator->errors(), 422);
         }
 
+        // Cập nhật thông tin booking
         $this->update($data);
 
         // Cập nhật lại sản phẩm
