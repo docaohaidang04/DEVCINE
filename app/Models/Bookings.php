@@ -16,7 +16,6 @@ class Bookings extends Model
 
     protected $fillable = [
         'account_promotion_id',
-        'id_product',
         'id_payment',
         'id_ticket',
         'booking_code',
@@ -27,6 +26,12 @@ class Bookings extends Model
         'payment_date',
         'status',
     ];
+
+    // Mối quan hệ many-to-many với Products
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'booking_product', 'id_booking', 'id_product');
+    }
 
     // Lấy tất cả bookings
     public static function getAllBookings()
@@ -61,13 +66,9 @@ class Bookings extends Model
             return response()->json($validator->errors(), 422);
         }
 
-        // Chuyển id_product thành JSON nếu là mảng
-        $id_product = isset($data['id_product']) && is_array($data['id_product']) ? json_encode($data['id_product']) : null;
-
-        // Lưu booking với id_product là mảng (dưới dạng JSON)
-        return self::create([
+        // Lưu booking
+        $booking = self::create([
             'account_promotion_id' => $data['account_promotion_id'] ?? null,
-            'id_product' => $id_product, // Lưu id_product dưới dạng JSON
             'id_payment' => $data['id_payment'] ?? null,
             'id_ticket' => $data['id_ticket'] ?? null,
             'booking_code' => $data['booking_code'] ?? null,
@@ -77,9 +78,14 @@ class Bookings extends Model
             'payment_date' => $data['payment_date'] ?? null,
             'status' => $data['status'] ?? 'pending',
         ]);
+
+        // Thêm sản phẩm vào booking nếu có
+        if (isset($data['id_product']) && is_array($data['id_product'])) {
+            $booking->products()->sync($data['id_product']);
+        }
+
+        return $booking;
     }
-
-
 
     // Cập nhật booking
     public function updateBooking($data)
@@ -102,6 +108,12 @@ class Bookings extends Model
         }
 
         $this->update($data);
+
+        // Cập nhật lại sản phẩm
+        if (isset($data['id_product']) && is_array($data['id_product'])) {
+            $this->products()->sync($data['id_product']);
+        }
+
         return $this;
     }
 

@@ -16,9 +16,13 @@ class Tickets extends Model
 
     protected $fillable = [
         'id_showtime',
-        'id_chair',
         'status',
     ];
+
+    public function chairs()
+    {
+        return $this->belongsToMany(Chair::class, 'ticket_chair', 'ticket_id', 'chair_id');
+    }
 
     // Lấy tất cả các tickets
     public static function getAllTickets()
@@ -29,6 +33,7 @@ class Tickets extends Model
     // Tạo ticket mới
     public static function createTicket($data)
     {
+        // Xác thực dữ liệu
         $validator = Validator::make($data, [
             'id_showtime' => 'required|exists:showtimes,id_showtime',
             'id_chairs' => 'required|array',
@@ -37,17 +42,21 @@ class Tickets extends Model
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            // Trả về một mảng lỗi thay vì JsonResponse
+            return ['errors' => $validator->errors()];
         }
 
-
-        return self::create([
+        // Lưu ticket
+        $ticket = self::create([
             'id_showtime' => $data['id_showtime'],
-            'id_chairs' => json_encode($data['id_chairs']),
             'status' => $data['status'] ?? null,
         ]);
-    }
 
+        // Gắn mối quan hệ chairs với ticket
+        $ticket->chairs()->sync($data['id_chairs']); // Lưu nhiều chairs cho một ticket
+
+        return $ticket;
+    }
 
 
     // Lấy ticket theo ID
@@ -73,6 +82,7 @@ class Tickets extends Model
         $this->update($data);
         return $this;
     }
+
 
     // Xóa ticket
     public function deleteTicket()

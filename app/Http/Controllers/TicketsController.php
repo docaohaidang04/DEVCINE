@@ -20,13 +20,15 @@ class TicketsController extends Controller
         // Gọi phương thức tạo ticket trong model
         $ticket = Tickets::createTicket($request->all());
 
-        // Nếu có lỗi xác thực, trả về lỗi
+        // Kiểm tra nếu có lỗi xác thực
         if (isset($ticket['errors'])) {
-            return response()->json($ticket, 422);
+            return response()->json($ticket, 422); // Trả về lỗi với mã 422
         }
 
         return response()->json($ticket, 201); // Trả về ticket mới tạo
     }
+
+
 
     // Lấy thông tin của một ticket theo ID
     public function show($id)
@@ -47,14 +49,14 @@ class TicketsController extends Controller
         }
 
         // Gọi phương thức cập nhật ticket trong model
-        $ticket->updateTicket($request->all());
+        $updatedTicket = $ticket->updateTicket($request->all());
 
-        // Nếu có lỗi xác thực, trả về lỗi
-        if (isset($ticket['errors'])) {
-            return response()->json($ticket, 422);
+        // Kiểm tra nếu có lỗi xác thực
+        if (isset($updatedTicket['errors'])) {
+            return response()->json($updatedTicket, 422); // Trả về lỗi với mã 422
         }
 
-        return response()->json($ticket);
+        return response()->json($updatedTicket);
     }
 
     // Xóa một ticket theo ID

@@ -21,7 +21,7 @@ class BookingsController extends Controller
         if ($booking) {
             return response()->json($booking);
         }
-        return response()->json(['message' => 'booking not found'], 404);
+        return response()->json(['message' => 'Booking not found'], 404);
     }
 
     // Tạo booking mới
@@ -40,7 +40,7 @@ class BookingsController extends Controller
     {
         $booking = Bookings::getBookingById($id);
         if (!$booking) {
-            return response()->json(['message' => 'booking not found'], 404);
+            return response()->json(['message' => 'Booking not found'], 404);
         }
 
         $updatedBooking = $booking->updateBooking($request->all());
