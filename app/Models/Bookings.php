@@ -40,6 +40,10 @@ class Bookings extends Model
         return $this->belongsToMany(Product::class, 'booking_product', 'id_booking', 'id_product');
     }
 
+    public function ticket()
+    {
+        return $this->belongsTo(Tickets::class, 'id_ticket', 'id_ticket');
+    }
     // Lấy tất cả bookings
     public static function getAllBookings()
     {
@@ -138,5 +142,29 @@ class Bookings extends Model
         }
 
         return response()->json(['message' => 'Booking not found'], 404);
+    }
+
+    public static function getBookingsByAccountId($account_id)
+    {
+        // Kiểm tra nếu account_id hợp lệ
+        if (empty($account_id)) {
+            return response()->json(['message' => 'Account ID is required'], 400);
+        }
+
+        // Lấy danh sách booking theo account_id và kèm theo các quan hệ liên quan
+        $bookings = self::with([
+            'products',      // Danh sách sản phẩm
+            'ticket',        // Chi tiết vé
+            'ticket.chairs',  // Danh sách ghế liên quan đến vé
+            'ticket.showtime',    // Suất chiếu liên quan đến vé
+            'ticket.showtime.movie'
+        ])->where('account_id', $account_id)->get();
+
+        // Kiểm tra nếu không tìm thấy booking nào
+        if ($bookings->isEmpty()) {
+            return response()->json(['message' => 'No bookings found for this account'], 404);
+        }
+
+        return $bookings;
     }
 }

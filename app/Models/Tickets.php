@@ -23,7 +23,11 @@ class Tickets extends Model
     {
         return $this->belongsToMany(Chair::class, 'ticket_chair', 'ticket_id', 'chair_id');
     }
-
+    // Quan hệ một vé thuộc về một suất chiếu
+    public function showtime()
+    {
+        return $this->belongsTo(Showtime::class, 'id_showtime', 'id_showtime');
+    }
     // Lấy tất cả các tickets
     public static function getAllTickets()
     {

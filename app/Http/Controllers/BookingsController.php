@@ -56,4 +56,16 @@ class BookingsController extends Controller
     {
         return Bookings::deleteBooking($id);
     }
+
+    public function getBookingsByAccount($account_id)
+    {
+        $bookings = Bookings::getBookingsByAccountId($account_id);
+
+        // Nếu kết quả là dạng JSON response (lỗi), trả về luôn
+        if ($bookings instanceof \Illuminate\Http\JsonResponse) {
+            return $bookings;
+        }
+
+        return response()->json($bookings, 200);
+    }
 }

@@ -29,6 +29,7 @@ Route::apiResource('movies', MovieController::class);
 
 // BOOKINGS
 Route::apiResource('bookings', BookingsController::class);
+Route::get('/bookings/account/{id}', [BookingsController::class, 'getBookingsByAccount']);
 
 // BOOKING PROMOTIONS
 Route::apiResource('booking-promotions', BookingPromotionController::class);
