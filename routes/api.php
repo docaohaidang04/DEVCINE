@@ -16,13 +16,15 @@ use App\Http\Controllers\{
     PromotionController,
     GenreMoviesController,
     BookingsController,
-    BookingPromotionController,
     PaymentsController,
     ShowtimeSlotController,
     VNPayController,
-    StatisticsController
+    StatisticsController,
+    CountryController
 };
 use Illuminate\Container\Attributes\Auth;
+
+Route::get('countries', [CountryController::class, 'getCountries']);
 
 // MOVIES
 Route::apiResource('movies', MovieController::class);
@@ -30,9 +32,6 @@ Route::apiResource('movies', MovieController::class);
 // BOOKINGS
 Route::apiResource('bookings', BookingsController::class);
 Route::get('/bookings/account/{id}', [BookingsController::class, 'getBookingsByAccount']);
-
-// BOOKING PROMOTIONS
-Route::apiResource('booking-promotions', BookingPromotionController::class);
 
 // PAYMENTS
 Route::apiResource('payments', PaymentsController::class);
