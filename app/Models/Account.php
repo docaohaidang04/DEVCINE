@@ -26,6 +26,8 @@ class Account extends Authenticatable implements JWTSubject
         'full_name',
         'phone',
         'role',
+        'reset_token',
+        'reset_token_expires_at',
         'loyalty_points',
         'refresh_token',
         'refresh_token_expires_at',
