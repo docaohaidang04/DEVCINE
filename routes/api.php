@@ -23,6 +23,11 @@ use App\Http\Controllers\{
     CountryController
 };
 use Illuminate\Container\Attributes\Auth;
+use App\Http\Controllers\Auth\PasswordResetController;
+
+Route::post('/password-forgot', [PasswordResetController::class, 'forgotPassword']);
+Route::post('/password-reset', [PasswordResetController::class, 'resetPassword']);
+Route::get('/password-reset', [PasswordResetController::class, 'showResetForm']);
 
 Route::get('countries', [CountryController::class, 'getCountries']);
 
@@ -85,6 +90,7 @@ Route::apiResource('comments', CommentController::class);
 // CHAIRS
 Route::apiResource('chairs', ChairController::class);
 Route::get('chairs/room/{id_room}', [ChairController::class, 'getChairsByRoom']);
+Route::post('/tickets/{showtime_id}/{chair_id}', [TicketsController::class, 'bookChair']);
 
 // PROMOTIONS
 Route::apiResource('promotions', PromotionController::class);
