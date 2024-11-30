@@ -25,6 +25,17 @@ class CommentController extends Controller
         return response()->json($comment, 201);
     }
 
+    public function getCommentsByMovieId($id_movie): JsonResponse
+    {
+        $comments = Comment::getCommentsByMovieId($id_movie);
+
+        if ($comments->isEmpty()) {
+            return response()->json(['message' => 'Không có bình luận cho bộ phim này.'], 404);
+        }
+
+        return response()->json($comments, 200);
+    }
+
     // Lấy thông tin của một bình luận theo ID
     public function show($id): JsonResponse
     {

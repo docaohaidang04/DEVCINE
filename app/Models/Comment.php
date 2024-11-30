@@ -14,9 +14,10 @@ class Comment extends Model
     protected $primaryKey = 'id_comment';
 
     protected $fillable = [
-        'ticket_id',
-        'user_id',
+        'id_movies',     // Thay 'ticket_id' thành 'id_movies'
+        'id_account',    // Thay 'user_id' thành 'id_account'
         'content',
+        'rating',
     ];
 
     // Lấy tất cả bình luận
@@ -25,14 +26,20 @@ class Comment extends Model
         return self::all();
     }
 
+    public static function getCommentsByMovieId($id_movie)
+    {
+        return self::where('id_movies', $id_movie)->get();
+    }
+
     // Tạo bình luận mới
     public static function createComment($data)
     {
         // Xác thực dữ liệu
         $validator = Validator::make($data, [
-            'ticket_id' => 'required|integer',
-            'user_id' => 'required|integer',
+            'id_movies' => 'required|integer',
+            'id_account' => 'required|integer',
             'content' => 'required|string|max:1000',
+            'rating' => 'required|integer|between:1,5',  // Thêm điều kiện cho rating nếu cần
         ]);
 
         if ($validator->fails()) {

@@ -86,11 +86,12 @@ Route::apiResource('tickets', TicketsController::class);
 
 // COMMENTS
 Route::apiResource('comments', CommentController::class);
+Route::get('comments-movie/{id_movie}', [CommentController::class, 'getCommentsByMovieId']);
 
 // CHAIRS
 Route::apiResource('chairs', ChairController::class);
 Route::get('chairs/room/{id_room}', [ChairController::class, 'getChairsByRoom']);
-Route::post('/tickets/{showtime_id}/{chair_id}', [TicketsController::class, 'bookChair']);
+Route::post('/tickets-book/{showtime_id}/{chair_id}', [TicketsController::class, 'bookChair']);
 
 // PROMOTIONS
 Route::apiResource('promotions', PromotionController::class);

@@ -19,15 +19,18 @@ class Tickets extends Model
         'status',
     ];
 
+    // Quan hệ nhiều vé với nhiều ghế thông qua ticket_chair
     public function chairs()
     {
         return $this->belongsToMany(Chair::class, 'ticket_chair', 'ticket_id', 'chair_id');
     }
+
     // Quan hệ một vé thuộc về một suất chiếu
     public function showtime()
     {
         return $this->belongsTo(Showtime::class, 'id_showtime', 'id_showtime');
     }
+
     // Lấy tất cả các tickets
     public static function getAllTickets()
     {
@@ -46,7 +49,6 @@ class Tickets extends Model
         ]);
 
         if ($validator->fails()) {
-            // Trả về một mảng lỗi thay vì JsonResponse
             return ['errors' => $validator->errors()];
         }
 
@@ -62,12 +64,38 @@ class Tickets extends Model
         return $ticket;
     }
 
-
     // Lấy ticket theo ID
     public static function getTicketById($id)
     {
         return self::find($id);
     }
+
+    // Đặt ghế
+    public static function bookChair($showtime_id, $chair_id)
+    {
+        // Kiểm tra xem ghế đã được đặt cho khung giờ này chưa
+        $existingTicket = self::where('id_showtime', $showtime_id)
+            ->whereHas('chairs', function ($query) use ($chair_id) {
+                $query->where('chairs.id_chair', $chair_id); // Sửa đổi ở đây
+            })
+            ->first();
+
+        if ($existingTicket) {
+            return response()->json(['error' => 'Ghế đã được đặt cho khung giờ này.'], 400);
+        }
+
+        // Tạo vé mới
+        $ticket = self::create([
+            'id_showtime' => $showtime_id,
+            'status' => 'booked'
+        ]);
+
+        // Gắn mối quan hệ chair với ticket
+        $ticket->chairs()->attach($chair_id);
+
+        return $ticket;
+    }
+
 
     // Cập nhật ticket
     public function updateTicket($data)
@@ -87,11 +115,10 @@ class Tickets extends Model
         return $this;
     }
 
-
     // Xóa ticket
     public function deleteTicket()
     {
         $this->delete();
-        return ['message' => 'Ticket deleted successfully'];
+        return ['message' => 'Vé đã được xóa thành công'];
     }
 }
