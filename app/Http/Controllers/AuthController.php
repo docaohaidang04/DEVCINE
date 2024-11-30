@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Routing\Controller;
-/* use App\Http\Controllers\Controller; */
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -17,9 +16,9 @@ class AuthController extends Controller
         $this->middleware('auth:api', ['except' => ['login']]);
     }
 
-    public function login()
+    public function login(Request $request)
     {
-        $credentials = request(['user_name', 'password']);
+        $credentials = $request->only('user_name', 'password');
 
         try {
             if (! $token = JWTAuth::attempt($credentials)) {
@@ -31,6 +30,9 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
+        if ($user->email_verified_at === null) {
+            return response()->json(['message' => 'Vui lòng xác thực email của bạn.'], 401);
+        }
 
         // Tạo refresh token với thời gian hết hạn 30 ngày
         $refreshToken = JWTAuth::fromUser($user, ['exp' => Carbon::now()->addDays(30)->timestamp]);

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class AccountController extends Controller
@@ -16,34 +15,26 @@ class AccountController extends Controller
             return $account; // Trả về lỗi nếu có
         }
 
-        return response()->json($account, 201);
+        return response()->json([
+            'message' => 'Tài khoản đã được tạo. Vui lòng kiểm tra email để xác thực tài khoản.',
+            'account' => $account
+        ], 201);
     }
 
-    public function login(Request $request)
+    public function verify($token)
     {
-        $credentials = $request->only('user_name', 'password');
-
-        $user = Account::loginAccount($credentials);
-
-        if ($user) {
-            return response()->json([
-                'message' => 'Login successful',
-                'user' => $user
-            ]);
+        $account = Account::verifyAccount($token);
+        if ($account) {
+            return response()->json(['message' => 'Xác thực email thành công.']);
         }
-
-        Log::error('Login failed for user: ' . $credentials['user_name']);
-        return response()->json(['message' => 'Invalid credentials, please check your username and password.'], 401);
+        return response()->json(['message' => 'Mã xác thực không hợp lệ.'], 400);
     }
-
-
 
     public function showAllAccount()
     {
         $accounts = Account::all();
         return response()->json($accounts, 200);
     }
-
 
     public function getAccount($id)
     {

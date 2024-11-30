@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Carbon;
-
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AccountVerificationMail;
 
 class Account extends Authenticatable implements JWTSubject
 {
@@ -25,12 +25,14 @@ class Account extends Authenticatable implements JWTSubject
         'email',
         'full_name',
         'phone',
-        'role',
         'reset_token',
         'reset_token_expires_at',
+        'role',
         'loyalty_points',
         'refresh_token',
         'refresh_token_expires_at',
+        'verification_token',
+        'email_verified_at'
     ];
 
     protected $hidden = [
@@ -62,11 +64,25 @@ class Account extends Authenticatable implements JWTSubject
             $data['role'] = 'user';
         }
 
-        $data['refresh_token'] = bin2hex(random_bytes(32)); // Replace with your preferred token generation logic
-        $data['refresh_token_expires_at'] = Carbon::now()->addDays(30);
-
+        $data['verification_token'] = bin2hex(random_bytes(16));
         $account = self::create($data);
+
+        // Gửi email xác nhận
+        Mail::to($account->email)->send(new AccountVerificationMail($data['verification_token'], $account->email));
+
         return $account;
+    }
+
+    public static function verifyAccount($token)
+    {
+        $account = self::where('verification_token', $token)->first();
+        if ($account) {
+            $account->email_verified_at = now();
+            $account->verification_token = null;
+            $account->save();
+            return $account;
+        }
+        return null;
     }
 
     public static function loginAccount($credentials)
@@ -74,7 +90,6 @@ class Account extends Authenticatable implements JWTSubject
         if (Auth::attempt($credentials)) {
             return Auth::user();
         }
-
         return null;
     }
 

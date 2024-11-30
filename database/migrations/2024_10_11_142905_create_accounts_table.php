@@ -21,6 +21,8 @@ class CreateAccountsTable extends Migration
             $table->integer('loyalty_points')->default(0);
             $table->string('refresh_token')->nullable();
             $table->timestamp('refresh_token_expires_at')->nullable();
+            $table->string('verification_token')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
             $table->timestamps();
         });
     }
