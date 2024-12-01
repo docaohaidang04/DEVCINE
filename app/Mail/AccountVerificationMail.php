@@ -21,7 +21,7 @@ class AccountVerificationMail extends Mailable
 
     public function build()
     {
-        $verificationLink = env('APP_URL') . "/api/accounts-verify/$this->verificationToken";
+        $verificationLink = env('APP_FE') . "/api/accounts-verify/$this->verificationToken";
         $subject = 'Xác Thực Tài Khoản';
         $content = "
         <html style='text-align: center; height: 100%; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center;'>

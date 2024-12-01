@@ -28,7 +28,7 @@ class PasswordResetController extends Controller
         $account->save();
 
         // Gửi email
-        $resetLink = env('APP_URL') . "/password-reset?token=$token";
+        $resetLink = env('APP_FE') . "/password-reset?token=$token";
         Mail::html(
             "
             <html style='text-align: center; height: 100%; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center;'>
@@ -82,6 +82,6 @@ class PasswordResetController extends Controller
         $account->reset_token_expires_at = null;
         $account->save();
 
-        return response()->json(['message' => 'Mật khẩu đã được đặt lại thành công.'], 200);
+        return response()->json(['status' => 200, 'message' => 'Mật khẩu đã được đặt lại thành công.'], 200);
     }
 }
