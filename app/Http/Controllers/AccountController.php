@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class AccountController extends Controller
@@ -20,6 +21,34 @@ class AccountController extends Controller
             'account' => $account
         ], 201);
     }
+
+    /* public function login(Request $request)
+    {
+        $request->validate([
+            'user_name' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        $credentials = $request->only('user_name', 'password');
+
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            if ($user->email_verified_at === null) {
+                Auth::logout();
+                return response()->json(['message' => 'Vui lòng xác thực email của bạn.'], 401);
+            }
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Đăng nhập thành công',
+                'user' => $user,
+            ]);
+        }
+
+        return response()->json(['status' => 401, 'message' => 'Tài khoản hoặc mật khẩu không đúng'], 401);
+    } */
 
     public function verify($token)
     {

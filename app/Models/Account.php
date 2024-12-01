@@ -10,6 +10,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AccountVerificationMail;
+use Illuminate\Support\Facades\Hash;
 
 class Account extends Authenticatable implements JWTSubject
 {
@@ -41,7 +42,7 @@ class Account extends Authenticatable implements JWTSubject
 
     public function setPasswordAttribute($password)
     {
-        $this->attributes['password'] = bcrypt($password);
+        $this->attributes['password'] = Hash::make($password);
     }
 
     public static function registerAccount($data)

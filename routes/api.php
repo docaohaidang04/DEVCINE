@@ -47,11 +47,11 @@ Route::get('/vnpay/return', [VNPayController::class, 'paymentCallback']);
 Route::apiResource('genre_movies', GenreMoviesController::class);
 
 // ACCOUNTS
-Route::post('register', [AccountController::class, 'register']);
+
 Route::get('accounts-verify/{token}', [AccountController::class, 'verify']);
-/* Route::post('register', [AccountController::class, 'register']); */
-/* Route::post('login', [AccountController::class, 'login']);
- */
+Route::post('register', [AccountController::class, 'register']);
+/* Route::post('/auth/login', [AccountController::class, 'login']); */
+
 //login
 Route::group([
 
