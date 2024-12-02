@@ -10,7 +10,7 @@ class CreateTicketChairTable extends Migration
     {
         if (!Schema::hasTable('ticket_chair')) {
             Schema::create('ticket_chair', function (Blueprint $table) {
-                $table->id(); // Tạo khóa chính (ID tự động tăng)
+                $table->id();
                 $table->foreignId('ticket_id')->constrained('tickets')->onDelete('cascade');
                 $table->foreignId('chair_id')->constrained('chairs')->onDelete('cascade');
                 $table->timestamps();
