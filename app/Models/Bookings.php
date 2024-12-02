@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Mail\BookingConfirmationMail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class Bookings extends Model
@@ -104,7 +106,7 @@ class Bookings extends Model
     public function updateBooking($data)
     {
         $validator = Validator::make($data, [
-            'account_id' => 'required|exists:accounts,id_account', // account_id là bắt buộc
+            'account_id' => 'nullable|exists:accounts,id_account',
             'account_promotion_id' => 'nullable|exists:account_promotions,id_account_promotion',
             'id_product' => 'nullable|exists:products,id_product',
             'id_payment' => 'nullable|exists:payments,id_payment',
@@ -166,5 +168,16 @@ class Bookings extends Model
         }
 
         return $bookings;
+    }
+
+    protected static function booted()
+    {
+        static::updated(function ($booking) {
+            // Kiểm tra nếu payment_status thay đổi thành 'success'
+            if ($booking->isDirty('payment_status') && $booking->payment_status == 'success') {
+                // Gửi email xác nhận
+                Mail::to($booking->account->email)->send(new BookingConfirmationMail($booking));
+            }
+        });
     }
 }

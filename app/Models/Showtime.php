@@ -25,10 +25,11 @@ class Showtime extends Model
         'end_time',
     ];
 
-    public function showtimeSlots()
+    public function showtimeSlot()
     {
-        return $this->belongsToMany(ShowtimeSlot::class, 'showtime_slot_showtime', 'id_showtime', 'id_slot');
+        return $this->belongsTo(ShowtimeSlot::class, 'id_slot');
     }
+
 
     // Xác thực dữ liệu suất chiếu
     public static function validateShowtimeData($data)

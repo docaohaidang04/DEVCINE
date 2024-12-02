@@ -23,6 +23,10 @@ class Chair extends Model
         'row',
         'price',
     ];
+    public function ticket()
+    {
+        return $this->belongsTo(Tickets::class, 'ticket_id');
+    }
 
     // Lấy tất cả chairs
     public static function getAllChairs(): Collection

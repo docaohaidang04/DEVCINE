@@ -18,6 +18,12 @@ class ShowtimeSlot extends Model
         'slot_time'
     ];
 
+    public function showtimeSlot()
+    {
+        return $this->belongsToMany(ShowtimeSlot::class, 'showtime_slot_showtime', 'id_showtime', 'id_slot')
+            ->first(); // Lấy giờ chiếu đầu tiên
+    }
+
     public function showtimes()
     {
         return $this->belongsToMany(Showtime::class, 'showtime_slot_showtime', 'id_slot', 'id_showtime');
