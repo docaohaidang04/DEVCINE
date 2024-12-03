@@ -8,7 +8,6 @@ use App\Http\Controllers\{
     RoomController,
     ShowtimeController,
     ProductController,
-    ProductComboController,
     ChairController,
     ComboController,
     CommentController,
@@ -22,8 +21,11 @@ use App\Http\Controllers\{
     StatisticsController,
     CountryController
 };
-use Illuminate\Container\Attributes\Auth;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\PasswordResetController;
+
+Route::middleware(['web'])->get('/google-login', [GoogleController::class, 'getGoogleSignInUrl']);
+Route::middleware(['web'])->get('/google-callback', [GoogleController::class, 'loginCallback']);
 
 Route::post('/password-forgot', [PasswordResetController::class, 'forgotPassword']);
 Route::post('/password-reset', [PasswordResetController::class, 'resetPassword']);
