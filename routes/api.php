@@ -91,6 +91,7 @@ Route::apiResource('tickets', TicketsController::class);
 // COMMENTS
 Route::apiResource('comments', CommentController::class);
 Route::get('comments-movie/{id_movie}', [CommentController::class, 'getCommentsByMovieId']);
+Route::get('/comments/{id_movie}/rating-content', [CommentController::class, 'getRatingSummaryByMovieId']);
 
 // CHAIRS
 Route::apiResource('chairs', ChairController::class);

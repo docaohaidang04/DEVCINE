@@ -69,4 +69,18 @@ class CommentController extends Controller
         $comment->deleteComment(); // Gọi phương thức trong model
         return response()->json(['message' => 'Comment deleted']);
     }
+
+    public function getRatingSummaryByMovieId($id_movie): JsonResponse
+    {
+        $summary = Comment::getRatingSummaryByMovieId($id_movie);
+
+        if (!$summary || $summary->total_comments == 0) {
+            return response()->json(['message' => 'Không có bình luận cho bộ phim này.'], 404);
+        }
+
+        return response()->json([
+            'average_rating' => round($summary->average_rating, 2),
+            'total_comments' => $summary->total_comments
+        ], 200);
+    }
 }
