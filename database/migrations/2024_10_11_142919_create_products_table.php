@@ -12,8 +12,8 @@ class CreateProductsTable extends Migration
             $table->id('id_product');
             $table->string('product_name');
             $table->integer('price')->default(0);
-            $table->text('description')->nullable(); // Thêm cột description
-            $table->boolean('is_active')->default(true); // Thêm cột is_active
+            $table->text('description')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->string('image_product')->nullable();
         });

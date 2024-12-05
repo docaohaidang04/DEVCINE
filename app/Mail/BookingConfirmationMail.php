@@ -29,6 +29,8 @@ class BookingConfirmationMail extends Mailable
 
         $subject = 'Xác nhận đặt vé';
         $showDate = \Carbon\Carbon::parse($booking->ticket->showtime->date_time)->format('d/m/Y');
+        $showtimeSlot = $booking->ticket->showtime->showtimeSlot->slot_time;
+        $showtimeFormatted = \Carbon\Carbon::parse($showtimeSlot)->format('H:i');
 
         // Lấy danh sách ghế
         $chairs = $booking->ticket->chairs->pluck('chair_name')->join(', ');
@@ -36,8 +38,10 @@ class BookingConfirmationMail extends Mailable
         // Lấy danh sách sản phẩm
         $products = '';
         foreach ($booking->products as $product) {
-            $products .= "<li style='padding: 5px 0;'>- {$product->product_name} : {$product->price} VNĐ</li>";
+            $formattedPrice = number_format($product->price, 0, ',', '.');
+            $products .= "<li style='padding: 5px 0;'>- {$product->product_name} : {$formattedPrice} VNĐ</li>";
         }
+        $totalAmountFormatted = number_format($booking->total_amount, 0, ',', '.');
 
         $content = "
     <html style='text-align: center; height: 100%; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center;'>
@@ -51,7 +55,7 @@ class BookingConfirmationMail extends Mailable
                 <p style='font-size: 16px;'>
                     <strong>Mã đặt vé:</strong> {$booking->booking_code}<br>
                     <strong>Ngày đặt:</strong> {$booking->booking_date}<br>
-                    <strong>Tổng số tiền:</strong> {$booking->total_amount} VNĐ<br>
+                    <strong>Tổng số tiền:</strong> {$totalAmountFormatted} VNĐ<br>
                 </p>
 
                <strong style='font-size: 16px;'>Sản phẩm:</strong>
@@ -61,7 +65,7 @@ class BookingConfirmationMail extends Mailable
 
                 <p style='font-size: 16px;'>
                     <strong>Ngày chiếu:</strong> {$showDate}<br>
-                    <strong>Giờ chiếu:</strong> {$booking->ticket->showtime->slot_time}<br>
+                    <strong>Giờ chiếu:</strong> {$showtimeFormatted}<br>
                     <strong>Phim:</strong> {$booking->ticket->showtime->movie->movie_name}<br>
                     <strong>Ghế ngồi:</strong> {$chairs}
                 </p>

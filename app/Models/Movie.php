@@ -50,17 +50,36 @@ class Movie extends Model
     public static function getMovieById($id_movie)
     {
         try {
-            return self::with(['genres', 'showtimes' => function ($query) {
-                $query->where('date_time', '>=', Carbon::today())
-                    ->orderBy('date_time')
-                    ->take(5);
-            }, 'showtimes.showtimeSlots'])
+            $movie = self::with(['genres', 'showtimes.showtimeSlot'])
                 ->where('id_movie', $id_movie)
                 ->firstOrFail();
+
+            // Chuẩn bị `showtimes` nhóm theo ngày
+            $groupedShowtimes = [];
+            foreach ($movie->showtimes as $showtime) {
+                $date = \Carbon\Carbon::parse($showtime->date_time)->format('Y-m-d');
+                $groupedShowtimes[$date][] = [
+                    'id_showtime' => $showtime->id_showtime,
+                    'id_room' => $showtime->id_room,
+                    'start_time' => $showtime->start_time,
+                    'end_time' => $showtime->end_time,
+                    'slot_time' => $showtime->showtimeSlot->slot_time ?? null,
+                ];
+            }
+
+            // Chuẩn bị kết quả cuối cùng
+            $result = $movie->toArray();
+            $result['showtimes'] = $groupedShowtimes;
+
+            // Trả về kết quả JSON
+            return $result; // Trả trực tiếp kết quả mà không qua response()->json()
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return ['error' => $e->getMessage()];
         }
     }
+
+
+
 
     public static function deleteMovie($id_movie)
     {

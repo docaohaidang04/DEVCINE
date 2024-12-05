@@ -66,4 +66,11 @@ class Comment extends Model
     {
         return $this->delete();
     }
+
+    public static function getRatingSummaryByMovieId($id_movie)
+    {
+        return self::where('id_movies', $id_movie)
+            ->selectRaw('AVG(rating) as average_rating, COUNT(content) as total_comments')
+            ->first();
+    }
 }

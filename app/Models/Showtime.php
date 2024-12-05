@@ -14,12 +14,12 @@ class Showtime extends Model
     use HasFactory;
 
     protected $table = 'showtimes';
-
     protected $primaryKey = 'id_showtime';
 
     protected $fillable = [
         'id_movie',
         'id_room',
+        'id_slot',
         'date_time',
         'start_time',
         'end_time',
@@ -31,18 +31,24 @@ class Showtime extends Model
     }
 
 
-    // Xác thực dữ liệu suất chiếu
-    public static function validateShowtimeData($data)
+    public static function validateShowtimeData($data, $multiple = false)
     {
-        $validator = Validator::make($data, [
+        $rules = [
             'id_movie' => 'required|integer|exists:movies,id_movie',
             'id_room' => 'required|integer|exists:rooms,id_room',
             'date_time' => 'required|date',
             'start_time' => 'required|date|after_or_equal:date_time',
             'end_time' => 'nullable|date|after:start_time',
-            'slots' => 'required|array', // Dữ liệu khung giờ chiếu
-            'slots.*' => 'required|integer|exists:showtime_slots,id_slot', // ID khung giờ chiếu phải tồn tại
-        ]);
+        ];
+
+        if ($multiple) {
+            $rules['id_slots'] = 'required|array';
+            $rules['id_slots.*'] = 'required|integer|exists:showtime_slots,id_slot';
+        } else {
+            $rules['id_slot'] = 'required|integer|exists:showtime_slots,id_slot';
+        }
+
+        $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
@@ -51,42 +57,59 @@ class Showtime extends Model
         return true;
     }
 
-    // Lấy các suất chiếu gần nhất cho bộ phim
-    public static function getNextShowtimesByMovieId($id_movie)
+    /* public static function getNextShowtimesByMovieId($id_movie)
     {
         return self::where('id_movie', $id_movie)
-            ->whereDate('date_time', '>=', Carbon::today()) // So sánh chỉ theo ngày
+            ->whereDate('date_time', '>=', Carbon::today())
             ->orderBy('date_time')
             ->take(5)
             ->get();
+    } */
+    public static function getNextShowtimesByMovieId($id_movie)
+    {
+        return self::where('id_movie', $id_movie)
+            ->whereDate('date_time', '>=', Carbon::today())
+            ->orderBy('date_time')
+            ->get()
+            ->unique(function ($showtime) {
+                return $showtime->date_time->format('d/m');
+            })
+            ->take(5);
     }
 
     public static function getAllShowtimes()
     {
-        return self::with('movie', 'room')->get();
+        return self::with('movie', 'room', 'showtimeSlot')->get();
     }
 
     public static function getShowtimeById($id)
     {
-        return self::with('movie', 'room')->find($id);
+        return self::with('movie', 'room', 'showtimeSlot')->find($id);
     }
 
     public static function createShowtime($data)
     {
-        // Xác thực dữ liệu
-        $validationResult = self::validateShowtimeData($data);
-        if ($validationResult !== true) {
-            return $validationResult;
+        if (isset($data['id_slots'])) {
+            $validationResult = self::validateShowtimeData($data, true);
+            if ($validationResult !== true) {
+                return $validationResult;
+            }
+
+            $showtimes = [];
+            foreach ($data['id_slots'] as $id_slot) {
+                $showtimeData = $data;
+                $showtimeData['id_slot'] = $id_slot;
+                unset($showtimeData['id_slots']);
+                $showtimes[] = self::create($showtimeData);
+            }
+            return $showtimes;
+        } else {
+            $validationResult = self::validateShowtimeData($data);
+            if ($validationResult !== true) {
+                return $validationResult;
+            }
+            return self::create($data);
         }
-
-        $showtime = self::create($data);
-
-        // Lưu các khung giờ chiếu vào bảng trung gian
-        foreach ($data['slots'] as $slotId) {
-            $showtime->showtimeSlots()->attach($slotId);
-        }
-
-        return $showtime;
     }
 
     public static function updateShowtime($id, $data)
@@ -96,26 +119,12 @@ class Showtime extends Model
             return response()->json(['message' => 'Showtime not found'], 404);
         }
 
-        // Xác thực dữ liệu
         $validationResult = self::validateShowtimeData($data);
         if ($validationResult !== true) {
             return $validationResult;
         }
 
-        $showtime->update($data);
-
-        // Cập nhật các khung giờ chiếu
-        if (isset($data['slots'])) {
-            // Xóa các khung giờ cũ
-            $showtime->showtimeSlots()->detach();
-
-            // Thêm các khung giờ chiếu mới
-            foreach ($data['slots'] as $slotId) {
-                $showtime->showtimeSlots()->attach($slotId);
-            }
-        }
-
-        return $showtime;
+        return $showtime->update($data);
     }
 
     public static function deleteShowtime($id)
@@ -125,6 +134,7 @@ class Showtime extends Model
             $showtime->delete();
             return true;
         }
+
         return false;
     }
 

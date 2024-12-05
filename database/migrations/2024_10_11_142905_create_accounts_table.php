@@ -15,6 +15,8 @@ class CreateAccountsTable extends Migration
             $table->string('email');
             $table->string('full_name')->nullable();
             $table->string('phone')->nullable();
+            $table->string('google_id')->nullable()->unique();
+            $table->string('avatar')->nullable();
             $table->string('role')->default("user");
             $table->string('reset_token')->nullable();
             $table->timestamp('reset_token_expires_at')->nullable();

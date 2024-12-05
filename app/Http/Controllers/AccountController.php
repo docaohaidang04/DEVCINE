@@ -17,6 +17,7 @@ class AccountController extends Controller
         }
 
         return response()->json([
+            'status' => 201,
             'message' => 'Tài khoản đã được tạo. Vui lòng kiểm tra email để xác thực tài khoản.',
             'account' => $account
         ], 201);

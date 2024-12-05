@@ -11,13 +11,13 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AccountVerificationMail;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Socialite\Facades\Socialite;
 
 class Account extends Authenticatable implements JWTSubject
 {
     use HasFactory;
 
     protected $table = 'accounts';
-
     protected $primaryKey = 'id_account';
 
     protected $fillable = [
@@ -33,7 +33,9 @@ class Account extends Authenticatable implements JWTSubject
         'refresh_token',
         'refresh_token_expires_at',
         'verification_token',
-        'email_verified_at'
+        'email_verified_at',
+        'google_id',  // Thêm google_id vào mảng fillable
+        'avatar'      // Thêm avatar vào mảng fillable
     ];
 
     protected $hidden = [
@@ -58,7 +60,7 @@ class Account extends Authenticatable implements JWTSubject
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json($validator->errors(), 400);
         }
 
         if (!isset($data['role'])) {
@@ -92,6 +94,32 @@ class Account extends Authenticatable implements JWTSubject
             return Auth::user();
         }
         return null;
+    }
+
+    // Phương thức đăng nhập bằng Google
+    public static function loginWithGoogle($googleUser)
+    {
+        // Kiểm tra nếu tài khoản Google đã có trong hệ thống
+        $account = self::where('google_id', $googleUser->getId())->first();
+
+        if (!$account) {
+            // Nếu tài khoản chưa có, tạo tài khoản mới
+            $account = self::create([
+                'user_name' => $googleUser->getName(),
+                'email' => $googleUser->getEmail(),
+                'google_id' => $googleUser->getId(),
+                'avatar' => $googleUser->getAvatar(),
+                'role' => 'user',  // Mặc định là user
+            ]);
+        }
+
+        // Tạo token cho người dùng sau khi đăng nhập
+        $token = $account->createToken('google-login')->plainTextToken;
+
+        return [
+            'account' => $account,
+            'token' => $token
+        ];
     }
 
     public static function getAccountById($id)
