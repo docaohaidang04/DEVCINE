@@ -60,7 +60,7 @@ class Account extends Authenticatable implements JWTSubject
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json($validator->errors(), 400);
         }
 
         if (!isset($data['role'])) {

@@ -22,7 +22,7 @@ class AuthController extends Controller
 
         try {
             if (! $token = JWTAuth::attempt($credentials)) {
-                return response()->json(['status' => 401, 'error' => 'Tài khoản hoặc mật khẩu không đúng'], 401);
+                return response()->json(['status' => 400, 'message' => 'Tài khoản hoặc mật khẩu không đúng'], 400);
             }
         } catch (JWTException $e) {
             return response()->json(['error' => 'Could not create token'], 500);
@@ -44,9 +44,6 @@ class AuthController extends Controller
             'user' => $user,
             'access_token' => $token,
             'refresh_token' => $refreshToken,
-            'token_type' => 'bearer',
-            'expires_in' => JWTAuth::factory()->getTTL() * 60, // 1 giờ hoặc tùy chỉnh TTL
-            'refresh_expires_in' => 30 * 24 * 60 * 60 // 30 ngày
         ]);
     }
 }
