@@ -77,7 +77,7 @@ class PasswordResetController extends Controller
         }
 
         // Đặt lại mật khẩu
-        $account->password = Hash::make($request->password);
+        $account->password = $request->password;
         $account->reset_token = null;
         $account->reset_token_expires_at = null;
         $account->save();

@@ -21,6 +21,7 @@ class AuthController extends Controller
         $credentials = $request->only('user_name', 'password');
 
         try {
+            // Attempt đăng nhập
             if (! $token = JWTAuth::attempt($credentials)) {
                 return response()->json(['status' => 401, 'error' => 'Tài khoản hoặc mật khẩu không đúng'], 401);
             }
