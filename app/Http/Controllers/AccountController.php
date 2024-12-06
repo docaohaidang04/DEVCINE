@@ -3,12 +3,56 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\Promotion;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class AccountController extends Controller
 {
+
+    public function redeemDiscountCode(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Bạn cần phải đăng nhập để đổi mã giảm giá.'], 401);
+        }
+
+        $request->validate([
+            'promotion_id' => 'required|integer|exists:promotions,id_promotion',
+        ]);
+
+        $promotionId = $request->input('promotion_id');
+        $accountId = Auth::id();
+
+        $promotion = Promotion::find($promotionId);
+
+        if (!$promotion) {
+            return response()->json(['message' => 'Mã giảm giá không hợp lệ.'], 400);
+        }
+        $account = Account::find($accountId);
+
+        if ($account->loyalty_points < $promotion->promotion_point) {
+            return response()->json(['message' => 'Bạn không đủ điểm thưởng để đổi mã giảm giá này.'], 400);
+        }
+
+        Account::where('id_account', $accountId)
+            ->update(['loyalty_points' => $account->loyalty_points - $promotion->promotion_point]);
+
+        DB::table('account_promotion')->insert([
+            'account_id' => $accountId,
+            'promotion_id' => $promotionId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return response()->json([
+            'message' => 'Đổi mã giảm giá thành công.',
+            'loyalty_points' => $account->loyalty_points - $promotion->promotion_point,
+            'promotion' => $promotion
+        ]);
+    }
+
+
     public function register(Request $request)
     {
         $account = Account::registerAccount($request->all());

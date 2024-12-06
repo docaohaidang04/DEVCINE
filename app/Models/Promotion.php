@@ -29,6 +29,11 @@ class Promotion extends Model
 
     public $timestamps = true;
 
+    public function accounts()
+    {
+        return $this->belongsToMany(Account::class, 'account_promotion', 'promotion_id', 'account_id');
+    }
+
     // Lấy danh sách tất cả promotion
     public static function getAllPromotions(): Collection
     {

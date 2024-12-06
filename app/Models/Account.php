@@ -7,11 +7,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AccountVerificationMail;
 use Illuminate\Support\Facades\Hash;
-use Laravel\Socialite\Facades\Socialite;
+
 
 class Account extends Authenticatable implements JWTSubject
 {
@@ -34,8 +33,8 @@ class Account extends Authenticatable implements JWTSubject
         'refresh_token_expires_at',
         'verification_token',
         'email_verified_at',
-        'google_id',  // Thêm google_id vào mảng fillable
-        'avatar'      // Thêm avatar vào mảng fillable
+        'google_id',
+        'avatar'
     ];
 
     protected $hidden = [
@@ -161,5 +160,10 @@ class Account extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function promotions()
+    {
+        return $this->belongsToMany(Promotion::class, 'account_promotion', 'account_id', 'promotion_id');
     }
 }
