@@ -9,9 +9,19 @@ use Illuminate\Http\JsonResponse;
 class CommentController extends Controller
 {
     // Lấy danh sách tất cả các bình luận
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return response()->json(Comment::getAllComments());
+        // Lấy các tham số từ query string
+        $id_movie = $request->query('id_movie');
+        $from = $request->query('from');
+        $to = $request->query('to');
+        $rating = $request->query('rating');
+
+        // Gọi phương thức từ Model để lấy dữ liệu
+        $comments = Comment::getAllComments($id_movie, $from, $to, $rating);
+
+        // Trả về dữ liệu dạng JSON
+        return response()->json($comments);
     }
 
     // Tạo bình luận mới

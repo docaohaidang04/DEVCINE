@@ -21,9 +21,31 @@ class Comment extends Model
     ];
 
     // Lấy tất cả bình luận
-    public static function getAllComments()
+    public static function getAllComments($id_movie = null, $from = null, $to = null, $rating = null)
     {
-        return self::all();
+        $query = self::query();
+
+        // Lọc theo id_movie nếu được cung cấp
+        if ($id_movie) {
+            $query->where('id_movies', $id_movie);
+        }
+
+        // Lọc theo khoảng thời gian (from - to)
+        if ($from && $to) {
+            $query->whereBetween('created_at', [$from, $to]);
+        } elseif ($from) {
+            $query->whereDate('created_at', '>=', $from);
+        } elseif ($to) {
+            $query->whereDate('created_at', '<=', $to);
+        }
+
+        // Lọc theo rating nếu được cung cấp
+        if ($rating) {
+            $query->where('rating', $rating);
+        }
+
+        // Trả về kết quả (hoặc tất cả nếu không có bộ lọc)
+        return $query->get();
     }
 
     public static function getCommentsByMovieId($id_movie)
