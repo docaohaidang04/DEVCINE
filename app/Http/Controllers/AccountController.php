@@ -13,33 +13,28 @@ class AccountController extends Controller
 
     public function redeemDiscountCode(Request $request)
     {
-        if (!Auth::check()) {
-            return response()->json(['message' => 'Bạn cần phải đăng nhập để đổi mã giảm giá.'], 401);
-        }
-
         $request->validate([
             'promotion_id' => 'required|integer|exists:promotions,id_promotion',
         ]);
 
         $promotionId = $request->input('promotion_id');
-        $accountId = Auth::id();
 
         $promotion = Promotion::find($promotionId);
 
         if (!$promotion) {
             return response()->json(['message' => 'Mã giảm giá không hợp lệ.'], 400);
         }
-        $account = Account::find($accountId);
+        $account = Account::find($request->id_account);
 
         if ($account->loyalty_points < $promotion->promotion_point) {
             return response()->json(['message' => 'Bạn không đủ điểm thưởng để đổi mã giảm giá này.'], 400);
         }
 
-        Account::where('id_account', $accountId)
+        Account::where('id_account', $request->id_account)
             ->update(['loyalty_points' => $account->loyalty_points - $promotion->promotion_point]);
 
         DB::table('account_promotion')->insert([
-            'account_id' => $accountId,
+            'account_id' => $request->id_account,
             'promotion_id' => $promotionId,
             'created_at' => now(),
             'updated_at' => now(),

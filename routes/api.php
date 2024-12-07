@@ -111,4 +111,4 @@ Route::prefix('statistics')->group(function () {
     Route::get('/revenue-by-movie', [StatisticsController::class, 'revenueByMovie']);
 });
 
-Route::post('/redeem-discount', [AccountController::class, 'redeemDiscountCode'])->middleware('auth:api');
+Route::post('/redeem-discount', [AccountController::class, 'redeemDiscountCode']);
