@@ -38,8 +38,10 @@ class BookingConfirmationMail extends Mailable
         // Lấy danh sách sản phẩm
         $products = '';
         foreach ($booking->products as $product) {
-            $formattedPrice = number_format($product->price, 0, ',', '.');
-            $products .= "<li style='padding: 5px 0;'>- {$product->product_name} : {$formattedPrice} VNĐ</li>";
+            $quantity = $product->pivot->quantity; // Lấy quantity từ bảng pivot
+            $totalPrice = $product->price * $quantity; // Tính tổng giá sản phẩm
+            $formattedTotalPrice = number_format($totalPrice, 0, ',', '.');
+            $products .= "<li style='padding: 5px 0;'>- {$product->product_name} (x{$quantity}): {$formattedTotalPrice} VNĐ</li>";
         }
         $totalAmountFormatted = number_format($booking->total_amount, 0, ',', '.');
 
@@ -58,7 +60,7 @@ class BookingConfirmationMail extends Mailable
                     <strong>Tổng số tiền:</strong> {$totalAmountFormatted} VNĐ<br>
                 </p>
 
-               <strong style='font-size: 16px;'>Sản phẩm:</strong>
+                <strong style='font-size: 16px;'>Sản phẩm:</strong>
                 <ul style='list-style-type: none; padding: 0; style='font-size: 16px;'>
                     {$products}
                 </ul>
