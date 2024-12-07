@@ -12,6 +12,7 @@ class CreateBookingProductTable extends Migration
             $table->id();
             $table->foreignId('id_booking')->constrained('bookings', 'id_booking')->onDelete('cascade');
             $table->foreignId('id_product')->constrained('products', 'id_product')->onDelete('cascade');
+            $table->integer('quantity');
             $table->timestamps();
         });
     }

@@ -33,7 +33,7 @@ class GoogleController extends Controller
     }
 
 
-    public function loginCallback(Request $request)
+    public function loginCallback()
     {
         try {
             $googleUser = Socialite::driver('google')
