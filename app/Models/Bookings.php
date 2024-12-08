@@ -189,10 +189,13 @@ class Bookings extends Model
     protected static function booted()
     {
         static::updated(function ($booking) {
-            // Kiểm tra nếu payment_status thay đổi thành 'success'
             if ($booking->isDirty('payment_status') && $booking->payment_status == 'success') {
-                // Gửi email xác nhận
                 Mail::to($booking->account->email)->send(new BookingConfirmationMail($booking));
+
+                $account = $booking->account;
+                if ($account) {
+                    $account->increment('loyalty_points', 20);
+                }
             }
         });
     }
