@@ -20,7 +20,8 @@ use App\Http\Controllers\{
     VNPayController,
     StatisticsController,
     CountryController,
-    MomoController
+    MomoController,
+    SeatController
 };
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -105,6 +106,8 @@ Route::get('/comments/{id_movie}/rating-content', [CommentController::class, 'ge
 Route::apiResource('chairs', ChairController::class);
 Route::get('chairs/room/{id_room}', [ChairController::class, 'getChairsByRoom']);
 Route::post('/tickets-book/{showtime_id}/{chair_id}', [TicketsController::class, 'bookChair']);
+Route::post('/book-chair', [ChairController::class, 'bookChair']);
+Route::get('/seats', [SeatController::class, 'getSeats']);
 
 // PROMOTIONS
 Route::apiResource('promotions', PromotionController::class);

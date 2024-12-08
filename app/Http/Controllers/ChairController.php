@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chair;
+use App\Models\Showtime;
+
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -55,5 +57,17 @@ class ChairController extends Controller
     {
         Chair::deleteChair($id);
         return response()->json(null, 204);
+    }
+
+    public function bookChair(Request $request)
+    {
+        $request->validate([
+            'id_showtime' => 'required|exists:showtimes,id_showtime',
+            'id_chair' => 'required|exists:chairs,id_chair',
+            'id_slot' => 'required|exists:showtime_slots,id_slot', // Thêm validation cho id_slot
+        ]);
+
+        // Gọi phương thức bookChair từ model Chair và truyền id_slot vào
+        return Chair::bookChair($request->id_showtime, $request->id_chair, $request->id_slot);
     }
 }

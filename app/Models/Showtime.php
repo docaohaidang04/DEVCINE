@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Room;
+use Illuminate\Support\Facades\DB;
 use App\Models\Movie;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
@@ -23,6 +24,11 @@ class Showtime extends Model
         'date_time',
         'start_time',
         'end_time',
+    ];
+    protected $casts = [
+        'date_time' => 'datetime',
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
     ];
 
     public function showtimeSlot()
@@ -89,27 +95,27 @@ class Showtime extends Model
 
     public static function createShowtime($data)
     {
-        if (isset($data['id_slots'])) {
-            $validationResult = self::validateShowtimeData($data, true);
-            if ($validationResult !== true) {
-                return $validationResult;
-            }
+        $showtime = self::create($data); // Tạo suất chiếu
 
-            $showtimes = [];
-            foreach ($data['id_slots'] as $id_slot) {
-                $showtimeData = $data;
-                $showtimeData['id_slot'] = $id_slot;
-                unset($showtimeData['id_slots']);
-                $showtimes[] = self::create($showtimeData);
-            }
-            return $showtimes;
-        } else {
-            $validationResult = self::validateShowtimeData($data);
-            if ($validationResult !== true) {
-                return $validationResult;
-            }
-            return self::create($data);
+        // Lấy danh sách ghế trong phòng
+        $chairs = Chair::where('id_room', $data['id_room'])->get();
+
+        // Lấy thông tin showtime_slot
+        $slot = ShowtimeSlot::find($data['id_slot']); // Giả sử bạn có bảng showtime_slots
+
+        // Khởi tạo trạng thái ghế cho suất chiếu và showtime_slot
+        foreach ($chairs as $chair) {
+            DB::table('chair_showtime')->insert([
+                'id_chair' => $chair->id_chair,
+                'id_showtime' => $showtime->id_showtime,
+                'id_slot' => $data['id_slot'], // Thêm id_slot vào bảng chair_showtime
+                'chair_status' => 'available', // Mặc định trạng thái ghế là trống
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
+
+        return $showtime;
     }
 
     public static function updateShowtime($id, $data)
@@ -146,5 +152,20 @@ class Showtime extends Model
     public function room()
     {
         return $this->belongsTo(Room::class, 'id_room');
+    }
+
+    public function chairs()
+    {
+        return $this->belongsToMany(Chair::class, 'chair_showtime', 'id_showtime', 'id_chair')
+            ->withPivot('chair_status');
+    }
+
+    public static function getChairsByShowtime($id_showtime)
+    {
+        return DB::table('chair_showtime')
+            ->where('id_showtime', $id_showtime)
+            ->join('chairs', 'chair_showtime.id_chair', '=', 'chairs.id_chair')
+            ->select('chairs.*', 'chair_showtime.chair_status')
+            ->get();
     }
 }
