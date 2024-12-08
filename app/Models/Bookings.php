@@ -190,11 +190,14 @@ class Bookings extends Model
     {
         static::updated(function ($booking) {
             if ($booking->isDirty('payment_status') && $booking->payment_status == 'success') {
+                // Gửi email xác nhận
                 Mail::to($booking->account->email)->send(new BookingConfirmationMail($booking));
 
                 $account = $booking->account;
                 if ($account) {
-                    $account->increment('loyalty_points', 20);
+                    // Tính điểm loyalty theo số tiền thanh toán
+                    $loyaltyPoints = round($booking->total_amount / 10000);
+                    $account->increment('loyalty_points', $loyaltyPoints);
                 }
             }
         });
