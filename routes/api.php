@@ -19,10 +19,13 @@ use App\Http\Controllers\{
     ShowtimeSlotController,
     VNPayController,
     StatisticsController,
-    CountryController
+    CountryController,
+    MomoController
 };
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\PasswordResetController;
+
+
 
 Route::middleware(['web'])->get('/google-login', [GoogleController::class, 'getGoogleSignInUrl']);
 Route::middleware(['web'])->get('/google-callback', [GoogleController::class, 'loginCallback']);
@@ -42,8 +45,13 @@ Route::get('/bookings/account/{id}', [BookingsController::class, 'getBookingsByA
 
 // PAYMENTS
 Route::apiResource('payments', PaymentsController::class);
+
 Route::post('/vnpay/payment', [VNPayController::class, 'createPayment']);
 Route::get('/vnpay/return', [VNPayController::class, 'paymentCallback']);
+
+Route::post('/momo-payment', [MomoController::class, 'createMomoPayment']);
+Route::get('/momo-return', [MomoController::class, 'handleMoMoReturn']);
+Route::post('/momo-ipn', [MomoController::class, 'handleMoMoIPN']);
 
 // GENRE MOVIES
 Route::apiResource('genre_movies', GenreMoviesController::class);
