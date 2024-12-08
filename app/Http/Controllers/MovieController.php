@@ -20,74 +20,7 @@ class MovieController extends Controller
 
     public function store(Request $request)
     {
-
-        Log::info('Request data:', $request->all()); // Logging dữ liệu nhận được
-
-        // Validate các dữ liệu đầu vào
-        $request->validate([
-            'movie_name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'duration' => 'required|integer',
-            'release_date' => 'required|date',
-            'country' => 'required|string|max:255',
-            'producer' => 'required|string|max:255',
-            'director' => 'required|string|max:255',
-            'image_main' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'youtube_url' => 'nullable|string',
-            'cast' => 'required|string',
-            'status' => 'required|string',
-            'poster_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'genres' => 'required|array',
-            'genres.*' => 'exists:genre_movies,id_genre',
-        ]);
-
-        // Kiểm tra và tạo thư mục nếu chưa tồn tại
-        $destinationPath = public_path('movies');
-        if (!file_exists($destinationPath)) {
-            mkdir($destinationPath, 0755, true);
-        }
-
-        // Khởi tạo các biến để lưu tên tệp
-        $imageMainName = null;
-        $posterUrlName = null;
-
-        // Lưu ảnh vào public/movies nếu có
-        if ($request->hasFile('image_main')) {
-            $imageMainName = time() . '_' . $request->file('image_main')->getClientOriginalName();
-            $request->file('image_main')->move($destinationPath, $imageMainName);
-        }
-
-        // Lưu ảnh vào public/movies nếu có
-        if ($request->hasFile('poster_url')) {
-            $posterUrlName = time() . '_' . $request->file('poster_url')->getClientOriginalName();
-            $request->file('poster_url')->move($destinationPath, $posterUrlName);
-        }
-
-        // Tạo mới bản ghi phim
-        $movie = Movie::create([
-            'movie_name' => $request->movie_name,
-            'description' => $request->description,
-            'duration' => $request->duration,
-            'release_date' => $request->release_date,
-            'country' => $request->country,
-            'producer' => $request->producer,
-            'director' => $request->director,
-            'cast' => $request->cast,
-            'id_genre' => $request->id_genre,
-            'status' => $request->status,
-            'youtube_url' => $request->youtube_url,
-            'image_main' => $imageMainName ? 'movies/' . $imageMainName : null,
-            'poster_url' => $posterUrlName ? 'movies/' . $posterUrlName : null,
-        ]);
-
-        // Gắn thể loại vào phim
-        $movie->genres()->attach($request->genres);
-        Log::info('add movie with data:', $request->all()); // Logging thông tin cập nhật
-
-        // Trả về response kèm đường dẫn ảnh
-
         $movie = Movie::storeMovie($request);
-
         return response()->json([
             'movie' => $movie->load('genres'),
             'image_url' => asset($movie->image_main),
