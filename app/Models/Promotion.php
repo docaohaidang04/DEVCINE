@@ -23,10 +23,16 @@ class Promotion extends Model
         'start_date',
         'end_date',
         'min_purchase_amount',
-        'max_discount_amount'
+        'max_discount_amount',
+        'promotion_point'
     ];
 
     public $timestamps = true;
+
+    public function accounts()
+    {
+        return $this->belongsToMany(Account::class, 'account_promotion', 'promotion_id', 'account_id');
+    }
 
     // Lấy danh sách tất cả promotion
     public static function getAllPromotions(): Collection
@@ -46,6 +52,7 @@ class Promotion extends Model
             'end_date' => 'required|date',
             'min_purchase_amount' => 'required|numeric',
             'max_discount_amount' => 'required|numeric',
+            'promotion_point' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -73,6 +80,7 @@ class Promotion extends Model
             'end_date' => 'required|date',
             'min_purchase_amount' => 'required|numeric',
             'max_discount_amount' => 'required|numeric',
+            'promotion_point' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {

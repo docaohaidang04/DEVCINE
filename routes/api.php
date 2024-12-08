@@ -8,7 +8,6 @@ use App\Http\Controllers\{
     RoomController,
     ShowtimeController,
     ProductController,
-    ProductComboController,
     ChairController,
     ComboController,
     CommentController,
@@ -16,22 +15,30 @@ use App\Http\Controllers\{
     PromotionController,
     GenreMoviesController,
     BookingsController,
-    BookingPromotionController,
     PaymentsController,
     ShowtimeSlotController,
     VNPayController,
-    StatisticsController
+    StatisticsController,
+    CountryController
 };
-use Illuminate\Container\Attributes\Auth;
+use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\PasswordResetController;
+
+Route::middleware(['web'])->get('/google-login', [GoogleController::class, 'getGoogleSignInUrl']);
+Route::middleware(['web'])->get('/google-callback', [GoogleController::class, 'loginCallback']);
+
+Route::post('/password-forgot', [PasswordResetController::class, 'forgotPassword']);
+Route::post('/password-reset', [PasswordResetController::class, 'resetPassword']);
+Route::get('/password-reset', [PasswordResetController::class, 'showResetForm']);
+
+Route::get('countries', [CountryController::class, 'getCountries']);
 
 // MOVIES
 Route::apiResource('movies', MovieController::class);
 
 // BOOKINGS
 Route::apiResource('bookings', BookingsController::class);
-
-// BOOKING PROMOTIONS
-Route::apiResource('booking-promotions', BookingPromotionController::class);
+Route::get('/bookings/account/{id}', [BookingsController::class, 'getBookingsByAccount']);
 
 // PAYMENTS
 Route::apiResource('payments', PaymentsController::class);
@@ -42,9 +49,11 @@ Route::get('/vnpay/return', [VNPayController::class, 'paymentCallback']);
 Route::apiResource('genre_movies', GenreMoviesController::class);
 
 // ACCOUNTS
+
+Route::get('accounts-verify/{token}', [AccountController::class, 'verify']);
 Route::post('register', [AccountController::class, 'register']);
-/* Route::post('login', [AccountController::class, 'login']);
- */
+/* Route::post('/auth/login', [AccountController::class, 'login']); */
+
 //login
 Route::group([
 
@@ -81,10 +90,13 @@ Route::apiResource('tickets', TicketsController::class);
 
 // COMMENTS
 Route::apiResource('comments', CommentController::class);
+Route::get('comments-movie/{id_movie}', [CommentController::class, 'getCommentsByMovieId']);
+Route::get('/comments/{id_movie}/rating-content', [CommentController::class, 'getRatingSummaryByMovieId']);
 
 // CHAIRS
 Route::apiResource('chairs', ChairController::class);
 Route::get('chairs/room/{id_room}', [ChairController::class, 'getChairsByRoom']);
+Route::post('/tickets-book/{showtime_id}/{chair_id}', [TicketsController::class, 'bookChair']);
 
 // PROMOTIONS
 Route::apiResource('promotions', PromotionController::class);
@@ -95,6 +107,13 @@ Route::apiResource('showtime-slots', ShowtimeSlotController::class);
 // STATISTICS
 Route::prefix('statistics')->group(function () {
     Route::get('/ticket-sales', [StatisticsController::class, 'ticketSalesByDay']);
+THONGKE_API
     Route::get('/revenue', [StatisticsController::class, 'revenueByDate']);
     Route::get('/revenue-by-movie', [StatisticsController::class, 'getRevenueByMovie']);
 });
+    Route::get('/revenue', [StatisticsController::class, 'revenueStatistics']);
+    Route::get('/revenue-by-movie', [StatisticsController::class, 'revenueByMovie']);
+});
+
+Route::post('/redeem-discount', [AccountController::class, 'redeemDiscountCode']);
+main

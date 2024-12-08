@@ -14,15 +14,43 @@ class Comment extends Model
     protected $primaryKey = 'id_comment';
 
     protected $fillable = [
-        'ticket_id',
-        'user_id',
+        'id_movies',     // Thay 'ticket_id' thành 'id_movies'
+        'id_account',    // Thay 'user_id' thành 'id_account'
         'content',
+        'rating',
     ];
 
     // Lấy tất cả bình luận
-    public static function getAllComments()
+    public static function getAllComments($id_movie = null, $from = null, $to = null, $rating = null)
     {
-        return self::all();
+        $query = self::query();
+
+        // Lọc theo id_movie nếu được cung cấp
+        if ($id_movie) {
+            $query->where('id_movies', $id_movie);
+        }
+
+        // Lọc theo khoảng thời gian (from - to)
+        if ($from && $to) {
+            $query->whereBetween('created_at', [$from, $to]);
+        } elseif ($from) {
+            $query->whereDate('created_at', '>=', $from);
+        } elseif ($to) {
+            $query->whereDate('created_at', '<=', $to);
+        }
+
+        // Lọc theo rating nếu được cung cấp
+        if ($rating) {
+            $query->where('rating', $rating);
+        }
+
+        // Trả về kết quả (hoặc tất cả nếu không có bộ lọc)
+        return $query->get();
+    }
+
+    public static function getCommentsByMovieId($id_movie)
+    {
+        return self::where('id_movies', $id_movie)->get();
     }
 
     // Tạo bình luận mới
@@ -30,9 +58,10 @@ class Comment extends Model
     {
         // Xác thực dữ liệu
         $validator = Validator::make($data, [
-            'ticket_id' => 'required|integer',
-            'user_id' => 'required|integer',
+            'id_movies' => 'required|integer',
+            'id_account' => 'required|integer',
             'content' => 'required|string|max:1000',
+            'rating' => 'required|integer|between:1,5',  // Thêm điều kiện cho rating nếu cần
         ]);
 
         if ($validator->fails()) {
@@ -58,5 +87,12 @@ class Comment extends Model
     public function deleteComment()
     {
         return $this->delete();
+    }
+
+    public static function getRatingSummaryByMovieId($id_movie)
+    {
+        return self::where('id_movies', $id_movie)
+            ->selectRaw('AVG(rating) as average_rating, COUNT(content) as total_comments')
+            ->first();
     }
 }

@@ -7,66 +7,80 @@ use Illuminate\Http\Request;
 
 class TicketsController extends Controller
 {
-    // Lấy danh sách tất cả các tickets
+    // Lấy danh sách tất cả các vé
     public function index()
     {
         $tickets = Tickets::getAllTickets(); // Gọi phương thức trong model
         return response()->json($tickets); // Trả về danh sách dưới dạng JSON
     }
 
-    // Tạo mới một ticket
+    // Tạo mới một vé
     public function store(Request $request)
     {
-        // Gọi phương thức tạo ticket trong model
+        // Gọi phương thức tạo vé trong model
         $ticket = Tickets::createTicket($request->all());
 
-        // Nếu có lỗi xác thực, trả về lỗi
+        // Kiểm tra nếu có lỗi xác thực
         if (isset($ticket['errors'])) {
-            return response()->json($ticket, 422);
+            return response()->json($ticket, 422); // Trả về lỗi với mã 422
         }
 
-        return response()->json($ticket, 201); // Trả về ticket mới tạo
+        return response()->json($ticket, 201); // Trả về vé mới tạo
     }
 
-    // Lấy thông tin của một ticket theo ID
+    // Đặt ghế cho một khung giờ cụ thể
+    public function bookChair($showtime_id, $chair_id)
+    {
+        // Gọi phương thức bookChair trong model
+        $ticket = Tickets::bookChair($showtime_id, $chair_id);
+
+        // Kiểm tra nếu có lỗi xác thực
+        if (isset($ticket['error'])) {
+            return response()->json($ticket, 400); // Trả về lỗi với mã 400
+        }
+
+        return response()->json($ticket, 201); // Trả về vé mới tạo
+    }
+
+    // Lấy thông tin của một vé theo ID
     public function show($id)
     {
         $ticket = Tickets::getTicketById($id); // Gọi phương thức trong model
         if (!$ticket) {
-            return response()->json(['message' => 'Ticket not found'], 404);
+            return response()->json(['message' => 'Không tìm thấy vé'], 404);
         }
-        return response()->json($ticket); // Trả về thông tin ticket
+        return response()->json($ticket); // Trả về thông tin vé
     }
 
-    // Cập nhật một ticket theo ID
+    // Cập nhật một vé theo ID
     public function update(Request $request, $id)
     {
         $ticket = Tickets::getTicketById($id); // Gọi phương thức trong model
         if (!$ticket) {
-            return response()->json(['message' => 'Ticket not found'], 404);
+            return response()->json(['message' => 'Không tìm thấy vé'], 404);
         }
 
-        // Gọi phương thức cập nhật ticket trong model
-        $ticket->updateTicket($request->all());
+        // Gọi phương thức cập nhật vé trong model
+        $updatedTicket = $ticket->updateTicket($request->all());
 
-        // Nếu có lỗi xác thực, trả về lỗi
-        if (isset($ticket['errors'])) {
-            return response()->json($ticket, 422);
+        // Kiểm tra nếu có lỗi xác thực
+        if (isset($updatedTicket['errors'])) {
+            return response()->json($updatedTicket, 422); // Trả về lỗi với mã 422
         }
 
-        return response()->json($ticket);
+        return response()->json($updatedTicket);
     }
 
-    // Xóa một ticket theo ID
+    // Xóa một vé theo ID
     public function destroy($id)
     {
         $ticket = Tickets::getTicketById($id); // Gọi phương thức trong model
         if (!$ticket) {
-            return response()->json(['message' => 'Ticket not found'], 404);
+            return response()->json(['message' => 'Không tìm thấy vé'], 404);
         }
 
-        // Xóa ticket
+        // Xóa vé
         $ticket->deleteTicket(); // Gọi phương thức trong model
-        return response()->json(['message' => 'Ticket deleted']);
+        return response()->json(['message' => 'Vé đã được xóa']);
     }
 }

@@ -15,38 +15,20 @@ class Tickets extends Model
     protected $primaryKey = 'id_ticket';
 
     protected $fillable = [
-        'id_booking',
         'id_showtime',
-        'id_chair',
-        'price',
         'status',
     ];
 
-    // Xác thực dữ liệu của ticket
-    public static function validateTicketData($data, $isUpdate = false)
+    // Quan hệ nhiều vé với nhiều ghế thông qua ticket_chair
+    public function chairs()
     {
-        $rules = [
-            'id_booking' => 'required|integer',
-            'id_showtime' => 'required|integer',
-            'id_chair' => 'required|integer',
-            'price' => 'required|numeric',
-            'status' => 'required|string|max:255',
-        ];
+        return $this->belongsToMany(Chair::class, 'ticket_chair', 'ticket_id', 'chair_id');
+    }
 
-        // Nếu là cập nhật, các trường có thể bỏ qua
-        if ($isUpdate) {
-            $rules = array_map(function ($rule) {
-                return 'sometimes|' . $rule;
-            }, $rules);
-        }
-
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        return true;
+    // Quan hệ một vé thuộc về một suất chiếu
+    public function showtime()
+    {
+        return $this->belongsTo(Showtime::class, 'id_showtime', 'id_showtime');
     }
 
     // Lấy tất cả các tickets
@@ -59,35 +41,84 @@ class Tickets extends Model
     public static function createTicket($data)
     {
         // Xác thực dữ liệu
-        $validationResult = self::validateTicketData($data);
-        if ($validationResult !== true) {
-            return $validationResult;
+        $validator = Validator::make($data, [
+            'id_showtime' => 'required|exists:showtimes,id_showtime',
+            'id_chairs' => 'required|array',
+            'id_chairs.*' => 'required|exists:chairs,id_chair',
+            'status' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return ['errors' => $validator->errors()];
         }
 
-        return self::create($data);
+        // Lưu ticket
+        $ticket = self::create([
+            'id_showtime' => $data['id_showtime'],
+            'status' => $data['status'] ?? null,
+        ]);
+
+        // Gắn mối quan hệ chairs với ticket
+        $ticket->chairs()->sync($data['id_chairs']); // Lưu nhiều chairs cho một ticket
+
+        return $ticket;
     }
 
-    // Lấy thông tin ticket theo ID
+    // Lấy ticket theo ID
     public static function getTicketById($id)
     {
         return self::find($id);
     }
 
+    // Đặt ghế
+    public static function bookChair($showtime_id, $chair_id)
+    {
+        // Kiểm tra xem ghế đã được đặt cho khung giờ này chưa
+        $existingTicket = self::where('id_showtime', $showtime_id)
+            ->whereHas('chairs', function ($query) use ($chair_id) {
+                $query->where('chairs.id_chair', $chair_id); // Sửa đổi ở đây
+            })
+            ->first();
+
+        if ($existingTicket) {
+            return response()->json(['error' => 'Ghế đã được đặt cho khung giờ này.'], 400);
+        }
+
+        // Tạo vé mới
+        $ticket = self::create([
+            'id_showtime' => $showtime_id,
+            'status' => 'booked'
+        ]);
+
+        // Gắn mối quan hệ chair với ticket
+        $ticket->chairs()->attach($chair_id);
+
+        return $ticket;
+    }
+
+
     // Cập nhật ticket
     public function updateTicket($data)
     {
         // Xác thực dữ liệu
-        $validationResult = self::validateTicketData($data, true);
-        if ($validationResult !== true) {
-            return $validationResult;
+        $validator = Validator::make($data, [
+            'id_showtime' => 'sometimes|required|exists:showtimes,id_showtime',
+            'id_chair' => 'sometimes|required|exists:chairs,id_chair',
+            'status' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return ['errors' => $validator->errors()];
         }
 
-        return $this->update($data);
+        $this->update($data);
+        return $this;
     }
 
     // Xóa ticket
     public function deleteTicket()
     {
-        return $this->delete();
+        $this->delete();
+        return ['message' => 'Vé đã được xóa thành công'];
     }
 }

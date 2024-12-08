@@ -25,12 +25,6 @@ class Product extends Model
         'is_active' => 'boolean',
     ];
 
-    public function combos()
-    {
-        return $this->belongsToMany(Combo::class, 'product_combos', 'id_product', 'id_combo')
-            ->withPivot('quantity');
-    }
-
     public static function getProducts($request)
     {
         // Lấy giá trị 'is_active' từ query string

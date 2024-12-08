@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Mail\BookingConfirmationMail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class Bookings extends Model
@@ -15,11 +17,12 @@ class Bookings extends Model
     protected $primaryKey = 'id_booking';
 
     protected $fillable = [
-        'id_account',
-        'id_combo',
+        'account_id',
+        'account_promotion_id',
         'id_payment',
+        'id_ticket',
+        'booking_code',
         'booking_date',
-        'quantity',
         'total_amount',
         'payment_status',
         'transaction_id',
@@ -27,6 +30,24 @@ class Bookings extends Model
         'status',
     ];
 
+    // Mối quan hệ một-một với Account
+    public function account()
+    {
+        return $this->belongsTo(Account::class, 'account_id', 'id_account');
+    }
+
+    // Mối quan hệ nhiều-nhiều với Products
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'booking_product', 'id_booking', 'id_product')
+            ->withPivot('quantity')
+            ->withTimestamps();
+    }
+
+    public function ticket()
+    {
+        return $this->belongsTo(Tickets::class, 'id_ticket', 'id_ticket');
+    }
     // Lấy tất cả bookings
     public static function getAllBookings()
     {
@@ -43,13 +64,17 @@ class Bookings extends Model
     public static function createBooking($data)
     {
         $validator = Validator::make($data, [
-            'id_account' => 'required|exists:accounts,id_account',
-            'id_combo' => 'nullable|exists:combos,id_combo',
+            'account_id' => 'required|exists:accounts,id_account',
+            'account_promotion_id' => 'nullable|exists:account_promotions,id_account_promotion',
+            'id_products' => 'nullable|array',
+            'id_products.*.id_product' => 'required|exists:products,id_product',
+            'id_products.*.quantity' => 'required|integer|min:1',
             'id_payment' => 'nullable|exists:payment,id_payment',
-            'quantity' => 'nullable|integer',
-            'total_amount' => 'nullable|numeric',
+            'id_ticket' => 'nullable|exists:tickets,id_ticket',
+            'booking_code' => 'nullable|string|max:255',
+            'total_amount' => 'nullable|numeric|min:0',
             'payment_status' => 'nullable|string',
-            'transaction_id' => 'nullable|string',
+            'transaction_id' => 'nullable|string|max:255',
             'payment_date' => 'nullable|date',
             'status' => 'nullable|string',
         ]);
@@ -58,20 +83,48 @@ class Bookings extends Model
             return response()->json($validator->errors(), 422);
         }
 
-        return self::create($data);
+        // Lưu booking
+        $booking = self::create([
+            'account_id' => $data['account_id'],
+            'account_promotion_id' => $data['account_promotion_id'] ?? null,
+            'id_payment' => $data['id_payment'] ?? null,
+            'id_ticket' => $data['id_ticket'] ?? null,
+            'booking_code' => $data['booking_code'] ?? null,
+            'total_amount' => $data['total_amount'] ?? 0,
+            'payment_status' => $data['payment_status'] ?? null,
+            'transaction_id' => $data['transaction_id'] ?? null,
+            'payment_date' => $data['payment_date'] ?? null,
+            'status' => $data['status'] ?? 'pending',
+        ]);
+
+        // Thêm sản phẩm vào booking nếu có
+        if (isset($data['id_products']) && is_array($data['id_products'])) {
+            $productsWithQuantity = [];
+            foreach ($data['id_products'] as $product) {
+                $productsWithQuantity[$product['id_product']] = ['quantity' => $product['quantity']];
+            }
+            $booking->products()->sync($productsWithQuantity);
+        }
+
+        return $booking;
     }
+
 
     // Cập nhật booking
     public function updateBooking($data)
     {
         $validator = Validator::make($data, [
-            'id_account' => 'sometimes|required|exists:accounts,id_account',
-            'id_combo' => 'nullable|exists:combos,id_combo',
-            'id_payment' => 'nullable|exists:payment,id_payment',
-            'quantity' => 'nullable|integer',
-            'total_amount' => 'nullable|numeric',
+            'account_id' => 'nullable|exists:accounts,id_account',
+            'account_promotion_id' => 'nullable|exists:account_promotions,id_account_promotion',
+            'id_products' => 'nullable|array',
+            'id_products.*.id_product' => 'required|exists:products,id_product',
+            'id_products.*.quantity' => 'required|integer|min:1',
+            'id_payment' => 'nullable|exists:payments,id_payment',
+            'id_ticket' => 'nullable|exists:tickets,id_ticket',
+            'booking_code' => 'nullable|string|max:255',
+            'total_amount' => 'nullable|numeric|min:0',
             'payment_status' => 'nullable|string',
-            'transaction_id' => 'nullable|string',
+            'transaction_id' => 'nullable|string|max:255',
             'payment_date' => 'nullable|date',
             'status' => 'nullable|string',
         ]);
@@ -80,9 +133,21 @@ class Bookings extends Model
             return response()->json($validator->errors(), 422);
         }
 
+        // Cập nhật thông tin booking
         $this->update($data);
+
+        // Cập nhật lại sản phẩm và số lượng
+        if (isset($data['id_products']) && is_array($data['id_products'])) {
+            $productsWithQuantity = [];
+            foreach ($data['id_products'] as $product) {
+                $productsWithQuantity[$product['id_product']] = ['quantity' => $product['quantity']];
+            }
+            $this->products()->sync($productsWithQuantity);
+        }
+
         return $this;
     }
+
 
     // Xóa booking
     public static function deleteBooking($id)
@@ -90,9 +155,45 @@ class Bookings extends Model
         $booking = self::find($id);
         if ($booking) {
             $booking->delete();
-            return response()->json(['message' => 'booking deleted successfully'], 200);
+            return response()->json(['message' => 'Booking deleted successfully'], 200);
         }
 
-        return response()->json(['message' => 'booking not found'], 404);
+        return response()->json(['message' => 'Booking not found'], 404);
+    }
+
+    public static function getBookingsByAccountId($account_id)
+    {
+        // Kiểm tra nếu account_id hợp lệ
+        if (empty($account_id)) {
+            return response()->json(['message' => 'Account ID is required'], 400);
+        }
+
+        // Lấy danh sách booking theo account_id và kèm theo các quan hệ liên quan
+        $booking = self::with([
+            'account',              // Thông tin tài khoản
+            'products',             // Danh sách sản phẩm
+            'ticket',               // Chi tiết vé
+            'ticket.chairs',        // Ghế liên quan đến vé
+            'ticket.showtime',      // Suất chiếu liên quan đến vé
+            'ticket.showtime.movie' // Bộ phim của suất chiếu
+        ])->where('account_id', $account_id)->get();
+
+        // Kiểm tra nếu không tìm thấy booking nào
+        if (!$booking) {
+            return response()->json(['message' => 'Booking not found'], 404);
+        }
+
+        return $booking;
+    }
+
+    protected static function booted()
+    {
+        static::updated(function ($booking) {
+            // Kiểm tra nếu payment_status thay đổi thành 'success'
+            if ($booking->isDirty('payment_status') && $booking->payment_status == 'success') {
+                // Gửi email xác nhận
+                Mail::to($booking->account->email)->send(new BookingConfirmationMail($booking));
+            }
+        });
     }
 }

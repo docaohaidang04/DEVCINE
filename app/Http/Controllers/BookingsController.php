@@ -21,7 +21,7 @@ class BookingsController extends Controller
         if ($booking) {
             return response()->json($booking);
         }
-        return response()->json(['message' => 'booking not found'], 404);
+        return response()->json(['message' => 'Booking not found'], 404);
     }
 
     // Tạo booking mới
@@ -40,7 +40,7 @@ class BookingsController extends Controller
     {
         $booking = Bookings::getBookingById($id);
         if (!$booking) {
-            return response()->json(['message' => 'booking not found'], 404);
+            return response()->json(['message' => 'Booking not found'], 404);
         }
 
         $updatedBooking = $booking->updateBooking($request->all());
@@ -55,5 +55,17 @@ class BookingsController extends Controller
     public function destroy($id)
     {
         return Bookings::deleteBooking($id);
+    }
+
+    public function getBookingsByAccount($account_id)
+    {
+        $bookings = Bookings::getBookingsByAccountId($account_id);
+
+        // Nếu kết quả là dạng JSON response (lỗi), trả về luôn
+        if ($bookings instanceof \Illuminate\Http\JsonResponse) {
+            return $bookings;
+        }
+
+        return response()->json($bookings, 200);
     }
 }
