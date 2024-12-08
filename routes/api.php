@@ -95,6 +95,6 @@ Route::apiResource('showtime-slots', ShowtimeSlotController::class);
 // STATISTICS
 Route::prefix('statistics')->group(function () {
     Route::get('/ticket-sales', [StatisticsController::class, 'ticketSalesByDay']);
-    Route::get('/revenue', [StatisticsController::class, 'revenueStatistics']);
-    Route::get('/revenue-by-movie', [StatisticsController::class, 'revenueByMovie']);
+    Route::get('/revenue', [StatisticsController::class, 'revenueByDate']);
+    Route::get('/revenue-by-movie', [StatisticsController::class, 'getRevenueByMovie']);
 });
