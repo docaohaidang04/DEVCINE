@@ -107,13 +107,8 @@ Route::apiResource('showtime-slots', ShowtimeSlotController::class);
 // STATISTICS
 Route::prefix('statistics')->group(function () {
     Route::get('/ticket-sales', [StatisticsController::class, 'ticketSalesByDay']);
-THONGKE_API
     Route::get('/revenue', [StatisticsController::class, 'revenueByDate']);
     Route::get('/revenue-by-movie', [StatisticsController::class, 'getRevenueByMovie']);
 });
-    Route::get('/revenue', [StatisticsController::class, 'revenueStatistics']);
-    Route::get('/revenue-by-movie', [StatisticsController::class, 'revenueByMovie']);
-});
 
 Route::post('/redeem-discount', [AccountController::class, 'redeemDiscountCode']);
-main
