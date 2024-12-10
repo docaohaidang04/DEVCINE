@@ -13,11 +13,16 @@ class PromotionController extends Controller
         return response()->json(Promotion::getAllPromotions());
     }
 
-    // Tạo mới một promotion
     public function store(Request $request)
     {
         // Gọi phương thức tạo promotion từ model
-        $promotion = Promotion::createPromotion($request->all());
+        $data = $request->all();
+
+        if ($request->hasFile('promotion_image')) {
+            $data['promotion_image'] = $request->file('promotion_image');
+        }
+
+        $promotion = Promotion::createPromotion($data);
 
         if (isset($promotion['errors'])) {
             return response()->json($promotion, 422);
@@ -25,6 +30,8 @@ class PromotionController extends Controller
 
         return response()->json($promotion, 201);
     }
+
+
 
     // Lấy thông tin của một promotion cụ thể
     public function show($id)
