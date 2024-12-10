@@ -108,6 +108,7 @@ Route::get('chairs/room/{id_room}', [ChairController::class, 'getChairsByRoom'])
 Route::post('/tickets-book/{showtime_id}/{chair_id}', [TicketsController::class, 'bookChair']);
 Route::post('/book-chair', [ChairController::class, 'bookChair']);
 Route::get('/seats', [SeatController::class, 'getSeats']);
+Route::get('/showtimes/{id_showtime}/chairs', [ShowtimeController::class, 'getChairsByShowtime']);
 
 // PROMOTIONS
 Route::apiResource('promotions', PromotionController::class);

@@ -13,6 +13,21 @@ class ShowtimeController extends Controller
         return response()->json($showtimes, 200);
     }
 
+    public function getChairsByShowtime($id_showtime)
+    {
+        try {
+            $chairs = Showtime::getChairsWithStatusByShowtime($id_showtime);
+
+            if ($chairs->isEmpty()) {
+                return response()->json(['message' => 'No chairs found for this showtime.'], 404);
+            }
+
+            return response()->json(['chairs' => $chairs], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     public function show($id)
     {
         $showtime = Showtime::with('movie', 'room', 'showtimeSlot')->find($id);
