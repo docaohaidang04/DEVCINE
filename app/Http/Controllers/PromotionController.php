@@ -13,6 +13,7 @@ class PromotionController extends Controller
         return response()->json(Promotion::getAllPromotions());
     }
 
+    // Tạo promotion mới
     public function store(Request $request)
     {
         // Gọi phương thức tạo promotion từ model
@@ -31,18 +32,26 @@ class PromotionController extends Controller
         return response()->json($promotion, 201);
     }
 
-
-
     // Lấy thông tin của một promotion cụ thể
     public function show($id)
     {
-        return response()->json(Promotion::findPromotion($id));
+        $promotion = Promotion::findPromotion($id);
+
+        if (!$promotion) {
+            return response()->json(['error' => 'Promotion not found'], 404);
+        }
+
+        return response()->json($promotion);
     }
 
     // Cập nhật promotion
     public function update(Request $request, $id)
     {
         $promotion = Promotion::findPromotion($id);
+
+        if (!$promotion) {
+            return response()->json(['error' => 'Promotion not found'], 404);
+        }
 
         $updatedPromotion = $promotion->updatePromotion($request->all());
 
@@ -57,6 +66,11 @@ class PromotionController extends Controller
     public function destroy($id)
     {
         $promotion = Promotion::findPromotion($id);
+
+        if (!$promotion) {
+            return response()->json(['error' => 'Promotion not found'], 404);
+        }
+
         $promotion->deletePromotion();
 
         return response()->json(null, 204);
