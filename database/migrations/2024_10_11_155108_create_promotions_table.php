@@ -12,6 +12,7 @@ class CreatePromotionsTable extends Migration
             $table->id('id_promotion');
             $table->string('promotion_name');
             $table->text('description')->nullable();
+            $table->string('promotion_image')->nullable();
             $table->integer('min_purchase_amount')->nullable()->default(0);
             $table->integer('max_discount_amount')->nullable()->default(0);
             $table->integer('promotion_point')->default(0);
