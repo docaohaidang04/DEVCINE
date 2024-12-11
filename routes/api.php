@@ -113,6 +113,8 @@ Route::put('/showtimes/{id_showtime}/chairs', [ShowtimeController::class, 'updat
 
 // PROMOTIONS
 Route::apiResource('promotions', PromotionController::class);
+Route::get('/promotions/{id_account}/account', [PromotionController::class, 'getPromotionByIdAccount']);
+
 
 // SHOWTIMES-SLOT
 Route::apiResource('showtime-slots', ShowtimeSlotController::class);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use App\Models\Promotion;
 use Illuminate\Http\Request;
 
@@ -74,5 +75,22 @@ class PromotionController extends Controller
         $promotion->deletePromotion();
 
         return response()->json(null, 204);
+    }
+    public function getPromotionByIdAccount($id)
+    {
+        try {
+            $user = Account::findOrFail($id);
+            $promotions = $user->promotions;
+
+            return response()->json([
+                'status' => true,
+                'data' => $promotions
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Khách hàng không tồn tại hoặc có lỗi: ' . $e->getMessage()
+            ], 404);
+        }
     }
 }
