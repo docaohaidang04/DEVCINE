@@ -12,6 +12,7 @@ class CreateAccountPromotionTable extends Migration
             $table->id('account_promotion_id');
             $table->foreignId('account_id')->constrained('accounts', 'id_account');
             $table->foreignId('promotion_id')->constrained('promotions', 'id_promotion');
+            $table->string('status', 50)->default('active');
             $table->timestamps();
         });
     }
