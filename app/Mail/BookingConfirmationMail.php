@@ -72,6 +72,11 @@ class BookingConfirmationMail extends Mailable
                     <strong>Ghế ngồi:</strong> {$chairs}
                 </p>
 
+                <strong style='font-size: 16px;'>QR CODE:</strong>
+                <ul style='list-style-type: none; padding: 0; style='font-size: 16px;'>
+                <img src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={$booking->booking_code}'>
+                </ul>
+
                 <p style='font-size: 14px; color: #7f8c8d;'>
                     Nếu bạn không yêu cầu đặt vé này, xin bỏ qua email này.<br><br>
                     Trân trọng,<br>

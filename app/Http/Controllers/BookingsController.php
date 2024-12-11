@@ -38,17 +38,15 @@ class BookingsController extends Controller
     // Cập nhật booking
     public function update(Request $request, $id)
     {
-        $booking = Bookings::getBookingById($id);
+        $booking = Bookings::find($id); // Tìm booking theo ID
         if (!$booking) {
             return response()->json(['message' => 'Booking not found'], 404);
         }
 
-        $updatedBooking = $booking->updateBooking($request->all());
-        if ($updatedBooking instanceof \Illuminate\Http\JsonResponse) {
-            return $updatedBooking; // Trả về lỗi nếu có
-        }
+        // Cập nhật thông tin booking
+        $booking->update($request->all()); // Cập nhật booking với dữ liệu mới
 
-        return response()->json($updatedBooking);
+        return response()->json($booking);
     }
 
     // Xóa booking
