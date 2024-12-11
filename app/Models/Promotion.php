@@ -117,10 +117,15 @@ class Promotion extends Model
         return 'promotions/' . $imageName;
     }
 
-
     // Xóa promotion
     public function deletePromotion(): bool
     {
         return $this->delete();
+    }
+
+    // Lấy promotion theo id_promotion
+    public static function findPromotion($id)
+    {
+        return self::find($id);
     }
 }
