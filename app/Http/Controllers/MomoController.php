@@ -51,16 +51,7 @@ class MomoController extends Controller
 
         $body = json_decode($response->getBody()->getContents(), true);
 
-        if (isset($body['payUrl'])) {
-            $booking = Bookings::create([
-                'account_id' => $accountId,
-                'booking_code' => $bookingCode,
-                'total_amount' => $amount,
-                'status' => 'pending',
-            ]);
 
-            return response()->json($body);
-        }
 
         return response()->json($body);
     }

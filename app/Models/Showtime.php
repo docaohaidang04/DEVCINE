@@ -66,7 +66,7 @@ class Showtime extends Model
                 'chairs.row',
                 'chairs.column',
                 'chairs.price',
-                'chair_showtime.chair_status'
+                'chair_showtime.chair_status',
             )
             ->orderBy('chairs.row')
             ->orderBy('chairs.column')

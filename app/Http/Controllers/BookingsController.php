@@ -19,7 +19,7 @@ class BookingsController extends Controller
     {
         $booking = Bookings::getBookingById($id);
         if ($booking) {
-            return response()->json($booking);
+            return $booking;
         }
         return response()->json(['message' => 'Booking not found'], 404);
     }

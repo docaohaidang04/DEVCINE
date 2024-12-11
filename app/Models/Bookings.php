@@ -51,14 +51,132 @@ class Bookings extends Model
     // Lấy tất cả bookings
     public static function getAllBookings()
     {
-        return self::all();
+        // Kiểm tra nếu account_id hợp lệ
+
+
+        // Lấy danh sách booking theo account_id và kèm theo các quan hệ liên quan
+        $bookings = self::with([
+            'account',
+            'products',
+            'ticket',
+            'ticket.chairs',
+            'ticket.showtime',
+            'ticket.showtime.movie'
+        ])->get();
+
+        // Kiểm tra nếu không tìm thấy booking nào
+        if ($bookings->isEmpty()) {
+            return response()->json(['message' => 'Booking not found'], 404);
+        }
+
+        // Định dạng dữ liệu
+        $formattedBookings = $bookings->map(function ($booking) {
+            return [
+                'id_booking' => $booking->id_booking,
+                'booking_code' => $booking->booking_code,
+                'booking_date' => $booking->booking_date,
+                'total_amount' => $booking->total_amount,
+                'payment_status' => $booking->payment_status,
+                'status' => $booking->status,
+                'account' => [
+                    'id' => $booking->account->id_account,
+                    'user_name' => $booking->account->user_name,
+                    'email' => $booking->account->email,
+                    'full_name' => $booking->account->full_name,
+                    'avatar' => $booking->account->avatar,
+                ],
+                'products' => $booking->products->map(function ($product) {
+                    return [
+                        'id_product' => $product->id_product,
+                        'product_name' => $product->product_name,
+                        'price' => $product->price,
+                        'quantity' => $product->pivot->quantity,
+                        'image_product' => $product->image_product,
+                    ];
+                }),
+                'chairs' => $booking->ticket->chairs->map(function ($chair) {
+                    return [
+                        'id_chair' => $chair->id_chair,
+                        'chair_name' => $chair->chair_name,
+                        'price' => $chair->price,
+                    ];
+                }),
+                'showtime' => [
+                    'date_time' => $booking->ticket->showtime->date_time,
+                    'start_time' => $booking->ticket->showtime->start_time,
+                    'end_time' => $booking->ticket->showtime->end_time,
+
+                ],
+                'movie_name' => $booking->ticket->showtime->movie->movie_name
+
+            ];
+        });
+
+        // Trả về dữ liệu đã định dạng
+        return $formattedBookings;
     }
 
     // Lấy booking theo id
-    public static function getBookingById($id)
+    public static function getBookingById($id_booking)
     {
-        return self::find($id);
+        // Tìm booking theo id_booking và kèm theo các quan hệ liên quan
+        $booking = self::with([
+            'account',
+            'products',
+            'ticket',
+            'ticket.chairs',
+            'ticket.showtime',
+            'ticket.showtime.movie'
+        ])->where('id_booking', $id_booking)->first();
+
+        // Kiểm tra nếu không tìm thấy booking
+        if (!$booking) {
+            return response()->json(['message' => 'Booking not found'], 404);
+        }
+
+        // Định dạng dữ liệu
+        $formattedBooking = [
+            'id_booking' => $booking->id_booking,
+            'booking_code' => $booking->booking_code,
+            'booking_date' => $booking->booking_date,
+            'total_amount' => $booking->total_amount,
+            'payment_status' => $booking->payment_status,
+            'status' => $booking->status,
+            'account' => [
+                'id' => $booking->account->id_account,
+                'user_name' => $booking->account->user_name,
+                'email' => $booking->account->email,
+                'full_name' => $booking->account->full_name,
+                'avatar' => $booking->account->avatar,
+            ],
+            'products' => $booking->products->map(function ($product) {
+                return [
+                    'id_product' => $product->id_product,
+                    'product_name' => $product->product_name,
+                    'price' => $product->price,
+                    'quantity' => $product->pivot->quantity,
+                    'image_product' => $product->image_product,
+                ];
+            }),
+            'chairs' => $booking->ticket->chairs->map(function ($chair) {
+                return [
+                    'id_chair' => $chair->id_chair,
+                    'chair_name' => $chair->chair_name,
+                    'price' => $chair->price,
+                ];
+            }),
+            'showtime' => [
+                'date_time' => $booking->ticket->showtime->date_time,
+                'start_time' => $booking->ticket->showtime->start_time,
+                'end_time' => $booking->ticket->showtime->end_time,
+            ],
+            'movie_name' => $booking->ticket->showtime->movie->movie_name
+        ];
+
+        // Trả về dữ liệu đã định dạng
+        return  response()->json($formattedBooking, 200);
     }
+
 
     // Tạo booking mới
     public static function createBooking($data)
@@ -75,7 +193,7 @@ class Bookings extends Model
             'total_amount' => 'nullable|numeric|min:0',
             'payment_status' => 'nullable|string',
             'transaction_id' => 'nullable|string|max:255',
-            'payment_date' => 'nullable|date',
+            'booking_date' => 'nullable|date',
             'status' => 'nullable|string',
         ]);
 
@@ -93,16 +211,24 @@ class Bookings extends Model
             'total_amount' => $data['total_amount'] ?? 0,
             'payment_status' => $data['payment_status'] ?? null,
             'transaction_id' => $data['transaction_id'] ?? null,
-            'payment_date' => $data['payment_date'] ?? null,
+            'booking_date' => $data['booking_date'] ?? null,
             'status' => $data['status'] ?? 'pending',
         ]);
 
         // Thêm sản phẩm vào booking nếu có
         if (isset($data['id_products']) && is_array($data['id_products'])) {
             $productsWithQuantity = [];
+
             foreach ($data['id_products'] as $product) {
-                $productsWithQuantity[$product['id_product']] = ['quantity' => $product['quantity']];
+                // Kiểm tra và ánh xạ id_product với quantity
+                if (isset($product['id_product'], $product['quantity'])) {
+                    $productsWithQuantity[$product['id_product']] = [
+                        'quantity' => $product['quantity'],
+                    ];
+                }
             }
+
+            // Lưu dữ liệu vào bảng trung gian
             $booking->products()->sync($productsWithQuantity);
         }
 
@@ -169,21 +295,65 @@ class Bookings extends Model
         }
 
         // Lấy danh sách booking theo account_id và kèm theo các quan hệ liên quan
-        $booking = self::with([
-            'account',              // Thông tin tài khoản
-            'products',             // Danh sách sản phẩm
-            'ticket',               // Chi tiết vé
-            'ticket.chairs',        // Ghế liên quan đến vé
-            'ticket.showtime',      // Suất chiếu liên quan đến vé
-            'ticket.showtime.movie' // Bộ phim của suất chiếu
+        $bookings = self::with([
+            'account',
+            'products',
+            'ticket',
+            'ticket.chairs',
+            'ticket.showtime',
+            'ticket.showtime.movie'
         ])->where('account_id', $account_id)->get();
 
         // Kiểm tra nếu không tìm thấy booking nào
-        if (!$booking) {
+        if ($bookings->isEmpty()) {
             return response()->json(['message' => 'Booking not found'], 404);
         }
 
-        return $booking;
+        // Định dạng dữ liệu
+        $formattedBookings = $bookings->map(function ($booking) {
+            return [
+                'id_booking' => $booking->id_booking,
+                'booking_code' => $booking->booking_code,
+                'booking_date' => $booking->booking_date,
+                'total_amount' => $booking->total_amount,
+                'payment_status' => $booking->payment_status,
+                'status' => $booking->status,
+                'account' => [
+                    'id' => $booking->account->id_account,
+                    'user_name' => $booking->account->user_name,
+                    'email' => $booking->account->email,
+                    'full_name' => $booking->account->full_name,
+                    'avatar' => $booking->account->avatar,
+                ],
+                'products' => $booking->products->map(function ($product) {
+                    return [
+                        'id_product' => $product->id_product,
+                        'product_name' => $product->product_name,
+                        'price' => $product->price,
+                        'quantity' => $product->pivot->quantity,
+                        'image_product' => $product->image_product,
+                    ];
+                }),
+                'chairs' => $booking->ticket->chairs->map(function ($chair) {
+                    return [
+                        'id_chair' => $chair->id_chair,
+                        'chair_name' => $chair->chair_name,
+                        'price' => $chair->price,
+                    ];
+                }),
+                'showtime' => [
+                    'date_time' => $booking->ticket->showtime->date_time,
+                    'start_time' => $booking->ticket->showtime->start_time,
+                    'end_time' => $booking->ticket->showtime->end_time,
+
+                ],
+                'movie_name' => $booking->ticket->showtime->movie->movie_name
+
+            ];
+        });
+
+        // Trả về dữ liệu đã định dạng
+        return response()->json($formattedBookings, 200);
     }
 
     protected static function booted()
