@@ -57,4 +57,8 @@ class Kernel extends HttpKernel
         'auth.jwt' => \Tymon\JWTAuth\Http\Middleware\Authenticate::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
     ];
+
+    protected $commands = [
+        \App\Console\Commands\UpdateMovieStatus::class,
+    ];
 }
