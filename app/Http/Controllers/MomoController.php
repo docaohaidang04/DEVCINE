@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\Bookings;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\DB;
 
 class MomoController extends Controller
 {
@@ -50,16 +51,7 @@ class MomoController extends Controller
 
         $body = json_decode($response->getBody()->getContents(), true);
 
-        if (isset($body['payUrl'])) {
-            $booking = Bookings::create([
-                'account_id' => $accountId,
-                'booking_code' => $bookingCode,
-                'total_amount' => $amount,
-                'status' => 'pending',
-            ]);
 
-            return response()->json($body);
-        }
 
         return response()->json($body);
     }
@@ -72,21 +64,34 @@ class MomoController extends Controller
         if ($request->resultCode == 0) {
             $bookingCode = $request->orderId;
 
+            // Lấy booking từ database
             $booking = Bookings::where('booking_code', $bookingCode)->first();
             if ($booking) {
+                // Cập nhật thông tin thanh toán thành công
                 $booking->update([
                     'payment_status' => 'success',
                     'transaction_id' => $request->transId,
                     'payment_date' => now(),
                     'status' => 'true'
                 ]);
-            }
 
-            return response()->json(['message' => 'Thanh toán thành công']);
+                // Cập nhật trạng thái ghế thành 'sold'
+                foreach ($booking->showtimes as $showtime) {
+                    foreach ($showtime->chairs as $chair) {
+                        DB::table('chair_showtime')
+                            ->where('id_chair', $chair->id_chair)
+                            ->where('id_showtime', $showtime->id_showtime)
+                            ->update(['chair_status' => 'sold']);
+                    }
+                }
+
+                return response()->json(['message' => 'Thanh toán thành công']);
+            }
         }
 
         return response()->json(['message' => 'Thanh toán thất bại']);
     }
+
 
     public function handleMoMoIPN(Request $request)
     {
@@ -95,14 +100,26 @@ class MomoController extends Controller
         if ($request->resultCode == 0) {
             $bookingCode = $request->orderId;
 
+            // Lấy booking từ database
             $booking = Bookings::where('booking_code', $bookingCode)->first();
             if ($booking) {
+                // Cập nhật thông tin thanh toán thành công
                 $booking->update([
                     'payment_status' => 'success',
                     'transaction_id' => $request->transId,
                     'payment_date' => now(),
                     'status' => 'true'
                 ]);
+
+                // Cập nhật trạng thái ghế thành 'sold'
+                foreach ($booking->showtimes as $showtime) {
+                    foreach ($showtime->chairs as $chair) {
+                        DB::table('chair_showtime')
+                            ->where('id_chair', $chair->id_chair)
+                            ->where('id_showtime', $showtime->id_showtime)
+                            ->update(['chair_status' => 'sold']);
+                    }
+                }
             }
         }
 

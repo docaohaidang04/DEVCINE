@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Room;
 use Illuminate\Support\Facades\DB;
-use App\Models\Movie;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Room;
+use App\Models\Movie;
+use App\Models\Chair;
+use App\Models\ShowtimeSlot;
+use Carbon\Carbon;
 
 class Showtime extends Model
 {
@@ -25,6 +27,7 @@ class Showtime extends Model
         'start_time',
         'end_time',
     ];
+
     protected $casts = [
         'date_time' => 'datetime',
         'start_time' => 'datetime',
@@ -36,6 +39,39 @@ class Showtime extends Model
         return $this->belongsTo(ShowtimeSlot::class, 'id_slot');
     }
 
+    public function movie()
+    {
+        return $this->belongsTo(Movie::class, 'id_movie');
+    }
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'id_room');
+    }
+
+    public function chairs()
+    {
+        return $this->belongsToMany(Chair::class, 'chair_showtime', 'id_showtime', 'id_chair')
+            ->withPivot('chair_status');
+    }
+
+    public static function getChairsWithStatusByShowtime($id_showtime)
+    {
+        return DB::table('chair_showtime')
+            ->where('id_showtime', $id_showtime)
+            ->join('chairs', 'chair_showtime.id_chair', '=', 'chairs.id_chair')
+            ->select(
+                'chairs.id_chair',
+                'chairs.chair_name',
+                'chairs.row',
+                'chairs.column',
+                'chairs.price',
+                'chair_showtime.chair_status',
+            )
+            ->orderBy('chairs.row')
+            ->orderBy('chairs.column')
+            ->get();
+    }
 
     public static function validateShowtimeData($data, $multiple = false)
     {
@@ -63,14 +99,6 @@ class Showtime extends Model
         return true;
     }
 
-    /* public static function getNextShowtimesByMovieId($id_movie)
-    {
-        return self::where('id_movie', $id_movie)
-            ->whereDate('date_time', '>=', Carbon::today())
-            ->orderBy('date_time')
-            ->take(5)
-            ->get();
-    } */
     public static function getNextShowtimesByMovieId($id_movie)
     {
         return self::where('id_movie', $id_movie)
@@ -95,27 +123,31 @@ class Showtime extends Model
 
     public static function createShowtime($data)
     {
-        $showtime = self::create($data); // Tạo suất chiếu
+        // Lặp qua từng slot để tạo suất chiếu cho từng khung giờ
+        foreach ($data['id_slots'] as $id_slot) {
+            $showtimeData = $data;
+            $showtimeData['id_slot'] = $id_slot;
 
-        // Lấy danh sách ghế trong phòng
-        $chairs = Chair::where('id_room', $data['id_room'])->get();
+            // Tạo suất chiếu
+            $showtime = self::create($showtimeData);
 
-        // Lấy thông tin showtime_slot
-        $slot = ShowtimeSlot::find($data['id_slot']); // Giả sử bạn có bảng showtime_slots
+            // Lấy danh sách ghế trong phòng
+            $chairs = Chair::where('id_room', $data['id_room'])->get();
 
-        // Khởi tạo trạng thái ghế cho suất chiếu và showtime_slot
-        foreach ($chairs as $chair) {
-            DB::table('chair_showtime')->insert([
-                'id_chair' => $chair->id_chair,
-                'id_showtime' => $showtime->id_showtime,
-                'id_slot' => $data['id_slot'], // Thêm id_slot vào bảng chair_showtime
-                'chair_status' => 'available', // Mặc định trạng thái ghế là trống
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            // Khởi tạo trạng thái ghế cho suất chiếu
+            foreach ($chairs as $chair) {
+                DB::table('chair_showtime')->insert([
+                    'id_chair' => $chair->id_chair,
+                    'id_showtime' => $showtime->id_showtime,
+                    'id_slot' => $id_slot,
+                    'chair_status' => 'available',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
         }
 
-        return $showtime;
+        return true;
     }
 
     public static function updateShowtime($id, $data)
@@ -142,22 +174,6 @@ class Showtime extends Model
         }
 
         return false;
-    }
-
-    public function movie()
-    {
-        return $this->belongsTo(Movie::class, 'id_movie');
-    }
-
-    public function room()
-    {
-        return $this->belongsTo(Room::class, 'id_room');
-    }
-
-    public function chairs()
-    {
-        return $this->belongsToMany(Chair::class, 'chair_showtime', 'id_showtime', 'id_chair')
-            ->withPivot('chair_status');
     }
 
     public static function getChairsByShowtime($id_showtime)

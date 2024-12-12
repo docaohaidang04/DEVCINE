@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use App\Models\Promotion;
 use Illuminate\Http\Request;
 
@@ -13,11 +14,17 @@ class PromotionController extends Controller
         return response()->json(Promotion::getAllPromotions());
     }
 
-    // Tạo mới một promotion
+    // Tạo promotion mới
     public function store(Request $request)
     {
         // Gọi phương thức tạo promotion từ model
-        $promotion = Promotion::createPromotion($request->all());
+        $data = $request->all();
+
+        if ($request->hasFile('promotion_image')) {
+            $data['promotion_image'] = $request->file('promotion_image');
+        }
+
+        $promotion = Promotion::createPromotion($data);
 
         if (isset($promotion['errors'])) {
             return response()->json($promotion, 422);
@@ -29,13 +36,23 @@ class PromotionController extends Controller
     // Lấy thông tin của một promotion cụ thể
     public function show($id)
     {
-        return response()->json(Promotion::findPromotion($id));
+        $promotion = Promotion::findPromotion($id);
+
+        if (!$promotion) {
+            return response()->json(['error' => 'Promotion not found'], 404);
+        }
+
+        return response()->json($promotion);
     }
 
     // Cập nhật promotion
     public function update(Request $request, $id)
     {
         $promotion = Promotion::findPromotion($id);
+
+        if (!$promotion) {
+            return response()->json(['error' => 'Promotion not found'], 404);
+        }
 
         $updatedPromotion = $promotion->updatePromotion($request->all());
 
@@ -50,8 +67,30 @@ class PromotionController extends Controller
     public function destroy($id)
     {
         $promotion = Promotion::findPromotion($id);
+
+        if (!$promotion) {
+            return response()->json(['error' => 'Promotion not found'], 404);
+        }
+
         $promotion->deletePromotion();
 
         return response()->json(null, 204);
+    }
+    public function getPromotionByIdAccount($id)
+    {
+        try {
+            $user = Account::findOrFail($id);
+            $promotions = $user->promotions;
+
+            return response()->json([
+                'status' => true,
+                'data' => $promotions
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Khách hàng không tồn tại hoặc có lỗi: ' . $e->getMessage()
+            ], 404);
+        }
     }
 }

@@ -108,9 +108,13 @@ Route::get('chairs/room/{id_room}', [ChairController::class, 'getChairsByRoom'])
 Route::post('/tickets-book/{showtime_id}/{chair_id}', [TicketsController::class, 'bookChair']);
 Route::post('/book-chair', [ChairController::class, 'bookChair']);
 Route::get('/seats', [SeatController::class, 'getSeats']);
+Route::get('/showtimes/{id_showtime}/chairs', [ShowtimeController::class, 'getChairsByShowtime']);
+Route::put('/showtimes/{id_showtime}/chairs', [ShowtimeController::class, 'updateChairsByShowtime']);
 
 // PROMOTIONS
 Route::apiResource('promotions', PromotionController::class);
+Route::get('/promotions/{id_account}/account', [PromotionController::class, 'getPromotionByIdAccount']);
+
 
 // SHOWTIMES-SLOT
 Route::apiResource('showtime-slots', ShowtimeSlotController::class);
