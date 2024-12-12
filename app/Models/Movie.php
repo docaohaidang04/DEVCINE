@@ -31,6 +31,18 @@ class Movie extends Model
 
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($movie) {
+            if (isset($movie->release_date)) {
+                $releaseDate = Carbon::parse($movie->release_date);
+                $movie->status = $releaseDate->isFuture() ? 'future' : 'active';
+            }
+        });
+    }
+
     // Định nghĩa quan hệ showtimes
     public function showtimes()
     {
@@ -104,6 +116,12 @@ class Movie extends Model
     // Thêm mới phim và xử lý file
     public static function storeMovie($request)
     {
+
+        $requestData = $request->all();
+        $releaseDate = Carbon::parse($requestData['release_date']);
+        $requestData['status'] = $releaseDate->isFuture() ? 'future' : 'active';
+
+        $movie = self::create($requestData);
         // Validate dữ liệu
         $request->validate([
             'movie_name' => 'required|string|max:255',
@@ -157,6 +175,8 @@ class Movie extends Model
     // Cập nhật thông tin phim và xử lý file
     public static function updateMovie($request, $id_movie)
     {
+
+
         // Validate dữ liệu
         $request->validate([
             'movie_name' => 'sometimes|required|string|max:255',
@@ -189,6 +209,10 @@ class Movie extends Model
         }
 
         // Cập nhật thông tin phim
+        if ($request->has('release_date')) {
+            $releaseDate = Carbon::parse($request->release_date);
+            $movie->status = $releaseDate->isFuture() ? 'future' : 'active';
+        }
         $movie->update($request->only([
             'movie_name',
             'description',
@@ -199,7 +223,7 @@ class Movie extends Model
             'director',
             'cast',
             'status',
-            'youtube_url'
+            'youtube_url',
         ]));
 
         // Đồng bộ thể loại nếu có
