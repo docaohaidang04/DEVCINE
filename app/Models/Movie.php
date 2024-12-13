@@ -63,7 +63,16 @@ class Movie extends Model
     public static function getMovieById($id_movie)
     {
         try {
-            $movie = self::with(['genres', 'showtimes.showtimeSlot'])
+            $startDate = \Carbon\Carbon::today(); // Ngày hôm nay
+            $endDate = \Carbon\Carbon::today()->addDays(5); // 5 ngày tiếp theo
+
+            $movie = self::with([
+                'genres',
+                'showtimes' => function ($query) use ($startDate, $endDate) {
+                    $query->whereBetween('date_time', [$startDate, $endDate]);
+                },
+                'showtimes.showtimeSlot'
+            ])
                 ->where('id_movie', $id_movie)
                 ->firstOrFail();
 
