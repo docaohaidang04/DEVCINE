@@ -27,13 +27,20 @@ class BookingConfirmationMail extends Mailable
     {
         $booking = $this->bookingDetails;
 
-        $subject = 'Xác nhận đặt vé';
-        $showDate = \Carbon\Carbon::parse($booking->ticket->showtime->date_time)->format('d/m/Y');
-        $showtimeSlot = $booking->ticket->showtime->showtimeSlot->slot_time;
-        $showtimeFormatted = \Carbon\Carbon::parse($showtimeSlot)->format('H:i');
+        // Kiểm tra sự tồn tại của ticket và showtime trước khi truy cập
+        if ($booking->ticket && $booking->ticket->showtime) {
+            $showDate = \Carbon\Carbon::parse($booking->ticket->showtime->date_time)->format('d/m/Y');
+            $showtimeSlot = $booking->ticket->showtime->showtimeSlot->slot_time;
+            $showtimeFormatted = \Carbon\Carbon::parse($showtimeSlot)->format('H:i');
 
-        // Lấy danh sách ghế
-        $chairs = $booking->ticket->chairs->pluck('chair_name')->join(', ');
+            // Lấy danh sách ghế
+            $chairs = $booking->ticket->chairs->pluck('chair_name')->join(', ');
+        } else {
+            // Xử lý khi ticket hoặc showtime không tồn tại
+            $showDate = 'N/A';
+            $showtimeFormatted = 'N/A';
+            $chairs = 'N/A';
+        }
 
         // Lấy danh sách sản phẩm
         $products = '';
@@ -49,7 +56,7 @@ class BookingConfirmationMail extends Mailable
     <html style='text-align: center; height: 100%; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center;'>
         <body style='font-family: Arial, sans-serif; color: #333; width: 100%; height: 100%; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center;'>
             <div style='background-color: #f4f4f4; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>
-                <h2 style='color: #2C3E50;'>Xác nhận đặt vé</h2>
+                <h2 style='color: #2C3E50;'>Đặt vé thành công</h2>
                 <p style='font-size: 16px;'>
                     Chào bạn,<br><br>
                     Cảm ơn bạn đã đặt vé. Đây là thông tin chi tiết về vé của bạn:
@@ -87,7 +94,7 @@ class BookingConfirmationMail extends Mailable
     </html>";
 
         return $this->to($booking->account->email)
-            ->subject($subject)
+            ->subject('Đặt vé thành công')
             ->html($content);
     }
 }

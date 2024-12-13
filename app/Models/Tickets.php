@@ -36,6 +36,10 @@ class Tickets extends Model
     {
         return self::all();
     }
+    public function booking()
+    {
+        return $this->hasOne(Bookings::class, 'id_ticket');
+    }
 
     // Tạo ticket mới
     public static function createTicket($data)

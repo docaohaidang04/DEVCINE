@@ -51,11 +51,8 @@ class MomoController extends Controller
 
         $body = json_decode($response->getBody()->getContents(), true);
 
-
-
         return response()->json($body);
     }
-
 
     public function handleMoMoReturn(Request $request)
     {
@@ -75,16 +72,6 @@ class MomoController extends Controller
                     'status' => 'true'
                 ]);
 
-                // Cập nhật trạng thái ghế thành 'sold'
-                foreach ($booking->showtimes as $showtime) {
-                    foreach ($showtime->chairs as $chair) {
-                        DB::table('chair_showtime')
-                            ->where('id_chair', $chair->id_chair)
-                            ->where('id_showtime', $showtime->id_showtime)
-                            ->update(['chair_status' => 'sold']);
-                    }
-                }
-
                 return response()->json(['message' => 'Thanh toán thành công']);
             }
         }
@@ -92,32 +79,36 @@ class MomoController extends Controller
         return response()->json(['message' => 'Thanh toán thất bại']);
     }
 
-
     public function handleMoMoIPN(Request $request)
     {
         Log::info('MoMo IPN response: ', $request->all());
 
-        if ($request->resultCode == 0) {
-            $bookingCode = $request->orderId;
+        $status = $request->resultCode;
+        $bookingCode = $request->orderId;
 
-            // Lấy booking từ database
-            $booking = Bookings::where('booking_code', $bookingCode)->first();
-            if ($booking) {
-                // Cập nhật thông tin thanh toán thành công
-                $booking->update([
-                    'payment_status' => 'success',
-                    'transaction_id' => $request->transId,
-                    'payment_date' => now(),
-                    'status' => 'true'
-                ]);
+        // Lấy booking từ database
+        $booking = Bookings::where('booking_code', $bookingCode)->first();
+        if ($booking) {
+            // Cập nhật thông tin thanh toán
+            $booking->update([
+                'payment_status' => $status == 0 ? 'success' : 'cancel',
+                'transaction_id' => $request->transId,
+                'payment_date' => now(),
+                'status' => 'true'
+            ]);
+        }
 
-                // Cập nhật trạng thái ghế thành 'sold'
-                foreach ($booking->showtimes as $showtime) {
-                    foreach ($showtime->chairs as $chair) {
-                        DB::table('chair_showtime')
-                            ->where('id_chair', $chair->id_chair)
-                            ->where('id_showtime', $showtime->id_showtime)
-                            ->update(['chair_status' => 'sold']);
+        if ($booking && $booking->tickets) {
+            foreach ($booking->tickets as $ticket) {
+                if ($ticket && $ticket->showtime) {
+                    $showtime = $ticket->showtime;
+                    if ($showtime->chairs) {
+                        foreach ($showtime->chairs as $chair) {
+                            DB::table('chair_showtime')
+                                ->where('id_chair', $chair->id_chair)
+                                ->where('id_showtime', $showtime->id_showtime)
+                                ->update(['chair_status' => $status == 0 ? 'sold' : 'available']);
+                        }
                     }
                 }
             }
