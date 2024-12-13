@@ -30,15 +30,14 @@ class Tickets extends Model
     {
         return $this->belongsTo(Showtime::class, 'id_showtime', 'id_showtime');
     }
-
     // Lấy tất cả các tickets
     public static function getAllTickets()
     {
         return self::all();
     }
-    public function booking()
+    public function bookings()
     {
-        return $this->hasOne(Bookings::class, 'id_ticket');
+        return $this->hasMany(Bookings::class, 'id_ticket', 'id_ticket');
     }
 
     // Tạo ticket mới

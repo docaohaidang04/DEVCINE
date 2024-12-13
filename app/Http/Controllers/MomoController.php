@@ -81,39 +81,55 @@ class MomoController extends Controller
 
     public function handleMoMoIPN(Request $request)
     {
-        Log::info('MoMo IPN response: ', $request->all());
-
         $status = $request->resultCode;
         $bookingCode = $request->orderId;
 
         // Lấy booking từ database
         $booking = Bookings::where('booking_code', $bookingCode)->first();
+
         if ($booking) {
-            // Cập nhật thông tin thanh toán
-            $booking->update([
-                'payment_status' => $status == 0 ? 'success' : 'cancel',
-                'transaction_id' => $request->transId,
-                'payment_date' => now(),
-                'status' => 'true'
-            ]);
-        }
+            DB::beginTransaction();
+            try {
+                // Cập nhật thông tin thanh toán
+                $booking->update([
+                    'payment_status' => $status == 0 ? 'success' : 'cancel',
+                    'transaction_id' => $request->transId,
+                    'payment_date' => now(),
+                    'status' => 'true'
+                ]);
 
-        if ($booking && $booking->tickets) {
-            foreach ($booking->tickets as $ticket) {
-                if ($ticket && $ticket->showtime) {
-                    $showtime = $ticket->showtime;
-                    if ($showtime->chairs) {
-                        foreach ($showtime->chairs as $chair) {
-                            DB::table('chair_showtime')
-                                ->where('id_chair', $chair->id_chair)
-                                ->where('id_showtime', $showtime->id_showtime)
-                                ->update(['chair_status' => $status == 0 ? 'sold' : 'available']);
-                        }
-                    }
+                // Lấy vé liên quan đến booking
+                $ticket = $booking->ticket;
+
+                // Lấy showtime liên quan đến ticket
+                $showtime = $ticket->showtime;
+
+                // Lấy các ghế từ bảng `chair_showtime` liên quan đến `showtime` và `ticket`
+                $chairs = DB::table('chair_showtime')
+                    ->where('id_showtime', $showtime->id_showtime)
+                    ->whereIn('id_chair', function ($query) use ($ticket) {
+                        $query->select('chair_id')
+                            ->from('ticket_chair')
+                            ->where('ticket_id', $ticket->id_ticket);
+                    })
+                    ->get();
+
+                // Cập nhật trạng thái ghế
+                foreach ($chairs as $chair) {
+                    DB::table('chair_showtime')
+                        ->where('id_chair', $chair->id_chair)
+                        ->where('id_showtime', $showtime->id_showtime)
+                        ->update(['chair_status' => $status == 0 ? 'sold' : 'available']);
                 }
-            }
-        }
 
-        return response()->json(['message' => 'IPN handled successfully']);
+                DB::commit();
+                return response()->json(['message' => 'IPN handled successfully']);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['message' => 'Payment update failed'], 500);
+            }
+        } else {
+            return response()->json(['message' => 'Booking not found'], 404);
+        }
     }
 }

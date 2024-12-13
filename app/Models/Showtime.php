@@ -55,6 +55,11 @@ class Showtime extends Model
             ->withPivot('chair_status');
     }
 
+    public function tickets()
+    {
+        return $this->hasMany(Tickets::class, 'id_showtime', 'id_showtime');
+    }
+
     public static function getChairsWithStatusByShowtime($id_showtime)
     {
         return DB::table('chair_showtime')
