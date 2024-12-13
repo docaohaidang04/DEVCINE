@@ -13,14 +13,25 @@ class UpdateMovieStatus extends Command
 
     public function handle()
     {
+        // Lấy tất cả các bộ phim
         $movies = Movie::all();
 
+        // Lặp qua tất cả các bộ phim
         foreach ($movies as $movie) {
             $releaseDate = Carbon::parse($movie->release_date);
-            $movie->status = $releaseDate->isFuture() ? 'future' : 'active';
-            $movie->save();
+
+            // Kiểm tra nếu ngày chiếu trùng với ngày hiện tại
+            if ($releaseDate->isToday()) {
+                $movie->status = 'active'; // Đặt trạng thái là 'active' nếu ngày chiếu là hôm nay
+            } elseif ($releaseDate->isFuture()) {
+                $movie->status = 'future'; // Đặt trạng thái là 'future' nếu ngày chiếu là trong tương lai
+            } else {
+                $movie->status = 'expired'; // Đặt trạng thái là 'expired' nếu ngày chiếu đã qua
+            }
+
+            $movie->save(); // Lưu lại trạng thái cập nhật
         }
 
-        $this->info('Movie statuses updated successfully.'); // Hiển thị thông báo thành công
+        $this->info('Movie statuses updated successfully.'); // Thông báo khi hoàn thành
     }
 }
