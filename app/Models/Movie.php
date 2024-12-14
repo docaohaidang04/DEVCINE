@@ -89,18 +89,23 @@ class Movie extends Model
                 ];
             }
 
+            // Sắp xếp giờ chiếu (slot_time) theo thứ tự tăng dần
+            foreach ($groupedShowtimes as $date => &$showtimes) {
+                usort($showtimes, function ($a, $b) {
+                    return strcmp($a['slot_time'], $b['slot_time']);
+                });
+            }
+
             // Chuẩn bị kết quả cuối cùng
             $result = $movie->toArray();
             $result['showtimes'] = $groupedShowtimes;
 
-            // Trả về kết quả JSON
+            // Trả về kết quả
             return $result; // Trả trực tiếp kết quả mà không qua response()->json()
         } catch (\Exception $e) {
             return ['error' => $e->getMessage()];
         }
     }
-
-
 
 
     public static function deleteMovie($id_movie)
