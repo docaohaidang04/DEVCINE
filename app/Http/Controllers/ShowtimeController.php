@@ -99,7 +99,7 @@ class ShowtimeController extends Controller
             foreach ($chairs as $chair) {
                 DB::table('chair_showtime')
                     ->where('id_showtime', $id_showtime)
-                    ->where('id_chair', $chair['id_chair'])
+                    ->where('id', $chair['id_chair'])
                     ->update(['chair_status' => $chair['chair_status']]);
             }
 

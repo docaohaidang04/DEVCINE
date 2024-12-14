@@ -61,7 +61,8 @@ class Showtime extends Model
             ->where('id_showtime', $id_showtime)
             ->join('chairs', 'chair_showtime.id_chair', '=', 'chairs.id_chair')
             ->select(
-                'chairs.id_chair',
+                'chair_showtime.id',
+                'chair_showtime.id_chair',
                 'chairs.chair_name',
                 'chairs.row',
                 'chairs.column',
