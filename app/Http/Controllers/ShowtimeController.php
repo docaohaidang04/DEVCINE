@@ -83,15 +83,15 @@ class ShowtimeController extends Controller
     {
         try {
             // Xác thực dữ liệu
-            $validator = Validator::make($request->all(), [
-                'chairs' => 'required|array',
-                'chairs.*.id_chair' => 'required|exists:chairs,id_chair',
-                'chairs.*.chair_status' => 'required|string|in:available,sold,booked',
-            ]);
+            // $validator = Validator::make($request->all(), [
+            //     'chairs' => 'required|array',
+            //     'chairs.*.id_chair' => 'required|exists:chairs,id_chair',
+            //     'chairs.*.chair_status' => 'required|string|in:available,sold,booked',
+            // ]);
 
-            if ($validator->fails()) {
-                return response()->json(['errors' => $validator->errors()], 422);
-            }
+            // if ($validator->fails()) {
+            //     return response()->json(['errors' => $validator->errors()], 422);
+            // }
 
             $chairs = $request->input('chairs');
 
