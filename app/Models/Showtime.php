@@ -129,13 +129,15 @@ class Showtime extends Model
 
     public static function createShowtime($data)
     {
-        // Lặp qua từng slot để tạo suất chiếu cho từng khung giờ
+        $createdShowtimes = [];
+
         foreach ($data['id_slots'] as $id_slot) {
             $showtimeData = $data;
             $showtimeData['id_slot'] = $id_slot;
 
             // Tạo suất chiếu
             $showtime = self::create($showtimeData);
+            $createdShowtimes[] = $showtime->load('movie', 'room', 'showtimeSlot')->toArray();
 
             // Lấy danh sách ghế trong phòng
             $chairs = Chair::where('id_room', $data['id_room'])->get();
@@ -153,8 +155,12 @@ class Showtime extends Model
             }
         }
 
-        return true;
+        return response()->json([
+            'message' => 'Showtimes created successfully',
+            'data' => $createdShowtimes,
+        ], 201);
     }
+
 
     public static function updateShowtime($id, $data)
     {
