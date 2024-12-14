@@ -42,15 +42,12 @@ class ShowtimeController extends Controller
     public function store(Request $request)
     {
         try {
-            $showtime = Showtime::createShowtime($request->all());
-            if (isset($showtime['errors'])) {
-                return response()->json($showtime, 422);
-            }
-            return response()->json($showtime, 201);
+            return Showtime::createShowtime($request->all());
         } catch (\Exception $e) {
             return response()->json(['error' => 'Showtime creation failed: ' . $e->getMessage()], 400);
         }
     }
+
 
     public function update(Request $request, $id)
     {

@@ -156,11 +156,10 @@ class Showtime extends Model
         }
 
         return response()->json([
-            'message' => 'Showtimes created successfully',
+            'message' => 'Thêm suất chiếu thành công',
             'data' => $createdShowtimes,
         ], 201);
     }
-
 
     public static function updateShowtime($id, $data)
     {
