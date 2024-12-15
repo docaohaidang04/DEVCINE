@@ -65,7 +65,6 @@ class Kernel extends HttpKernel
 
     protected function schedule(Schedule $schedule)
     {
-        // Chạy lệnh update:movie-status mỗi ngày vào lúc nửa đêm
-        $schedule->command('update:movie-status')->daily();
+        $schedule->command('movie:update-status')->daily(); // Chạy mỗi ngày
     }
 }

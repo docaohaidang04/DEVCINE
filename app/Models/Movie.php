@@ -27,22 +27,9 @@ class Movie extends Model
         'youtube_url',
         'cast',
         'status',
-        'poster_url',
+        'poster_url'
+
     ];
-
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::saving(function ($movie) {
-            if (isset($movie->release_date)) {
-                $releaseDate = Carbon::parse($movie->release_date);
-                $movie->status = $releaseDate->isFuture() ? 'future' : 'active';
-            }
-        });
-    }
-
 
     // Định nghĩa quan hệ showtimes
     public function showtimes()
@@ -63,16 +50,7 @@ class Movie extends Model
     public static function getMovieById($id_movie)
     {
         try {
-            $startDate = \Carbon\Carbon::today(); // Ngày hôm nay
-            $endDate = \Carbon\Carbon::today()->addDays(5); // 5 ngày tiếp theo
-
-            $movie = self::with([
-                'genres',
-                'showtimes' => function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('date_time', [$startDate, $endDate]);
-                },
-                'showtimes.showtimeSlot'
-            ])
+            $movie = self::with(['genres', 'showtimes.showtimeSlot'])
                 ->where('id_movie', $id_movie)
                 ->firstOrFail();
 
@@ -89,23 +67,18 @@ class Movie extends Model
                 ];
             }
 
-            // Sắp xếp giờ chiếu (slot_time) theo thứ tự tăng dần
-            foreach ($groupedShowtimes as $date => &$showtimes) {
-                usort($showtimes, function ($a, $b) {
-                    return strcmp($a['slot_time'], $b['slot_time']);
-                });
-            }
-
             // Chuẩn bị kết quả cuối cùng
             $result = $movie->toArray();
             $result['showtimes'] = $groupedShowtimes;
 
-            // Trả về kết quả
+            // Trả về kết quả JSON
             return $result; // Trả trực tiếp kết quả mà không qua response()->json()
         } catch (\Exception $e) {
             return ['error' => $e->getMessage()];
         }
     }
+
+
 
 
     public static function deleteMovie($id_movie)
@@ -131,12 +104,6 @@ class Movie extends Model
     // Thêm mới phim và xử lý file
     public static function storeMovie($request)
     {
-
-        $requestData = $request->all();
-        $releaseDate = Carbon::parse($requestData['release_date']);
-        $requestData['status'] = $releaseDate->isFuture() ? 'future' : 'active';
-
-        $movie = self::create($requestData);
         // Validate dữ liệu
         $request->validate([
             'movie_name' => 'required|string|max:255',
@@ -186,12 +153,26 @@ class Movie extends Model
 
         return $movie;
     }
+    public function updateStatus()
+    {
+        $currentDate = Carbon::now();
+        $releaseDate = Carbon::parse($this->release_date);
+
+        // Cập nhật status tùy theo ngày phát hành
+        if ($releaseDate->isFuture()) {
+            $this->status = 'future';  // Phim chưa phát hành
+        } else {
+            $this->status = 'active';  // Phim đã phát hành
+        }
+
+        // Lưu lại thay đổi
+        $this->save();
+    }
 
     // Cập nhật thông tin phim và xử lý file
     public static function updateMovie($request, $id_movie)
     {
-
-        // Validate dữ liệu đầu vào
+        // Validate dữ liệu
         $request->validate([
             'movie_name' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|nullable|string',
@@ -203,34 +184,27 @@ class Movie extends Model
             'cast' => 'sometimes|required|string',
             'status' => 'sometimes|required|string',
             'youtube_url' => 'sometimes|nullable|string',
-            'image_main' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'poster_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image_main' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'poster_url' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'genres' => 'sometimes|array',
             'genres.*' => 'exists:genre_movies,id_genre',
         ]);
 
-        // Lấy dữ liệu phim cần cập nhật
         $movie = self::findOrFail($id_movie);
 
-        // Cập nhật file ảnh nếu có
+        // Xử lý cập nhật ảnh
         if ($request->hasFile('image_main')) {
             self::deleteImageIfExists($movie->image_main);
-            $movie->image_main = 'movies/' . self::uploadImage($request->file('image_main'));
+            $movie->image_main = 'movies/' . self::uploadImage($request->file('image_main'), public_path('movies'));
         }
 
         if ($request->hasFile('poster_url')) {
             self::deleteImageIfExists($movie->poster_url);
-            $movie->poster_url = 'movies/' . self::uploadImage($request->file('poster_url'));
+            $movie->poster_url = 'movies/' . self::uploadImage($request->file('poster_url'), public_path('movies'));
         }
-
-
+        //cập nhật trạng thái theo ngày
+        $movie->updateStatus();
         // Cập nhật thông tin phim
-        if ($request->has('release_date')) {
-            $releaseDate = Carbon::parse($request->release_date);
-            $movie->status = $releaseDate->isFuture() ? 'future' : 'active';
-        }
-
-        // Cập nhật các thông tin cơ bản
         $movie->update($request->only([
             'movie_name',
             'description',
@@ -241,7 +215,7 @@ class Movie extends Model
             'director',
             'cast',
             'status',
-            'youtube_url',
+            'youtube_url'
         ]));
 
         // Đồng bộ thể loại nếu có
@@ -249,26 +223,22 @@ class Movie extends Model
             $movie->genres()->sync($request->genres);
         }
 
-        Log::info('Updated movie with data:', $movie->toArray()); // Logging thông tin cập nhật
-
         return $movie;
     }
 
-    protected static function deleteImageIfExists($imagePath)
+    // Hỗ trợ upload ảnh
+    private static function uploadImage($image, $path)
+    {
+        $imageName = time() . '_' . $image->getClientOriginalName();
+        $image->move($path, $imageName);
+        return $imageName;
+    }
+
+    // Hỗ trợ xóa ảnh
+    private static function deleteImageIfExists($imagePath)
     {
         if ($imagePath && file_exists(public_path($imagePath))) {
             unlink(public_path($imagePath));
         }
-    }
-
-    protected static function uploadImage($image)
-    {
-        $destinationPath = public_path('movies');
-        if (!file_exists($destinationPath)) {
-            mkdir($destinationPath, 0755, true);
-        }
-        $imageName = time() . '_' . $image->getClientOriginalName();
-        $image->move($destinationPath, $imageName);
-        return $imageName;
     }
 }
