@@ -159,11 +159,14 @@ class Movie extends Model
         $releaseDate = Carbon::parse($this->release_date);
 
         // Cập nhật status tùy theo ngày phát hành
-        if ($releaseDate->isFuture()) {
-            $this->status = 'future';  // Phim chưa phát hành
-        } else {
-            $this->status = 'active';  // Phim đã phát hành
+        if ($this->status !== 'disabled') {
+            if ($releaseDate->isFuture()) {
+                $this->status = 'future';  // Phim chưa phát hành
+            } else {
+                $this->status = 'active';  // Phim đã phát hành
+            }
         }
+
 
         // Lưu lại thay đổi
         $this->save();
