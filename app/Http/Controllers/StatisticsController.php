@@ -127,7 +127,8 @@ class StatisticsController extends Controller
         $query = DB::table('bookings')
             ->join('tickets', 'bookings.id_ticket', '=', 'tickets.id_ticket')
             ->join('showtimes', 'tickets.id_showtime', '=', 'showtimes.id_showtime')
-            ->join('movies', 'showtimes.id_movie', '=', 'movies.id_movie');
+            ->join('movies', 'showtimes.id_movie', '=', 'movies.id_movie')
+            ->where('bookings.payment_status', 'success'); // Chỉ tính các đơn có payment_status là success
 
         // Nếu có id_movie, lọc theo movieId
         if ($movieId) {
