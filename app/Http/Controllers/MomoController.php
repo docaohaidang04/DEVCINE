@@ -98,6 +98,13 @@ class MomoController extends Controller
                     'status' => 'true'
                 ]);
 
+                // Nếu thanh toán thành công và có account_promotion_id, cập nhật status trong bảng account_promotion
+                if ($status == 0 && $booking->account_promotion_id) {
+                    DB::table('account_promotion')
+                        ->where('account_promotion_id', $booking->account_promotion_id)
+                        ->update(['status' => 'default']);
+                }
+
                 // Lấy vé liên quan đến booking
                 $ticket = $booking->ticket;
 
