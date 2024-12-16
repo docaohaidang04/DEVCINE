@@ -61,6 +61,7 @@ class Kernel extends HttpKernel
 
     protected $commands = [
         \App\Console\Commands\UpdateMovieStatus::class,
+        \App\Console\Commands\UpdatePromotionStatus::class,
     ];
 
     protected function schedule(Schedule $schedule)

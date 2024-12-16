@@ -20,6 +20,7 @@ class CreatePromotionsTable extends Migration
             $table->integer('discount_value')->nullable()->default(0);
             $table->dateTime('start_date')->nullable();
             $table->dateTime('end_date')->nullable();
+            $table->string('status')->default('active');
             $table->timestamps();
         });
     }
