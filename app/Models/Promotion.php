@@ -33,7 +33,7 @@ class Promotion extends Model
 
     public function accounts()
     {
-        return $this->belongsToMany(Account::class, 'account_promotion', 'promotion_id', 'account_id');
+        return $this->belongsToMany(Account::class, 'account_promotion', 'promotion_id', 'account_id', 'id_promotion', 'id_account');
     }
 
     // Lấy danh sách tất cả promotion

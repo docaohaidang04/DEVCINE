@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AccountVerificationMail;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Hash;
 
 
@@ -162,8 +163,8 @@ class Account extends Authenticatable implements JWTSubject
         return [];
     }
 
-    public function promotions()
+    public function accountPromotions()
     {
-        return $this->belongsToMany(Promotion::class, 'account_promotion', 'account_id', 'promotion_id');
+        return $this->hasMany(AccountPromotion::class, 'account_id', 'id_account');
     }
 }
