@@ -183,7 +183,7 @@ class Bookings extends Model
     {
         $validator = Validator::make($data, [
             'account_id' => 'required|exists:accounts,id_account',
-            'account_promotion_id' => 'nullable|exists:account_promotions,id_account_promotion',
+            'account_promotion_id' => 'nullable|exists:account_promotions,account_promotion_id',
             'id_products' => 'nullable|array',
             'id_products.*.id_product' => 'required|exists:products,id_product',
             'id_products.*.quantity' => 'required|integer|min:1',
