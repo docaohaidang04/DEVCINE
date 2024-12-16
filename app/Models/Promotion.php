@@ -163,4 +163,42 @@ class Promotion extends Model
     {
         return self::find($id);
     }
+
+    public function getPromotionByIdAccount($id)
+    {
+        try {
+            // Tìm tài khoản theo ID và bao gồm quan hệ với bảng 'accountPromotions' và 'promotion'
+            $user = Account::with('accountPromotions.promotion')->findOrFail($id);
+
+            // Lấy thông tin khuyến mãi, bao gồm cả 'account_promotion_id'
+            $promotions = $user->accountPromotions->map(function ($accountPromotion) {
+                return [
+                    'account_promotion_id' => $accountPromotion->account_promotion_id,  // Thêm account_promotion_id
+                    'id_promotion' => $accountPromotion->promotion->id_promotion,  // ID khuyến mãi
+                    'promotion_name' => $accountPromotion->promotion->promotion_name,  // Tên khuyến mãi
+                    'description' => $accountPromotion->promotion->description,  // Mô tả khuyến mãi
+                    'promotion_image' => $accountPromotion->promotion->promotion_image,  // Hình ảnh khuyến mãi
+                    'min_purchase_amount' => $accountPromotion->promotion->min_purchase_amount,  // Mức mua tối thiểu
+                    'max_discount_amount' => $accountPromotion->promotion->max_discount_amount,  // Giảm giá tối đa
+                    'promotion_point' => $accountPromotion->promotion->promotion_point,  // Điểm thưởng
+                    'discount_type' => $accountPromotion->promotion->discount_type,  // Loại giảm giá
+                    'discount_value' => $accountPromotion->promotion->discount_value,  // Giá trị giảm giá
+                    'start_date' => $accountPromotion->promotion->start_date,  // Ngày bắt đầu
+                    'end_date' => $accountPromotion->promotion->end_date,  // Ngày kết thúc
+                    'created_at' => $accountPromotion->promotion->created_at,  // Thời gian tạo
+                    'updated_at' => $accountPromotion->promotion->updated_at,  // Thời gian cập nhật
+                ];
+            });
+
+            return response()->json([
+                'status' => true,
+                'data' => $promotions
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Khách hàng không tồn tại hoặc có lỗi: ' . $e->getMessage()
+            ], 404);
+        }
+    }
 }
