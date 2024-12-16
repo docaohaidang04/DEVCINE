@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
 
@@ -31,22 +30,30 @@ class Promotion extends Model
 
     public $timestamps = true;
 
+    /**
+     * Quan hệ với bảng account_promotion
+     */
     public function accounts()
     {
         return $this->belongsToMany(Account::class, 'account_promotion', 'promotion_id', 'account_id', 'id_promotion', 'id_account');
     }
 
-    // Lấy danh sách tất cả promotion
-    public static function getAllPromotions(): Collection
+    /**
+     * Lấy tất cả các promotion
+     */
+    public static function getAllPromotions()
     {
         return self::all();
     }
 
-    // Tạo promotion mới với validation
+    /**
+     * Tạo promotion mới
+     */
     public static function createPromotion(array $data)
     {
         $validator = Validator::make($data, [
             'promotion_name' => 'required|string|max:255',
+            'description' => 'required|string',
             'discount_type' => 'required|string',
             'discount_value' => 'required|numeric',
             'start_date' => 'required|date',
@@ -58,9 +65,10 @@ class Promotion extends Model
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return ['errors' => $validator->errors()];
         }
 
+        // Xử lý hình ảnh nếu có
         if (isset($data['promotion_image'])) {
             $imagePath = self::handleImageUpload($data['promotion_image']);
             $data['promotion_image'] = $imagePath;
@@ -69,41 +77,53 @@ class Promotion extends Model
         return self::create($data);
     }
 
-    // Cập nhật promotion với ảnh
-    public function updatePromotion(array $data)
+    /**
+     * Cập nhật promotion
+     */
+    public static function updatePromotion($request, $id_promotion)
     {
         // Validate dữ liệu
-        $validator = Validator::make($data, [
-            'promotion_name' => 'required|string|max:255',
-            'discount_type' => 'required|string',
-            'discount_value' => 'required|numeric',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date',
-            'min_purchase_amount' => 'required|numeric',
-            'max_discount_amount' => 'required|numeric',
-            'promotion_point' => 'required|numeric',
-            'promotion_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate ảnh
+        $request->validate([
+            'promotion_name' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|nullable|string',
+            'discount_type' => 'sometimes|required|string',
+            'discount_value' => 'sometimes|required|numeric',
+            'start_date' => 'sometimes|required|date',
+            'end_date' => 'sometimes|required|date',
+            'min_purchase_amount' => 'sometimes|required|numeric',
+            'max_discount_amount' => 'sometimes|required|numeric',
+            'promotion_point' => 'sometimes|required|numeric',
+            'promotion_image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+        // Tìm promotion cần cập nhật
+        $promotion = self::findOrFail($id_promotion);
+
+        // Xử lý cập nhật ảnh
+        if ($request->hasFile('promotion_image')) {
+            self::deleteImageIfExists($promotion->promotion_image);
+            $promotion->promotion_image = 'promotions/' . self::uploadImage($request->file('promotion_image'), public_path('promotions'));
         }
 
-        // Xử lý ảnh mới nếu có
-        if (isset($data['promotion_image'])) {
-            // Xóa ảnh cũ nếu có
-            if ($this->promotion_image && File::exists(public_path($this->promotion_image))) {
-                File::delete(public_path($this->promotion_image));
-            }
+        // Cập nhật thông tin promotion
+        $promotion->update($request->only([
+            'promotion_name',
+            'description',
+            'discount_type',
+            'discount_value',
+            'start_date',
+            'end_date',
+            'min_purchase_amount',
+            'max_discount_amount',
+            'promotion_point'
+        ]));
 
-            $imagePath = self::handleImageUpload($data['promotion_image']);
-            $data['promotion_image'] = $imagePath;
-        }
-
-        return $this->update($data);
+        return $promotion;
     }
 
-    // Xử lý tải lên ảnh
+    /**
+     * Xử lý tải lên hình ảnh
+     */
     private static function handleImageUpload($image)
     {
         $destinationPath = public_path('promotions');
@@ -117,13 +137,28 @@ class Promotion extends Model
         return 'promotions/' . $imageName;
     }
 
-    // Xóa promotion
+    /**
+     * Xóa hình ảnh nếu tồn tại
+     */
+    protected static function deleteImageIfExists($imagePath)
+    {
+        if ($imagePath && File::exists(public_path($imagePath))) {
+            File::delete(public_path($imagePath));
+        }
+    }
+
+    /**
+     * Xóa promotion
+     */
     public function deletePromotion(): bool
     {
+        self::deleteImageIfExists($this->promotion_image);
         return $this->delete();
     }
 
-    // Lấy promotion theo id_promotion
+    /**
+     * Tìm promotion theo id
+     */
     public static function findPromotion($id)
     {
         return self::find($id);

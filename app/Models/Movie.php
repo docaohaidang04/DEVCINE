@@ -50,6 +50,7 @@ class Movie extends Model
     public static function getMovieById($id_movie)
     {
         try {
+            // Lấy thông tin phim cùng các suất chiếu và khung giờ
             $movie = self::with(['genres', 'showtimes.showtimeSlot'])
                 ->where('id_movie', $id_movie)
                 ->firstOrFail();
@@ -73,6 +74,16 @@ class Movie extends Model
                     return $showtime['slot_time'] ? strtotime($showtime['slot_time']) : PHP_INT_MAX;
                 })->values()->toArray();
             }
+
+            // Lọc suất chiếu trong vòng 5 ngày từ hôm nay
+            $today = \Carbon\Carbon::today(); // Ngày hôm nay
+            $endDate = $today->copy()->addDays(5); // 5 ngày sau
+
+            // Lọc suất chiếu chỉ trong phạm vi từ hôm nay đến 5 ngày nữa
+            $groupedShowtimes = collect($groupedShowtimes)->filter(function ($showtimes, $date) use ($today, $endDate) {
+                $dateCarbon = \Carbon\Carbon::parse($date);
+                return $dateCarbon->between($today, $endDate);
+            })->toArray();
 
             // Chuẩn bị kết quả cuối cùng
             $result = $movie->toArray();
