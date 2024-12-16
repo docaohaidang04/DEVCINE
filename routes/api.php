@@ -118,6 +118,7 @@ Route::get('/promotions/{id_account}/account', [PromotionController::class, 'get
 
 // SHOWTIMES-SLOT
 Route::apiResource('showtime-slots', ShowtimeSlotController::class);
+Route::get('/available-slots', [ShowtimeController::class, 'getAvailableSlots']);
 
 // STATISTICS
 Route::prefix('statistics')->group(function () {

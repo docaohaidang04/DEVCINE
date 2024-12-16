@@ -105,4 +105,29 @@ class ShowtimeController extends Controller
             return response()->json(['error' => 'Failed to update chairs status: ' . $e->getMessage()], 500);
         }
     }
+
+    public function getAvailableSlots(Request $request)
+    {
+        $id_room = $request->input('id_room');
+        $date_time = $request->input('date_time'); // Ngày cần kiểm tra (format: YYYY-MM-DD)
+
+        try {
+            // Truy vấn danh sách slot-time theo room và date_time
+            $slots = DB::table('showtimes')
+                ->join('showtime_slots', 'showtimes.id_slot', '=', 'showtime_slots.id_slot')
+                ->select('showtime_slots.id_slot', 'showtime_slots.slot_time', 'showtimes.date_time')
+                ->where('showtimes.id_room', $id_room)
+                ->whereDate('showtimes.date_time', $date_time)
+                ->get();
+
+
+            if ($slots->isEmpty()) {
+                return response()->json([], 200);
+            }
+
+            return response()->json($slots, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error fetching slots: ' . $e->getMessage()], 500);
+        }
+    }
 }

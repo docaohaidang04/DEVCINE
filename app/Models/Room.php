@@ -27,6 +27,12 @@ class Room extends Model
         return self::all();
     }
 
+    public function showtimes()
+    {
+        return $this->hasMany(Showtime::class, 'id_room', 'id_room');
+    }
+
+
     // Lấy phòng theo ID
     public static function getRoomById($id)
     {
