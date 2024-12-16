@@ -49,8 +49,25 @@ class PromotionController extends Controller
     // Cập nhật promotion
     public function update(Request $request, $id_promotion)
     {
-        $promotion = Promotion::updatePromotion($request, $id_promotion);
-        return response()->json($promotion);
+        // Tìm promotion theo id_promotion
+        $promotion = Promotion::findPromotion($id_promotion);
+
+        if (!$promotion) {
+            return response()->json(['error' => 'Promotion not found'], 404);
+        }
+
+        // In dữ liệu ra để kiểm tra
+        Log::info($request->all());  // Ghi log dữ liệu nhận vào
+
+        // Cập nhật promotion
+        $updatedPromotion = $promotion->updatePromotion($request->all());
+
+        // Nếu có lỗi trong quá trình cập nhật
+        if (isset($updatedPromotion['errors'])) {
+            return response()->json($updatedPromotion, 422);
+        }
+
+        return response()->json($updatedPromotion, 200);
     }
 
     // Xóa promotion
@@ -71,27 +88,39 @@ class PromotionController extends Controller
     {
         try {
             // Tìm tài khoản theo ID và bao gồm quan hệ với bảng 'accountPromotions' và 'promotion'
-            $user = Account::with('accountPromotions.promotion')->findOrFail($id);
+            $user = Account::with(['accountPromotions' => function ($query) {
+                // Lọc các bản ghi trong bảng 'account_promotion' có status = 'active'
+                $query->where('status', 'active')
+                    ->with('promotion'); // Sau khi lọc, kết nối với bảng 'promotion'
+            }])->findOrFail($id);
 
-            // Lấy thông tin khuyến mãi, bao gồm cả 'account_promotion_id'
+            // Lấy thông tin khuyến mãi
             $promotions = $user->accountPromotions->map(function ($accountPromotion) {
-                return [
-                    'account_promotion_id' => $accountPromotion->account_promotion_id,  // Thêm account_promotion_id
-                    'id_promotion' => $accountPromotion->promotion->id_promotion,  // ID khuyến mãi
-                    'promotion_name' => $accountPromotion->promotion->promotion_name,  // Tên khuyến mãi
-                    'description' => $accountPromotion->promotion->description,  // Mô tả khuyến mãi
-                    'promotion_image' => $accountPromotion->promotion->promotion_image,  // Hình ảnh khuyến mãi
-                    'min_purchase_amount' => $accountPromotion->promotion->min_purchase_amount,  // Mức mua tối thiểu
-                    'max_discount_amount' => $accountPromotion->promotion->max_discount_amount,  // Giảm giá tối đa
-                    'promotion_point' => $accountPromotion->promotion->promotion_point,  // Điểm thưởng
-                    'discount_type' => $accountPromotion->promotion->discount_type,  // Loại giảm giá
-                    'discount_value' => $accountPromotion->promotion->discount_value,  // Giá trị giảm giá
-                    'start_date' => $accountPromotion->promotion->start_date,  // Ngày bắt đầu
-                    'end_date' => $accountPromotion->promotion->end_date,  // Ngày kết thúc
-                    'created_at' => $accountPromotion->promotion->created_at,  // Thời gian tạo
-                    'updated_at' => $accountPromotion->promotion->updated_at,  // Thời gian cập nhật
-                ];
-            });
+                $promotion = $accountPromotion->promotion;
+
+                // Kiểm tra xem promotion có tồn tại không
+                if ($promotion) {
+                    return [
+                        'account_promotion_id' => $accountPromotion->account_promotion_id,
+                        'id_promotion' => $promotion->id_promotion,
+                        'promotion_name' => $promotion->promotion_name,
+                        'description' => $promotion->description,
+                        'promotion_image' => $promotion->promotion_image,
+                        'min_purchase_amount' => $promotion->min_purchase_amount,
+                        'max_discount_amount' => $promotion->max_discount_amount,
+                        'promotion_point' => $promotion->promotion_point,
+                        'discount_type' => $promotion->discount_type,
+                        'discount_value' => $promotion->discount_value,
+                        'start_date' => $promotion->start_date,
+                        'end_date' => $promotion->end_date,
+                        'created_at' => $promotion->created_at,
+                        'updated_at' => $promotion->updated_at,
+                        'status' => $accountPromotion->status,  // Lấy status từ bảng account_promotion
+                    ];
+                }
+
+                return null; // Nếu không có promotion thì trả về null
+            })->filter(); // Loại bỏ các null
 
             return response()->json([
                 'status' => true,

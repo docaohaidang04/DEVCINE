@@ -163,4 +163,9 @@ class Promotion extends Model
     {
         return self::find($id);
     }
+
+    public function accountPromotions()
+    {
+        return $this->hasMany(AccountPromotion::class, 'promotion_id', 'id_promotion');
+    }
 }
