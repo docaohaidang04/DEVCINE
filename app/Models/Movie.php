@@ -67,6 +67,13 @@ class Movie extends Model
                 ];
             }
 
+            // Sắp xếp các khung giờ chiếu theo `slot_time` từ nhỏ đến lớn cho mỗi ngày
+            foreach ($groupedShowtimes as $date => $showtimes) {
+                $groupedShowtimes[$date] = collect($showtimes)->sortBy(function ($showtime) {
+                    return $showtime['slot_time'] ? strtotime($showtime['slot_time']) : PHP_INT_MAX;
+                })->values()->toArray();
+            }
+
             // Chuẩn bị kết quả cuối cùng
             $result = $movie->toArray();
             $result['showtimes'] = $groupedShowtimes;
@@ -77,6 +84,7 @@ class Movie extends Model
             return ['error' => $e->getMessage()];
         }
     }
+
 
 
 
