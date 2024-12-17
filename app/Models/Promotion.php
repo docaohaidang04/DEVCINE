@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
 
@@ -43,7 +44,7 @@ class Promotion extends Model
      */
     public static function getAllPromotions()
     {
-        return self::all();
+        return self::whereDate('end_date', '>=', Carbon::now())->get();
     }
 
     /**
