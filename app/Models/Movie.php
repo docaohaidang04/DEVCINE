@@ -50,47 +50,55 @@ class Movie extends Model
     public static function getMovieById($id_movie)
     {
         try {
-            // Lấy thông tin phim cùng các suất chiếu và khung giờ
             $movie = self::with(['genres', 'showtimes.showtimeSlot'])
                 ->where('id_movie', $id_movie)
                 ->firstOrFail();
 
-            // Chuẩn bị `showtimes` nhóm theo ngày
             $groupedShowtimes = [];
+            $now = \Carbon\Carbon::now(); // Thời gian hiện tại
+
             foreach ($movie->showtimes as $showtime) {
                 $date = \Carbon\Carbon::parse($showtime->date_time)->format('Y-m-d');
+                $slotTime = $showtime->showtimeSlot->slot_time ?? null;
+
+                // Lọc các khung giờ slot_time >= thời gian hiện tại (trong ngày)
+                if (!$slotTime || (\Carbon\Carbon::parse($date . ' ' . $slotTime)->lt($now) && $date === $now->format('Y-m-d'))) {
+                    continue;
+                }
+
                 $groupedShowtimes[$date][] = [
                     'id_showtime' => $showtime->id_showtime,
                     'id_room' => $showtime->id_room,
                     'start_time' => $showtime->start_time,
                     'end_time' => $showtime->end_time,
-                    'slot_time' => $showtime->showtimeSlot->slot_time ?? null,
+                    'slot_time' => $slotTime,
                 ];
             }
 
-            // Sắp xếp các khung giờ chiếu theo `slot_time` từ nhỏ đến lớn cho mỗi ngày
-            foreach ($groupedShowtimes as $date => $showtimes) {
-                $groupedShowtimes[$date] = collect($showtimes)->sortBy(function ($showtime) {
-                    return $showtime['slot_time'] ? strtotime($showtime['slot_time']) : PHP_INT_MAX;
+            // Sắp xếp các ngày theo thứ tự từ nhỏ đến lớn
+            $groupedShowtimes = collect($groupedShowtimes)->sortKeys();
+
+            // Sắp xếp khung giờ theo `slot_time` từ nhỏ đến lớn cho mỗi ngày
+            $groupedShowtimes = $groupedShowtimes->map(function ($showtimes) {
+                return collect($showtimes)->sortBy(function ($showtime) {
+                    return strtotime($showtime['slot_time']);
                 })->values()->toArray();
-            }
+            })->toArray();
 
-            // Lọc suất chiếu trong vòng 5 ngày từ hôm nay
-            $today = \Carbon\Carbon::today(); // Ngày hôm nay
-            $endDate = $today->copy()->addDays(5); // 5 ngày sau
+            // Lọc các ngày trong phạm vi từ hôm nay đến 5 ngày sau
+            $today = \Carbon\Carbon::today();
+            $endDate = $today->copy()->addDays(5);
 
-            // Lọc suất chiếu chỉ trong phạm vi từ hôm nay đến 5 ngày nữa
             $groupedShowtimes = collect($groupedShowtimes)->filter(function ($showtimes, $date) use ($today, $endDate) {
                 $dateCarbon = \Carbon\Carbon::parse($date);
                 return $dateCarbon->between($today, $endDate);
             })->toArray();
 
-            // Chuẩn bị kết quả cuối cùng
+            // Chuẩn bị kết quả
             $result = $movie->toArray();
             $result['showtimes'] = $groupedShowtimes;
 
-            // Trả về kết quả JSON
-            return $result; // Trả trực tiếp kết quả mà không qua response()->json()
+            return $result;
         } catch (\Exception $e) {
             return ['error' => $e->getMessage()];
         }
